@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 
 const tabs = [
   { id: 'home', icon: 'fas fa-home', label: 'ដើម' },
@@ -7,36 +7,23 @@ const tabs = [
 ];
 
 export default function TabBar({ activeTab, onTabChange }) {
-  const [indicatorStyle, setIndicatorStyle] = useState({});
-  const tabsRef = useRef([]);
-
-  useEffect(() => {
-    const activeIndex = tabs.findIndex(t => t.id === activeTab);
-    const tabEl = tabsRef.current[activeIndex];
-    if (tabEl) {
-      const rect = tabEl.getBoundingClientRect();
-      const parentRect = tabEl.parentElement.getBoundingClientRect();
-      setIndicatorStyle({
-        left: rect.left - parentRect.left + rect.width / 2 - 12,
-        opacity: 1,
-      });
-    }
-  }, [activeTab]);
+  const activeIndex = tabs.findIndex(t => t.id === activeTab);
 
   return (
     <div className="tabbar">
-      {/* Active indicator glow */}
-      <div className="tab-indicator" style={{
-        transform: `translateX(${indicatorStyle.left || 0}px)`,
-        opacity: indicatorStyle.opacity || 0,
-      }}></div>
+      {/* Active indicator — use CSS calc based on index */}
+      <div
+        className="tab-indicator"
+        style={{
+          left: `calc(${activeIndex * 33.333}% + 16.666% - 12px)`,
+        }}
+      ></div>
 
-      {tabs.map((tab, i) => (
+      {tabs.map((tab) => (
         <div
           className="tab"
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          ref={el => tabsRef.current[i] = el}
         >
           <div className={`tab-ic ${activeTab === tab.id ? 'active' : ''}`}>
             <i className={tab.icon}></i>
@@ -54,7 +41,7 @@ export default function TabBar({ activeTab, onTabChange }) {
           width: 24px; height: 3px;
           background: linear-gradient(90deg, #7c3aed, #a78bfa);
           border-radius: 0 0 4px 4px;
-          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+          transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
           box-shadow: 0 2px 12px rgba(167,139,250,0.5);
           pointer-events: none;
         }

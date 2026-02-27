@@ -10,6 +10,7 @@ export default function AdminPage() {
   const [generating, setGenerating] = useState(false);
   const [genCount, setGenCount] = useState(1);
   const [error, setError] = useState('');
+  const [copiedKey, setCopiedKey] = useState(null);
 
   const loadData = useCallback(async () => {
     if (!password) return;
@@ -51,18 +52,35 @@ export default function AdminPage() {
     }
   };
 
-  const handleCopyKey = (keyCode) => {
-    navigator.clipboard?.writeText(keyCode);
+  const handleCopyKey = async (keyCode, e) => {
+    if (e) e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(keyCode);
+      setCopiedKey(keyCode);
+      setTimeout(() => setCopiedKey(null), 2000);
+    } catch {
+      // Fallback for environments where clipboard API is not available
+      const textArea = document.createElement('textarea');
+      textArea.value = keyCode;
+      textArea.style.cssText = 'position:fixed;left:-9999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopiedKey(keyCode);
+      setTimeout(() => setCopiedKey(null), 2000);
+    }
   };
 
-  const formatTimeDiff = (dateStr) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}分钟前`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}小时前`;
-    const days = Math.floor(hours / 24);
-    return `${days}天前`;
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hour = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hour}:${min}`;
   };
 
   if (!authed) {
@@ -178,21 +196,28 @@ export default function AdminPage() {
             <div
               className={`ki ${key.status === 'activated' ? 'ka' : key.status === 'unused' ? '' : 'ku'}`}
               key={key.id}
-              onClick={() => handleCopyKey(key.key_code)}
             >
               <div className="ki-r1">
                 <div className="ki-val">{key.key_code}</div>
-                <div className={`badge ${
-                  key.status === 'unused' ? 'bg-new' :
-                  key.status === 'activated' ? 'bg-act' : 'bg-use'
-                }`}>
-                  {key.status === 'unused' ? '新建' :
-                   key.status === 'activated' ? '已激活' : '已使用'}
+                <div className="ki-actions">
+                  <button
+                    className={`copy-btn ${copiedKey === key.key_code ? 'copied' : ''}`}
+                    onClick={(e) => handleCopyKey(key.key_code, e)}
+                  >
+                    <i className={`fas ${copiedKey === key.key_code ? 'fa-check' : 'fa-copy'}`}></i>
+                    <span>{copiedKey === key.key_code ? '已复制' : '复制'}</span>
+                  </button>
+                  <div className={`badge ${key.status === 'unused' ? 'bg-new' :
+                      key.status === 'activated' ? 'bg-act' : 'bg-use'
+                    }`}>
+                    {key.status === 'unused' ? '新建' :
+                      key.status === 'activated' ? '已激活' : '已使用'}
+                  </div>
                 </div>
               </div>
               <div className="ki-r2">
                 <div className="ki-m"><i className="fas fa-hashtag"></i><span>#{key.serial_number}</span></div>
-                <div className="ki-m"><i className="fas fa-clock"></i><span>{formatTimeDiff(key.created_at)}</span></div>
+                <div className="ki-m"><i className="fas fa-calendar"></i><span>{formatDate(key.created_at)}</span></div>
                 {key.user_name && (
                   <div className="ki-m"><i className="fas fa-user"></i><span>{key.user_name}</span></div>
                 )}
@@ -247,6 +272,7 @@ export default function AdminPage() {
           font-family: 'Noto Sans SC', sans-serif;
           display: flex; align-items: center; justify-content: center; gap: 7px;
           box-shadow: 0 5px 18px rgba(124,58,237,0.38);
+          transition: transform 0.15s ease;
         }
         .gen-btn:active { transform: scale(0.97); }
         .gen-btn:disabled { opacity: 0.6; }
@@ -260,6 +286,7 @@ export default function AdminPage() {
         .kf {
           font-size: 11px; padding: 2px 9px; border-radius: 9px;
           cursor: pointer; font-family: 'Noto Sans SC', sans-serif;
+          transition: all 0.2s;
         }
         .kf.active {
           background: rgba(124,58,237,0.18); color: #a78bfa;
@@ -272,18 +299,35 @@ export default function AdminPage() {
           background: rgba(255,255,255,0.055);
           border: 1px solid rgba(255,255,255,0.09);
           border-radius: 13px; padding: 13px 14px;
-          cursor: pointer;
         }
-        .ki:active { background: rgba(255,255,255,0.08); }
         .ki.ka { border-color: rgba(16,185,129,0.28); background: rgba(16,185,129,0.05); }
         .ki.ku { opacity: 0.6; }
         .ki-r1 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
         .ki-val { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 1.5px; font-family: monospace; }
+        .ki-actions { display: flex; align-items: center; gap: 6px; }
+
+        .copy-btn {
+          display: flex; align-items: center; gap: 3px;
+          background: rgba(124,58,237,0.15);
+          border: 1px solid rgba(124,58,237,0.3);
+          border-radius: 8px; padding: 3px 10px;
+          color: #a78bfa; font-size: 10px; font-weight: 600;
+          cursor: pointer; font-family: 'Noto Sans SC', sans-serif;
+          transition: all 0.2s;
+        }
+        .copy-btn:active { transform: scale(0.95); }
+        .copy-btn.copied {
+          background: rgba(16,185,129,0.15);
+          border-color: rgba(16,185,129,0.3);
+          color: #34d399;
+        }
+        .copy-btn i { font-size: 10px; }
+
         .badge { font-size: 10px; padding: 2px 9px; border-radius: 9px; font-weight: 600; }
         .bg-new { background: rgba(124,58,237,0.18); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
         .bg-act { background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.28); }
         .bg-use { background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.09); }
-        .ki-r2 { display: flex; gap: 14px; font-size: 10px; color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; }
+        .ki-r2 { display: flex; gap: 14px; font-size: 10px; color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; flex-wrap: wrap; }
         .ki-m { display: flex; align-items: center; gap: 3px; }
         .ki-m i { font-size: 9px; }
       `}</style>

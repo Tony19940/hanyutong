@@ -8,13 +8,10 @@ export default function LoginPage({ onLogin }) {
   const [loading, setLoading] = useState(false);
 
   const formatKey = (value) => {
-    // Allow direct input with dashes, just uppercase and filter
     const clean = value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-    // Auto-add dashes: HYT-XXXX-XXXX-XXXX
     const noDash = clean.replace(/-/g, '');
     if (noDash.length <= 3) return noDash;
-    // Split as: HYT + 4 + 4 + 4
-    const prefix = noDash.slice(0, 3); // HYT
+    const prefix = noDash.slice(0, 3);
     const rest = noDash.slice(3);
     const segments = [prefix];
     for (let i = 0; i < rest.length; i += 4) {
@@ -25,7 +22,7 @@ export default function LoginPage({ onLogin }) {
 
   const handleInputChange = (e) => {
     const formatted = formatKey(e.target.value);
-    if (formatted.length <= 19) { // HYT-XXXX-XXXX-XXXX = 19 chars
+    if (formatted.length <= 19) {
       setKeyCode(formatted);
       setError('');
     }
@@ -56,6 +53,15 @@ export default function LoginPage({ onLogin }) {
       setError(err.message || 'បរាជ័យក្នុងការចូល');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleContactSupport = () => {
+    const tgUrl = 'https://t.me/sotheary92';
+    if (window.Telegram?.WebApp?.openTelegramLink) {
+      window.Telegram.WebApp.openTelegramLink(tgUrl);
+    } else {
+      window.open(tgUrl, '_blank');
     }
   };
 
@@ -124,14 +130,11 @@ export default function LoginPage({ onLogin }) {
             ) : 'ចាប់ផ្ដើមរៀន'}
           </button>
 
-          <div
-            className="buy-link"
-            onClick={() => window.open('https://t.me/hanyutong_support', '_blank')}
-          >
+          <div className="buy-link" onClick={handleContactSupport}>
             <i className="fab fa-telegram"></i>
             <div className="buy-link-text">
               ទំនាក់ទំនងទិញលេខសម្ងាត់
-              <span>ចុចដើម្បីបើក Telegram · 24/7</span>
+              <span>@sotheary92 · 24/7</span>
             </div>
             <i className="fas fa-chevron-right buy-link-arrow"></i>
           </div>

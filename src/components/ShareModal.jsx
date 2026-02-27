@@ -11,23 +11,66 @@ export default function ShareModal({ user, stats, hskLevel, onClose }) {
         scale: 2,
         useCORS: true,
       });
-      const link = document.createElement('a');
-      link.download = 'hanyutong-achievement.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+
+      // Convert to blob for better mobile compatibility
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          alert('រក្សាទុកបរាជ័យ');
+          return;
+        }
+
+        // Try using Web Share API first (works on mobile)
+        if (navigator.share && navigator.canShare) {
+          try {
+            const file = new File([blob], 'hanyutong-achievement.png', { type: 'image/png' });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: '汉语通 HanYuTong',
+                text: `🔥 ខ្ញុំបានរៀនភាសាចិនជាមួយ 汉语通!\n📚 ${stats.wordsLearned} ពាក្យ · ${stats.streak} ថ្ងៃបន្តបន្ទាប់`,
+              });
+              return;
+            }
+          } catch (e) {
+            // User cancelled or share failed, fall through to download
+            if (e.name === 'AbortError') return;
+          }
+        }
+
+        // Fallback: direct download via blob URL
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'hanyutong-achievement.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }, 'image/png');
     } catch (err) {
       console.error('Save failed:', err);
       alert('រក្សាទុកបរាជ័យ');
     }
-  }, []);
+  }, [stats]);
 
   const handleShareFacebook = useCallback(() => {
-    const text = encodeURIComponent(
+    const shareText =
       `🔥 ខ្ញុំបានរៀនភាសាចិនជាមួយ 汉语通 HanYuTong!\n` +
-      `📚 ${stats.wordsLearned} ពាក្យ · ${stats.streak} ថ្ងៃបន្តបន្ទាប់\n` +
-      `#HanYuTong #LearnChinese #ភាសាចិន`
-    );
-    window.open(`https://www.facebook.com/sharer/sharer.php?quote=${text}`, '_blank');
+      `📚 រៀនបាន ${stats.wordsLearned} ពាក្យ · រៀនបន្ត ${stats.streak} ថ្ងៃ\n` +
+      `🎯 ចំណេះដឹង ${stats.mastery}%\n\n` +
+      `បើអ្នកចង់រៀនភាសាចិន សូមទាក់ទង @sotheary92 💬\n` +
+      `#HanYuTong #汉语通 #LearnChinese #ភាសាចិន`;
+
+    const encodedText = encodeURIComponent(shareText);
+    // Use Facebook's feed dialog which allows pre-filled text
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?quote=${encodedText}`;
+
+    // Try Telegram's openLink first (better for in-app experience)
+    if (window.Telegram?.WebApp?.openLink) {
+      window.Telegram.WebApp.openLink(fbUrl);
+    } else {
+      window.open(fbUrl, '_blank');
+    }
   }, [stats]);
 
   const today = new Date().toLocaleDateString('en-GB', {
@@ -204,6 +247,7 @@ export default function ShareModal({ user, stats, hskLevel, onClose }) {
           font-size: 11px; font-weight: 600; border: none; cursor: pointer;
           display: flex; flex-direction: column; align-items: center; gap: 3px;
           font-family: 'Noto Sans Khmer', sans-serif;
+          transition: transform 0.15s ease;
         }
         .sab i { font-size: 18px; }
         .sab:active { transform: scale(0.95); }

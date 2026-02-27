@@ -8,15 +8,28 @@ export function setupBot(token, webappUrl) {
 
   const bot = new Bot(token);
 
+  // Set the menu button to open the Web App directly
+  bot.api.setChatMenuButton({
+    menu_button: {
+      type: 'web_app',
+      text: '📖 បើក汉语通',
+      web_app: { url: webappUrl }
+    }
+  }).then(() => {
+    console.log('✅ Menu button set to Web App');
+  }).catch((err) => {
+    console.warn('⚠️  Failed to set menu button:', err.message);
+  });
+
   bot.command('start', async (ctx) => {
     await ctx.reply(
       'សួស្តី! 🎉 សូមស្វាគមន៍មកកាន់ ហានយីតុង 汉语通!\n\n' +
-      'ចុចប៊ូតុងខាងក្រោមដើម្បីចាប់ផ្ដើមរៀនភាសាចិន 📖',
+      '📖 ចុចប៊ូតុង "📖 បើក汉语通" នៅខាងក្រោមឆ្វេង ឬចុចប៊ូតុងខាងក្រោមដើម្បីចាប់ផ្ដើមរៀន',
       {
         reply_markup: {
           inline_keyboard: [[
             {
-              text: '📖 បើក汉语通',
+              text: '📖 បើក汉语通 · 打开汉语通',
               web_app: { url: webappUrl }
             }
           ]]
@@ -29,7 +42,7 @@ export function setupBot(token, webappUrl) {
     await ctx.reply(
       '📖 ហានយីតុង 汉语通 - ជំនួយ\n\n' +
       '🔑 អ្នកត្រូវការលេខសម្ងាត់ដើម្បីចូលប្រើ\n' +
-      '📱 ទំនាក់ទំនងទិញលេខសម្ងាត់: @hanyutong_support\n\n' +
+      '📱 ទំនាក់ទំនងទិញលេខសម្ងាត់: @sotheary92\n\n' +
       'ចុច /start ដើម្បីបើកកម្មវិធី'
     );
   });

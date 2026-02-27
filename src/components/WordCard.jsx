@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useTTS } from '../hooks/useTTS.js';
 
 const SWIPE_THRESHOLD = 80;
+const TAP_THRESHOLD = 10; // Max movement to consider as a tap (not a swipe)
 
 export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight, mode = 'home' }) {
   const [overlayDir, setOverlayDir] = useState(null);
@@ -10,7 +11,9 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
   const [speakingTarget, setSpeakingTarget] = useState(null);
   const cardRef = useRef(null);
   const startXRef = useRef(0);
+  const startYRef = useRef(0);
   const isDragging = useRef(false);
+  const hasMoved = useRef(false); // Track if user actually swiped
   const { speak } = useTTS();
 
   // Animate entrance
@@ -28,23 +31,36 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
     }
   }, [showContent, word?.chinese, speak]);
 
-  const handleSpeak = useCallback((text, target) => {
+  const handleSpeak = useCallback((text, target, e) => {
+    // Stop event from bubbling to swipe handler
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     setSpeakingTarget(target);
     speak(text);
     setTimeout(() => setSpeakingTarget(null), 1200);
   }, [speak]);
 
-  const handleStart = useCallback((clientX) => {
+  const handleStart = useCallback((clientX, clientY) => {
     if (animating) return;
     isDragging.current = true;
+    hasMoved.current = false;
     startXRef.current = clientX;
+    startYRef.current = clientY || 0;
     if (cardRef.current) cardRef.current.style.transition = 'none';
   }, [animating]);
 
   const handleMove = useCallback((clientX) => {
     if (!isDragging.current || animating) return;
     const dx = clientX - startXRef.current;
-    if (cardRef.current) {
+
+    // Mark as moved if beyond tap threshold
+    if (Math.abs(dx) > TAP_THRESHOLD) {
+      hasMoved.current = true;
+    }
+
+    if (cardRef.current && hasMoved.current) {
       const rotation = dx * 0.05;
       const scale = 1 - Math.abs(dx) * 0.0003;
       cardRef.current.style.transform = `translateX(${dx}px) rotate(${rotation}deg) scale(${Math.max(scale, 0.95)})`;
@@ -57,6 +73,13 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
   const handleEnd = useCallback((clientX) => {
     if (!isDragging.current) return;
     isDragging.current = false;
+
+    // If user didn't actually swipe, just reset
+    if (!hasMoved.current) {
+      setOverlayDir(null);
+      return;
+    }
+
     const dx = (clientX || 0) - startXRef.current;
     const card = cardRef.current;
 
@@ -101,10 +124,10 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
       <div
         className="word-card"
         ref={cardRef}
-        onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+        onTouchStart={(e) => handleStart(e.touches[0].clientX, e.touches[0].clientY)}
         onTouchMove={(e) => { lastClientX.current = e.touches[0].clientX; handleMove(e.touches[0].clientX); }}
         onTouchEnd={() => handleEnd(lastClientX.current)}
-        onMouseDown={(e) => handleStart(e.clientX)}
+        onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
         onMouseMove={(e) => { if (isDragging.current) handleMove(e.clientX); }}
         onMouseUp={(e) => handleEnd(e.clientX)}
         onMouseLeave={(e) => { if (isDragging.current) handleEnd(e.clientX); }}
@@ -132,11 +155,14 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           <div className="card-counter">{index + 1} / {total}</div>
         )}
 
-        {/* Emoji Icon */}
+        {/* Emoji Icon — separate touch zone to prevent swipe */}
         <div className={`icon-zone ${showContent ? 'animate-pop-in' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
           <div
             className={`word-emoji ${speakingTarget === 'emoji' ? 'speaking' : ''}`}
-            onClick={(e) => { e.stopPropagation(); handleSpeak(word.chinese, 'emoji'); }}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => { e.stopPropagation(); handleSpeak(word.chinese, 'emoji', e); }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => handleSpeak(word.chinese, 'emoji', e)}
           >
             {word.emoji || '📝'}
           </div>
@@ -159,7 +185,10 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           <div className="ex-lbl">ឧទាហរណ៍ · 例句</div>
           <div
             className={`ex-cn ${speakingTarget === 'example' ? 'speaking-text' : ''}`}
-            onClick={(e) => { e.stopPropagation(); handleSpeak(word.example_cn, 'example'); }}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => { e.stopPropagation(); handleSpeak(word.example_cn, 'example', e); }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => handleSpeak(word.example_cn, 'example', e)}
           >
             {word.example_cn}
             <i className="fas fa-volume-up ex-speaker"></i>
@@ -264,7 +293,7 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           display: flex; flex-direction: column;
           align-items: center; margin-bottom: 8px; position: relative;
           transition: opacity 0.3s;
-          z-index: 5;
+          z-index: 15;
         }
         .word-emoji {
           font-size: 72px; line-height: 1.1;
@@ -272,6 +301,11 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           cursor: pointer;
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
           user-select: none;
+          -webkit-user-select: none;
+          touch-action: manipulation;
+          position: relative;
+          z-index: 15;
+          padding: 8px;
         }
         .word-emoji:active { transform: scale(0.88); }
         .word-emoji.speaking {
@@ -291,6 +325,7 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           font-size: 11px; color: #fff;
           box-shadow: 0 4px 12px rgba(124,58,237,0.45);
           border: 2px solid rgba(255,255,255,0.1);
+          pointer-events: none;
         }
 
         .word-info { 
@@ -319,7 +354,7 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
 
         .ex-zone { 
           position: relative; transition: opacity 0.3s; 
-          z-index: 5;
+          z-index: 15;
         }
         .ex-lbl {
           font-size: 10px; color: var(--text-muted);
@@ -334,6 +369,8 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           transition: color var(--transition-fast);
           display: flex; align-items: center; gap: 4px;
           flex-wrap: wrap;
+          touch-action: manipulation;
+          padding: 4px 0;
         }
         .ex-cn:active { color: #a78bfa; }
         .ex-speaker {
