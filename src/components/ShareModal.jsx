@@ -22,12 +22,12 @@ export default function ShareModal({ user, stats, hskLevel, onClose }) {
         // Try using Web Share API first (works on mobile)
         if (navigator.share && navigator.canShare) {
           try {
-            const file = new File([blob], 'hanyutong-achievement.png', { type: 'image/png' });
+            const file = new File([blob], 'learn-chinese-achievement.png', { type: 'image/png' });
             if (navigator.canShare({ files: [file] })) {
               await navigator.share({
                 files: [file],
-                title: '汉语通 HanYuTong',
-                text: `🔥 ខ្ញុំបានរៀនភាសាចិនជាមួយ 汉语通!\n📚 ${stats.wordsLearned} ពាក្យ · ${stats.streak} ថ្ងៃបន្តបន្ទាប់`,
+                title: '\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793',
+                text: `?? \u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793\n?? ${stats.wordsLearned} words ? ${stats.streak} days`,
               });
               return;
             }
@@ -41,7 +41,7 @@ export default function ShareModal({ user, stats, hskLevel, onClose }) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'hanyutong-achievement.png';
+        link.download = 'learn-chinese-achievement.png';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -55,11 +55,11 @@ export default function ShareModal({ user, stats, hskLevel, onClose }) {
 
   const handleShareFacebook = useCallback(() => {
     const shareText =
-      `🔥 ខ្ញុំបានរៀនភាសាចិនជាមួយ 汉语通 HanYuTong!\n` +
-      `📚 រៀនបាន ${stats.wordsLearned} ពាក្យ · រៀនបន្ត ${stats.streak} ថ្ងៃ\n` +
-      `🎯 ចំណេះដឹង ${stats.mastery}%\n\n` +
-      `បើអ្នកចង់រៀនភាសាចិន សូមទាក់ទង @sotheary92 💬\n` +
-      `#HanYuTong #汉语通 #LearnChinese #ភាសាចិន`;
+      `?? \u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793!\n` +
+      `?? ${stats.wordsLearned} words ? ${stats.streak} day streak\n` +
+      `?? Mastery ${stats.mastery}%\n\n` +
+      `Learn Chinese with @sotheary92\n` +
+      `#LearnChinese #Khmer #Chinese`;
 
     const encodedText = encodeURIComponent(shareText);
     // Use Facebook's feed dialog which allows pre-filled text
@@ -91,8 +91,8 @@ export default function ShareModal({ user, stats, hskLevel, onClose }) {
             <div className="sc-logo">📖</div>
             <div>
               <div className="sc-name">
-                汉语通
-                <span>ហានយីតុង · HAN YU TONG</span>
+                {'\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793'}
+                <span>Learn Chinese</span>
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function ShareModal({ user, stats, hskLevel, onClose }) {
               <div className="sc-sl">ចំណេះ</div>
             </div>
           </div>
-          <div className="sc-ft">{today} · ខ្មែររៀនចិន ជាមួយ汉语通</div>
+          <div className="sc-ft">{today} ? {'\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793'}</div>
         </div>
       </div>
 

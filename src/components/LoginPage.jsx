@@ -89,8 +89,8 @@ export default function LoginPage({ onLogin }) {
           <div className="logo-glow"></div>
         </div>
 
-        <div className="app-name-km animate-fade-in-up stagger-1">ហានយីតុង</div>
-        <div className="app-name-cn animate-fade-in-up stagger-2">汉语通 · HAN YU TONG</div>
+        <div className="app-name-km animate-fade-in-up stagger-1">{'\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793'}</div>
+        <div className="app-name-cn animate-fade-in-up stagger-2">LEARN CHINESE</div>
         <div className="app-slogan animate-fade-in-up stagger-3">
           កម្មវិធីរៀនភាសាចិន<br />
           សម្រាប់អ្នកនិយាយភាសាខ្មែរ<br />

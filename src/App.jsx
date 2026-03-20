@@ -29,6 +29,10 @@ export default function App() {
     initTelegramApp();
   }, []);
 
+  useEffect(() => {
+    document.title = isAdmin ? '\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793 Admin' : '\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793';
+  }, [isAdmin]);
+
   // Try to restore session
   useEffect(() => {
     if (isAdmin) return;

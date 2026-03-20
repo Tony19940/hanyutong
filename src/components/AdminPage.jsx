@@ -166,7 +166,7 @@ export default function AdminPage() {
             密钥管理后台
           </div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 24, fontFamily: "'Noto Sans SC', sans-serif" }}>
-            汉语通 · 运营后台
+            {'\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793'} ? Admin
           </div>
           <div className="input-box" style={{ marginBottom: 14 }}>
             <i className="fas fa-lock"></i>
@@ -207,7 +207,7 @@ export default function AdminPage() {
         <div className="admin-tb">
           <div>
             <div className="adm-ttl">密钥管理</div>
-            <div className="adm-sub">汉语通 · 运营后台</div>
+            <div className="adm-sub">{'\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793'} ? Admin</div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <div className="adm-av"><i className="fas fa-user-shield"></i></div>
