@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: hanyutong
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BOT_TOKEN
+        sync: false
+      - key: WEBAPP_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DB_PATH
+        value: /opt/render/project/src/data/hanyutong.db
+      - key: USER_SESSION_TTL_HOURS
+        value: 168
+      - key: ADMIN_SESSION_TTL_HOURS
+        value: 12
+      - key: LOGIN_RATE_WINDOW_MS
+        value: 900000
+      - key: LOGIN_RATE_LIMIT
+        value: 10
+      - key: ADMIN_RATE_WINDOW_MS
+        value: 900000
+      - key: ADMIN_RATE_LIMIT
+        value: 5
