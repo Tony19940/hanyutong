@@ -1,21 +1,15 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import request from 'supertest';
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from 'vitest';
 
-const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hanyutong-tests-'));
-const dbPath = path.join(tempDir, 'test.db');
-
-process.env.DB_PATH = dbPath;
 process.env.ADMIN_PASSWORD = 'secret-admin';
 process.env.NODE_ENV = 'test';
+process.env.DATABASE_URL = '';
 
 let app;
-let db;
+let dbModule;
 
-function seedKey(keyCode) {
-  db.prepare('INSERT INTO keys (key_code, serial_number) VALUES (?, ?)').run(keyCode, keyCode.slice(-3));
+async function seedKey(keyCode) {
+  await dbModule.query('INSERT INTO keys (key_code, serial_number) VALUES ($1, $2)', [keyCode, keyCode.slice(-3)]);
 }
 
 async function loginWithKey(keyCode, telegramId = `tg-${keyCode}`) {
@@ -28,31 +22,26 @@ async function loginWithKey(keyCode, telegramId = `tg-${keyCode}`) {
 
 beforeAll(async () => {
   const serverModule = await import('../server/index.js');
-  const dbModule = await import('../server/db.js');
-  app = serverModule.createApp();
-  db = dbModule.default;
+  dbModule = await import('../server/db.js');
+  app = await serverModule.createApp();
 });
 
-beforeEach(() => {
-  db.exec(`
-    DELETE FROM audit_logs;
-    DELETE FROM admin_sessions;
-    DELETE FROM sessions;
-    DELETE FROM user_progress;
-    DELETE FROM daily_records;
-    DELETE FROM keys;
-    DELETE FROM users;
-    DELETE FROM sqlite_sequence;
-  `);
+beforeEach(async () => {
+  await dbModule.query('DELETE FROM audit_logs');
+  await dbModule.query('DELETE FROM admin_sessions');
+  await dbModule.query('DELETE FROM sessions');
+  await dbModule.query('DELETE FROM user_progress');
+  await dbModule.query('DELETE FROM daily_records');
+  await dbModule.query('DELETE FROM users');
+  await dbModule.query('DELETE FROM keys');
 
-  seedKey('HYT-2026-AAAA-0001');
-  seedKey('HYT-2026-BBBB-0002');
-  seedKey('HYT-2026-CCCC-0003');
+  await seedKey('HYT-2026-AAAA-0001');
+  await seedKey('HYT-2026-BBBB-0002');
+  await seedKey('HYT-2026-CCCC-0003');
 });
 
-afterAll(() => {
-  db.close();
-  fs.rmSync(tempDir, { recursive: true, force: true });
+afterAll(async () => {
+  await dbModule.closeDb();
 });
 
 describe('auth and user permissions', () => {

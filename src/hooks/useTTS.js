@@ -1,10 +1,10 @@
-import { useCallback, useRef } from 'react';
+﻿import { useCallback, useRef } from 'react';
 
 export function useTTS() {
   const speakingRef = useRef(false);
 
   const speak = useCallback((text, lang = 'zh-CN') => {
-    if (!window.speechSynthesis) return;
+    if (!window.speechSynthesis || !text) return false;
     if (speakingRef.current) {
       window.speechSynthesis.cancel();
     }
@@ -14,9 +14,8 @@ export function useTTS() {
     utterance.rate = 0.85;
     utterance.pitch = 1;
 
-    // Try to find a Chinese voice
     const voices = window.speechSynthesis.getVoices();
-    const zhVoice = voices.find(v => v.lang.startsWith('zh'));
+    const zhVoice = voices.find((voice) => voice.lang.startsWith('zh'));
     if (zhVoice) utterance.voice = zhVoice;
 
     speakingRef.current = true;
@@ -24,6 +23,7 @@ export function useTTS() {
     utterance.onerror = () => { speakingRef.current = false; };
 
     window.speechSynthesis.speak(utterance);
+    return true;
   }, []);
 
   const stop = useCallback(() => {

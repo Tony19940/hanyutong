@@ -18,6 +18,7 @@ export const config = {
   adminPassword: process.env.ADMIN_PASSWORD || '',
   botToken: process.env.BOT_TOKEN || '',
   webappUrl: process.env.WEBAPP_URL || '',
+  databaseUrl: process.env.DATABASE_URL || '',
   nodeEnv: process.env.NODE_ENV || 'development',
   userSessionTtlHours: readInt(process.env.USER_SESSION_TTL_HOURS, 24 * 7),
   adminSessionTtlHours: readInt(process.env.ADMIN_SESSION_TTL_HOURS, 12),
@@ -41,6 +42,10 @@ export const config = {
 export function validateConfig() {
   if (!config.adminPassword) {
     throw new Error('ADMIN_PASSWORD is required');
+  }
+
+  if (!config.databaseUrl && config.nodeEnv !== 'test') {
+    throw new Error('DATABASE_URL is required');
   }
 
   if (config.nodeEnv === 'production') {

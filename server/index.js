@@ -9,6 +9,7 @@ import userRoutes from './routes/user.js';
 import adminRoutes from './routes/admin.js';
 import { setupBot } from './bot.js';
 import { config, validateConfig } from './config.js';
+import { initDb } from './db.js';
 import { errorHandler } from './errors.js';
 import { getVocabulary } from './services/vocabularyService.js';
 
@@ -16,9 +17,10 @@ dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export function createApp() {
+export async function createApp() {
   validateConfig();
   getVocabulary();
+  await initDb();
 
   const app = express();
   const distPath = path.join(__dirname, '..', 'dist');
@@ -38,7 +40,7 @@ export function createApp() {
   app.use('/api/user', userRoutes);
   app.use('/api/admin', adminRoutes);
 
-  app.use('/api', (req, res) => {
+  app.use('/api', (_req, res) => {
     res.status(404).json({
       error: 'API route not found',
       code: 'API_ROUTE_NOT_FOUND',
@@ -61,15 +63,18 @@ export function createApp() {
   return app;
 }
 
-export function startServer() {
-  const app = createApp();
+export async function startServer() {
+  const app = await createApp();
   return app.listen(config.port, () => {
-    console.log(`🚀 Server running on port ${config.port}`);
+    console.log(`Server running on port ${config.port}`);
     setupBot(config.botToken, config.webappUrl);
   });
 }
 
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isDirectRun) {
-  startServer();
+  startServer().catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  });
 }

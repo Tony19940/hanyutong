@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import db from '../db.js';
 import { config } from '../config.js';
+import { query, withTransaction } from '../db.js';
 import { badRequest } from '../errors.js';
 import { requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
@@ -18,14 +18,17 @@ router.get('/next', asyncHandler(async (req, res) => {
   );
   const vocabulary = getVocabulary();
 
-  const progressRows = db.prepare(`
-    SELECT word_id, status
-    FROM user_progress
-    WHERE user_id = ?
-  `).all(req.user.id);
+  const progressResult = await query(
+    `
+      SELECT word_id, status
+      FROM user_progress
+      WHERE user_id = $1
+    `,
+    [req.user.id]
+  );
 
-  const learnedIds = new Set(progressRows.filter((row) => row.status === 'learned').map((row) => row.word_id));
-  const bookmarkedIds = new Set(progressRows.filter((row) => row.status === 'bookmarked').map((row) => row.word_id));
+  const learnedIds = new Set(progressResult.rows.filter((row) => row.status === 'learned').map((row) => row.word_id));
+  const bookmarkedIds = new Set(progressResult.rows.filter((row) => row.status === 'bookmarked').map((row) => row.word_id));
 
   const availableWords = vocabulary.filter((word) => !learnedIds.has(word.id));
   const batch = availableWords.slice(0, batchSize);
@@ -54,30 +57,40 @@ router.post('/action', asyncHandler(async (req, res) => {
     throw badRequest('Invalid wordId', 'INVALID_WORD_ID');
   }
 
-  const result = db.transaction(() => {
-    const previous = db.prepare(`
-      SELECT status
-      FROM user_progress
-      WHERE user_id = ? AND word_id = ?
-    `).get(req.user.id, wordIdValue);
+  const result = await withTransaction(async (client) => {
+    const previousResult = await client.query(
+      `
+        SELECT status
+        FROM user_progress
+        WHERE user_id = $1 AND word_id = $2
+      `,
+      [req.user.id, wordIdValue]
+    );
+    const previous = previousResult.rows[0] || null;
 
-    db.prepare(`
-      INSERT INTO user_progress (user_id, word_id, status, updated_at)
-      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-      ON CONFLICT(user_id, word_id)
-      DO UPDATE SET status = excluded.status, updated_at = CURRENT_TIMESTAMP
-    `).run(req.user.id, wordIdValue, action);
+    await client.query(
+      `
+        INSERT INTO user_progress (user_id, word_id, status, updated_at)
+        VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+        ON CONFLICT(user_id, word_id)
+        DO UPDATE SET status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP
+      `,
+      [req.user.id, wordIdValue, action]
+    );
 
     const previousStatus = previous?.status || null;
     const countedAsLearned = action === 'learned' && previousStatus !== 'learned';
 
     if (countedAsLearned) {
       const today = new Date().toISOString().split('T')[0];
-      db.prepare(`
-        INSERT INTO daily_records (user_id, date, words_learned, time_spent)
-        VALUES (?, ?, 1, 0)
-        ON CONFLICT(user_id, date) DO UPDATE SET words_learned = words_learned + 1
-      `).run(req.user.id, today);
+      await client.query(
+        `
+          INSERT INTO daily_records (user_id, date, words_learned, time_spent)
+          VALUES ($1, $2, 1, 0)
+          ON CONFLICT(user_id, date) DO UPDATE SET words_learned = daily_records.words_learned + 1
+        `,
+        [req.user.id, today]
+      );
     }
 
     return {
@@ -85,7 +98,7 @@ router.post('/action', asyncHandler(async (req, res) => {
       currentStatus: action,
       countedAsLearned,
     };
-  })();
+  });
 
   res.json({
     success: true,
@@ -93,7 +106,7 @@ router.post('/action', asyncHandler(async (req, res) => {
   });
 }));
 
-router.get('/all', asyncHandler(async (req, res) => {
+router.get('/all', asyncHandler(async (_req, res) => {
   res.json(getVocabulary());
 }));
 

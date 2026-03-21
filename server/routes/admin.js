@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { Router } from 'express';
-import db from '../db.js';
 import { config } from '../config.js';
+import { query, withTransaction } from '../db.js';
 import { badRequest, forbidden, notFound } from '../errors.js';
 import { requireAdminAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
@@ -27,15 +27,15 @@ function generateKeyCode() {
 router.post('/login', adminLoginRateLimit, asyncHandler(async (req, res) => {
   const { password } = req.body;
   if (!password) {
-    throw badRequest('密码不能为空', 'PASSWORD_REQUIRED');
+    throw badRequest('Password is required', 'PASSWORD_REQUIRED');
   }
 
   if (password !== config.adminPassword) {
-    throw forbidden('无权访问', 'INVALID_ADMIN_PASSWORD');
+    throw forbidden('Invalid admin password', 'INVALID_ADMIN_PASSWORD');
   }
 
-  const session = createAdminSession();
-  writeAuditLog({
+  const session = await createAdminSession();
+  await writeAuditLog({
     actorType: 'admin',
     actorSessionId: session.sessionId,
     action: 'admin.login',
@@ -49,18 +49,18 @@ router.post('/login', adminLoginRateLimit, asyncHandler(async (req, res) => {
 }));
 
 router.post('/logout', requireAdminAuth, asyncHandler(async (req, res) => {
-  writeAuditLog({
+  await writeAuditLog({
     actorType: 'admin',
     actorSessionId: req.adminSession.id,
     action: 'admin.logout',
     targetType: 'session',
     targetId: String(req.adminSession.id),
   });
-  revokeAdminSession(req.authToken);
+  await revokeAdminSession(req.authToken);
   res.json({ success: true });
 }));
 
-router.get('/session', requireAdminAuth, asyncHandler(async (req, res) => {
+router.get('/session', requireAdminAuth, asyncHandler(async (_req, res) => {
   res.json({
     authenticated: true,
   });
@@ -74,11 +74,11 @@ router.post('/generate-key', asyncHandler(async (req, res) => {
     config.maxKeyGenerationCount
   );
   const keys = [];
-  const insert = db.prepare('INSERT INTO keys (key_code, serial_number) VALUES (?, ?)');
-  const lastKey = db.prepare('SELECT MAX(id) AS maxId FROM keys').get();
-  const serialBase = (lastKey.maxId || 0) + 1;
 
-  const generateAll = db.transaction(() => {
+  await withTransaction(async (client) => {
+    const lastKeyResult = await client.query('SELECT COALESCE(MAX(id), 0) AS max_id FROM keys');
+    const serialBase = Number(lastKeyResult.rows[0]?.max_id || 0) + 1;
+
     for (let i = 0; i < count; i += 1) {
       let inserted = false;
       let retries = 0;
@@ -88,10 +88,16 @@ router.post('/generate-key', asyncHandler(async (req, res) => {
         const serialNumber = String(serialBase + i).padStart(3, '0');
 
         try {
-          insert.run(keyCode, serialNumber);
+          await client.query(
+            'INSERT INTO keys (key_code, serial_number) VALUES ($1, $2)',
+            [keyCode, serialNumber]
+          );
           keys.push({ keyCode, serialNumber });
           inserted = true;
         } catch (error) {
+          if (error.code !== '23505') {
+            throw error;
+          }
           retries += 1;
         }
       }
@@ -102,8 +108,7 @@ router.post('/generate-key', asyncHandler(async (req, res) => {
     }
   });
 
-  generateAll();
-  writeAuditLog({
+  await writeAuditLog({
     actorType: 'admin',
     actorSessionId: req.adminSession.id,
     action: 'keys.generate',
@@ -121,63 +126,74 @@ router.get('/keys', asyncHandler(async (req, res) => {
   const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 50, 1), 100);
   const offset = (page - 1) * limit;
 
-  let whereClause = '';
   const params = [];
+  let whereClause = '';
   if (status) {
-    whereClause = ' WHERE k.status = ?';
     params.push(status);
+    whereClause = ` WHERE k.status = $${params.length}`;
   }
 
-  const keys = db.prepare(`
-    SELECT k.*, u.name AS user_name, u.telegram_id
-    FROM keys k
-    LEFT JOIN users u ON k.user_id = u.id
-    ${whereClause}
-    ORDER BY k.id DESC
-    LIMIT ? OFFSET ?
-  `).all(...params, limit, offset);
+  const keysResult = await query(
+    `
+      SELECT k.*, u.name AS user_name, u.telegram_id
+      FROM keys k
+      LEFT JOIN users u ON k.user_id = u.id
+      ${whereClause}
+      ORDER BY k.id DESC
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+    `,
+    [...params, limit, offset]
+  );
 
-  const filteredTotalRow = db.prepare(`
-    SELECT COUNT(*) AS count
-    FROM keys k
-    ${whereClause}
-  `).get(...params);
+  const filteredTotalResult = await query(
+    `
+      SELECT COUNT(*) AS count
+      FROM keys k
+      ${whereClause}
+    `,
+    params
+  );
 
-  const total = db.prepare('SELECT COUNT(*) AS count FROM keys').get();
-  const activated = db.prepare("SELECT COUNT(*) AS count FROM keys WHERE status = 'activated'").get();
-  const unused = db.prepare("SELECT COUNT(*) AS count FROM keys WHERE status = 'unused'").get();
-  const expired = db.prepare("SELECT COUNT(*) AS count FROM keys WHERE status = 'expired'").get();
+  const [totalResult, activatedResult, unusedResult, expiredResult] = await Promise.all([
+    query('SELECT COUNT(*) AS count FROM keys'),
+    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'activated'"),
+    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'unused'"),
+    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'expired'"),
+  ]);
+
+  const filteredTotal = Number(filteredTotalResult.rows[0]?.count || 0);
 
   res.json({
-    keys,
+    keys: keysResult.rows,
     stats: {
-      total: total.count,
-      activated: activated.count,
-      unused: unused.count,
-      expired: expired.count,
-      filteredTotal: filteredTotalRow.count,
+      total: Number(totalResult.rows[0]?.count || 0),
+      activated: Number(activatedResult.rows[0]?.count || 0),
+      unused: Number(unusedResult.rows[0]?.count || 0),
+      expired: Number(expiredResult.rows[0]?.count || 0),
+      filteredTotal,
     },
     pagination: {
       page,
       limit,
-      total: filteredTotalRow.count,
+      total: filteredTotal,
     },
   });
 }));
 
 router.delete('/keys/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const key = db.prepare('SELECT * FROM keys WHERE id = ?').get(id);
+  const keyResult = await query('SELECT * FROM keys WHERE id = $1', [id]);
+  const key = keyResult.rows[0];
   if (!key) {
     throw notFound('Key not found', 'KEY_NOT_FOUND');
   }
 
   if (key.status === 'activated') {
-    throw badRequest('已激活的密钥无法删除', 'KEY_ALREADY_ACTIVATED');
+    throw badRequest('Activated keys cannot be deleted', 'KEY_ALREADY_ACTIVATED');
   }
 
-  db.prepare('DELETE FROM keys WHERE id = ?').run(id);
-  writeAuditLog({
+  await query('DELETE FROM keys WHERE id = $1', [id]);
+  await writeAuditLog({
     actorType: 'admin',
     actorSessionId: req.adminSession.id,
     action: 'keys.delete',
@@ -191,18 +207,22 @@ router.delete('/keys/:id', asyncHandler(async (req, res) => {
 
 router.post('/keys/:id/expire', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const key = db.prepare('SELECT * FROM keys WHERE id = ?').get(id);
+  const keyResult = await query('SELECT * FROM keys WHERE id = $1', [id]);
+  const key = keyResult.rows[0];
   if (!key) {
     throw notFound('Key not found', 'KEY_NOT_FOUND');
   }
 
-  db.prepare(`
-    UPDATE keys
-    SET status = 'expired', expired_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `).run(id);
+  await query(
+    `
+      UPDATE keys
+      SET status = 'expired', expired_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+    `,
+    [id]
+  );
 
-  writeAuditLog({
+  await writeAuditLog({
     actorType: 'admin',
     actorSessionId: req.adminSession.id,
     action: 'keys.expire',
@@ -214,27 +234,38 @@ router.post('/keys/:id/expire', asyncHandler(async (req, res) => {
   res.json({ success: true });
 }));
 
-router.get('/stats', asyncHandler(async (req, res) => {
-  const totalKeys = db.prepare('SELECT COUNT(*) AS count FROM keys').get();
-  const activatedKeys = db.prepare("SELECT COUNT(*) AS count FROM keys WHERE status = 'activated'").get();
-  const unusedKeys = db.prepare("SELECT COUNT(*) AS count FROM keys WHERE status = 'unused'").get();
-  const expiredKeys = db.prepare("SELECT COUNT(*) AS count FROM keys WHERE status = 'expired'").get();
-  const totalUsers = db.prepare('SELECT COUNT(*) AS count FROM users').get();
-
+router.get('/stats', asyncHandler(async (_req, res) => {
   const todayDate = new Date().toISOString().split('T')[0];
-  const activeToday = db.prepare(`
-    SELECT COUNT(DISTINCT user_id) AS count
-    FROM daily_records
-    WHERE date = ?
-  `).get(todayDate);
+  const [
+    totalKeysResult,
+    activatedKeysResult,
+    unusedKeysResult,
+    expiredKeysResult,
+    totalUsersResult,
+    activeTodayResult,
+  ] = await Promise.all([
+    query('SELECT COUNT(*) AS count FROM keys'),
+    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'activated'"),
+    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'unused'"),
+    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'expired'"),
+    query('SELECT COUNT(*) AS count FROM users'),
+    query(
+      `
+        SELECT COUNT(DISTINCT user_id) AS count
+        FROM daily_records
+        WHERE date = $1
+      `,
+      [todayDate]
+    ),
+  ]);
 
   res.json({
-    totalKeys: totalKeys.count,
-    activatedKeys: activatedKeys.count,
-    unusedKeys: unusedKeys.count,
-    expiredKeys: expiredKeys.count,
-    totalUsers: totalUsers.count,
-    activeToday: activeToday.count,
+    totalKeys: Number(totalKeysResult.rows[0]?.count || 0),
+    activatedKeys: Number(activatedKeysResult.rows[0]?.count || 0),
+    unusedKeys: Number(unusedKeysResult.rows[0]?.count || 0),
+    expiredKeys: Number(expiredKeysResult.rows[0]?.count || 0),
+    totalUsers: Number(totalUsersResult.rows[0]?.count || 0),
+    activeToday: Number(activeTodayResult.rows[0]?.count || 0),
   });
 }));
 

@@ -8,7 +8,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "我每天都吃一个苹果。",
-    "example_km": "ខ្ញុំញ៉ាំផ្លែប៉ោមមួយគ្រាប់រៀងរាល់ថ្ងៃ។"
+    "example_km": "ខ្ញុំញ៉ាំផ្លែប៉ោមមួយគ្រាប់រៀងរាល់ថ្ងៃ។",
+    "audio_word": "/audio/words/0001.mp3",
+    "audio_example": "/audio/examples/0001.mp3"
   },
   {
     "id": 2,
@@ -19,7 +21,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "请给我一杯水。",
-    "example_km": "សូមឱ្យខ្ញុំទឹកមួយកែវ។"
+    "example_km": "សូមឱ្យខ្ញុំទឹកមួយកែវ។",
+    "audio_word": "/audio/words/0002.mp3",
+    "audio_example": "/audio/examples/0002.mp3"
   },
   {
     "id": 3,
@@ -30,7 +34,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "中国人喜欢吃米饭。",
-    "example_km": "ជនជាតិចិនចូលចិត្តញ៉ាំបាយ។"
+    "example_km": "ជនជាតិចិនចូលចិត្តញ៉ាំបាយ។",
+    "audio_word": "/audio/words/0003.mp3",
+    "audio_example": "/audio/examples/0003.mp3"
   },
   {
     "id": 4,
@@ -41,7 +47,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "我喜欢喝中国茶。",
-    "example_km": "ខ្ញុំចូលចិត្តផឹកតែចិន។"
+    "example_km": "ខ្ញុំចូលចិត្តផឹកតែចិន។",
+    "audio_word": "/audio/words/0004.mp3",
+    "audio_example": "/audio/examples/0004.mp3"
   },
   {
     "id": 5,
@@ -52,7 +60,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "我每天早上喝一杯咖啡。",
-    "example_km": "ខ្ញុំផឹកកាហ្វេមួយពែងរៀងរាល់ព្រឹក។"
+    "example_km": "ខ្ញុំផឹកកាហ្វេមួយពែងរៀងរាល់ព្រឹក។",
+    "audio_word": "/audio/words/0005.mp3",
+    "audio_example": "/audio/examples/0005.mp3"
   },
   {
     "id": 6,
@@ -63,7 +73,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "这碗面条很好吃。",
-    "example_km": "មីចានមួយនេះឆ្ងាញ់ណាស់។"
+    "example_km": "មីចានមួយនេះឆ្ងាញ់ណាស់។",
+    "audio_word": "/audio/words/0006.mp3",
+    "audio_example": "/audio/examples/0006.mp3"
   },
   {
     "id": 7,
@@ -74,7 +86,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "早餐我吃了两个鸡蛋。",
-    "example_km": "អាហារពេលព្រឹកខ្ញុំញ៉ាំស៊ុតពីរគ្រាប់។"
+    "example_km": "អាហារពេលព្រឹកខ្ញុំញ៉ាំស៊ុតពីរគ្រាប់។",
+    "audio_word": "/audio/words/0007.mp3",
+    "audio_example": "/audio/examples/0007.mp3"
   },
   {
     "id": 8,
@@ -85,7 +99,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "我喜欢吃鸡肉。",
-    "example_km": "ខ្ញុំចូលចិត្តញ៉ាំសាច់មាន់។"
+    "example_km": "ខ្ញុំចូលចិត្តញ៉ាំសាច់មាន់។",
+    "audio_word": "/audio/words/0008.mp3",
+    "audio_example": "/audio/examples/0008.mp3"
   },
   {
     "id": 9,
@@ -96,7 +112,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "孩子们每天喝牛奶。",
-    "example_km": "ក្មេងៗផឹកទឹកដោះគោរៀងរាល់ថ្ងៃ។"
+    "example_km": "ក្មេងៗផឹកទឹកដោះគោរៀងរាល់ថ្ងៃ។",
+    "audio_word": "/audio/words/0009.mp3",
+    "audio_example": "/audio/examples/0009.mp3"
   },
   {
     "id": 10,
@@ -107,7 +125,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "我早餐吃面包。",
-    "example_km": "ខ្ញុំញ៉ាំនំប៉័ងពេលព្រឹក។"
+    "example_km": "ខ្ញុំញ៉ាំនំប៉័ងពេលព្រឹក។",
+    "audio_word": "/audio/words/0010.mp3",
+    "audio_example": "/audio/examples/0010.mp3"
   },
   {
     "id": 11,
@@ -118,7 +138,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "多吃蔬菜对身体好。",
-    "example_km": "ញ៉ាំបន្លែច្រើនល្អសម្រាប់រាងកាយ។"
+    "example_km": "ញ៉ាំបន្លែច្រើនល្អសម្រាប់រាងកាយ។",
+    "audio_word": "/audio/words/0011.mp3",
+    "audio_example": "/audio/examples/0011.mp3"
   },
   {
     "id": 12,
@@ -129,7 +151,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "柬埔寨的水果很甜。",
-    "example_km": "ផ្លែឈើកម្ពុជាផ្អែមណាស់។"
+    "example_km": "ផ្លែឈើកម្ពុជាផ្អែមណាស់។",
+    "audio_word": "/audio/words/0012.mp3",
+    "audio_example": "/audio/examples/0012.mp3"
   },
   {
     "id": 13,
@@ -140,7 +164,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "猴子喜欢吃香蕉。",
-    "example_km": "ស្វាចូលចិត្តញ៉ាំចេក។"
+    "example_km": "ស្វាចូលចិត្តញ៉ាំចេក។",
+    "audio_word": "/audio/words/0013.mp3",
+    "audio_example": "/audio/examples/0013.mp3"
   },
   {
     "id": 14,
@@ -151,7 +177,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "夏天吃西瓜很凉快。",
-    "example_km": "ញ៉ាំឪឡឹកពេលរដូវក្ដៅត្រជាក់ណាស់។"
+    "example_km": "ញ៉ាំឪឡឹកពេលរដូវក្ដៅត្រជាក់ណាស់។",
+    "audio_word": "/audio/words/0014.mp3",
+    "audio_example": "/audio/examples/0014.mp3"
   },
   {
     "id": 15,
@@ -162,7 +190,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "这家餐厅的牛肉很好吃。",
-    "example_km": "សាច់គោនៅភោជនីយដ្ឋាននេះឆ្ងាញ់ណាស់។"
+    "example_km": "សាច់គោនៅភោជនីយដ្ឋាននេះឆ្ងាញ់ណាស់។",
+    "audio_word": "/audio/words/0015.mp3",
+    "audio_example": "/audio/examples/0015.mp3"
   },
   {
     "id": 16,
@@ -173,7 +203,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "猪肉是中国人常吃的肉。",
-    "example_km": "សាច់ជ្រូកជាសាច់ដែលជនជាតិចិនតែងញ៉ាំ។"
+    "example_km": "សាច់ជ្រូកជាសាច់ដែលជនជាតិចិនតែងញ៉ាំ។",
+    "audio_word": "/audio/words/0016.mp3",
+    "audio_example": "/audio/examples/0016.mp3"
   },
   {
     "id": 17,
@@ -184,7 +216,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "我喜欢吃鱼。",
-    "example_km": "ខ្ញុំចូលចិត្តញ៉ាំត្រី។"
+    "example_km": "ខ្ញុំចូលចិត្តញ៉ាំត្រី។",
+    "audio_word": "/audio/words/0017.mp3",
+    "audio_example": "/audio/examples/0017.mp3"
   },
   {
     "id": 18,
@@ -195,7 +229,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "这道菜盐放多了。",
-    "example_km": "ម្ហូបនេះដាក់អំបិលច្រើនពេក។"
+    "example_km": "ម្ហូបនេះដាក់អំបិលច្រើនពេក។",
+    "audio_word": "/audio/words/0018.mp3",
+    "audio_example": "/audio/examples/0018.mp3"
   },
   {
     "id": 19,
@@ -206,7 +242,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "少吃糖对牙齿好。",
-    "example_km": "ញ៉ាំស្ករតិចល្អសម្រាប់ធ្មេញ។"
+    "example_km": "ញ៉ាំស្ករតិចល្អសម្រាប់ធ្មេញ។",
+    "audio_word": "/audio/words/0019.mp3",
+    "audio_example": "/audio/examples/0019.mp3"
   },
   {
     "id": 20,
@@ -217,7 +255,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "过年的时候要吃饺子。",
-    "example_km": "ពេលចូលឆ្នាំត្រូវញ៉ាំប៉ៃឆា៎ូ។"
+    "example_km": "ពេលចូលឆ្នាំត្រូវញ៉ាំប៉ៃឆា៎ូ។",
+    "audio_word": "/audio/words/0020.mp3",
+    "audio_example": "/audio/examples/0020.mp3"
   },
   {
     "id": 21,
@@ -228,7 +268,9 @@
     "category": "food",
     "hsk": 4,
     "example_cn": "豆腐营养很丰富。",
-    "example_km": "តៅហ៊ូមានអាហារូបត្ថម្ភច្រើន។"
+    "example_km": "តៅហ៊ូមានអាហារូបត្ថម្ភច្រើន។",
+    "audio_word": "/audio/words/0021.mp3",
+    "audio_example": "/audio/examples/0021.mp3"
   },
   {
     "id": 22,
@@ -239,7 +281,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "天气热的时候喝啤酒很舒服。",
-    "example_km": "ផឹកស្រាបៀរពេលអាកាសធាតុក្ដៅស្រួលណាស់។"
+    "example_km": "ផឹកស្រាបៀរពេលអាកាសធាតុក្ដៅស្រួលណាស់។",
+    "audio_word": "/audio/words/0022.mp3",
+    "audio_example": "/audio/examples/0022.mp3"
   },
   {
     "id": 23,
@@ -250,7 +294,9 @@
     "category": "animals",
     "hsk": 1,
     "example_cn": "这只猫很可爱。",
-    "example_km": "ឆ្មានេះគួរឱ្យស្រឡាញ់ណាស់។"
+    "example_km": "ឆ្មានេះគួរឱ្យស្រឡាញ់ណាស់។",
+    "audio_word": "/audio/words/0023.mp3",
+    "audio_example": "/audio/examples/0023.mp3"
   },
   {
     "id": 24,
@@ -261,7 +307,9 @@
     "category": "animals",
     "hsk": 1,
     "example_cn": "他有一只大狗。",
-    "example_km": "គាត់មានឆ្កែធំមួយក្បាល។"
+    "example_km": "គាត់មានឆ្កែធំមួយក្បាល។",
+    "audio_word": "/audio/words/0024.mp3",
+    "audio_example": "/audio/examples/0024.mp3"
   },
   {
     "id": 25,
@@ -272,7 +320,9 @@
     "category": "animals",
     "hsk": 2,
     "example_cn": "树上有很多鸟。",
-    "example_km": "នៅលើដើមឈើមានបក្សីច្រើន។"
+    "example_km": "នៅលើដើមឈើមានបក្សីច្រើន។",
+    "audio_word": "/audio/words/0025.mp3",
+    "audio_example": "/audio/examples/0025.mp3"
   },
   {
     "id": 26,
@@ -283,7 +333,9 @@
     "category": "animals",
     "hsk": 3,
     "example_cn": "他会骑马。",
-    "example_km": "គាត់ចេះជិះសេះ។"
+    "example_km": "គាត់ចេះជិះសេះ។",
+    "audio_word": "/audio/words/0026.mp3",
+    "audio_example": "/audio/examples/0026.mp3"
   },
   {
     "id": 27,
@@ -294,7 +346,9 @@
     "category": "animals",
     "hsk": 3,
     "example_cn": "农民养了很多牛。",
-    "example_km": "កសិករចិញ្ចឹមគោច្រើន។"
+    "example_km": "កសិករចិញ្ចឹមគោច្រើន។",
+    "audio_word": "/audio/words/0027.mp3",
+    "audio_example": "/audio/examples/0027.mp3"
   },
   {
     "id": 28,
@@ -305,7 +359,9 @@
     "category": "animals",
     "hsk": 3,
     "example_cn": "猪很聪明。",
-    "example_km": "ជ្រូកឆ្លាតណាស់។"
+    "example_km": "ជ្រូកឆ្លាតណាស់។",
+    "audio_word": "/audio/words/0028.mp3",
+    "audio_example": "/audio/examples/0028.mp3"
   },
   {
     "id": 29,
@@ -316,7 +372,9 @@
     "category": "animals",
     "hsk": 3,
     "example_cn": "山上有很多羊。",
-    "example_km": "នៅលើភ្នំមានចៀមច្រើន។"
+    "example_km": "នៅលើភ្នំមានចៀមច្រើន។",
+    "audio_word": "/audio/words/0029.mp3",
+    "audio_example": "/audio/examples/0029.mp3"
   },
   {
     "id": 30,
@@ -327,7 +385,9 @@
     "category": "animals",
     "hsk": 4,
     "example_cn": "我很怕蛇。",
-    "example_km": "ខ្ញុំខ្លាចពស់ណាស់។"
+    "example_km": "ខ្ញុំខ្លាចពស់ណាស់។",
+    "audio_word": "/audio/words/0030.mp3",
+    "audio_example": "/audio/examples/0030.mp3"
   },
   {
     "id": 31,
@@ -338,7 +398,9 @@
     "category": "animals",
     "hsk": 4,
     "example_cn": "大象是很大的动物。",
-    "example_km": "ដំរីជាសត្វធំណាស់។"
+    "example_km": "ដំរីជាសត្វធំណាស់។",
+    "audio_word": "/audio/words/0031.mp3",
+    "audio_example": "/audio/examples/0031.mp3"
   },
   {
     "id": 32,
@@ -349,7 +411,9 @@
     "category": "animals",
     "hsk": 4,
     "example_cn": "老虎是森林之王。",
-    "example_km": "ខ្លាជាស្ដេចនៃព្រៃ។"
+    "example_km": "ខ្លាជាស្ដេចនៃព្រៃ។",
+    "audio_word": "/audio/words/0032.mp3",
+    "audio_example": "/audio/examples/0032.mp3"
   },
   {
     "id": 33,
@@ -360,7 +424,9 @@
     "category": "animals",
     "hsk": 3,
     "example_cn": "兔子喜欢吃胡萝卜。",
-    "example_km": "ទន្សាយចូលចិត្តញ៉ាំការ៉ុត។"
+    "example_km": "ទន្សាយចូលចិត្តញ៉ាំការ៉ុត។",
+    "audio_word": "/audio/words/0033.mp3",
+    "audio_example": "/audio/examples/0033.mp3"
   },
   {
     "id": 34,
@@ -371,7 +437,9 @@
     "category": "animals",
     "hsk": 3,
     "example_cn": "猴子很聪明。",
-    "example_km": "ស្វាឆ្លាតណាស់។"
+    "example_km": "ស្វាឆ្លាតណាស់។",
+    "audio_word": "/audio/words/0034.mp3",
+    "audio_example": "/audio/examples/0034.mp3"
   },
   {
     "id": 35,
@@ -382,7 +450,9 @@
     "category": "transport",
     "hsk": 1,
     "example_cn": "我开车去上班。",
-    "example_km": "ខ្ញុំបើកឡានទៅធ្វើការ។"
+    "example_km": "ខ្ញុំបើកឡានទៅធ្វើការ។",
+    "audio_word": "/audio/words/0035.mp3",
+    "audio_example": "/audio/examples/0035.mp3"
   },
   {
     "id": 36,
@@ -393,7 +463,9 @@
     "category": "transport",
     "hsk": 2,
     "example_cn": "我坐公共汽车去上班。",
-    "example_km": "ខ្ញុំជិះរថយន្តក្រុងទៅធ្វើការ។"
+    "example_km": "ខ្ញុំជិះរថយន្តក្រុងទៅធ្វើការ។",
+    "audio_word": "/audio/words/0036.mp3",
+    "audio_example": "/audio/examples/0036.mp3"
   },
   {
     "id": 37,
@@ -404,7 +476,9 @@
     "category": "transport",
     "hsk": 2,
     "example_cn": "我坐出租车去机场。",
-    "example_km": "ខ្ញុំជិះតាក់ស៊ីទៅព្រលានយន្តហោះ។"
+    "example_km": "ខ្ញុំជិះតាក់ស៊ីទៅព្រលានយន្តហោះ។",
+    "audio_word": "/audio/words/0037.mp3",
+    "audio_example": "/audio/examples/0037.mp3"
   },
   {
     "id": 38,
@@ -415,7 +489,9 @@
     "category": "transport",
     "hsk": 2,
     "example_cn": "坐飞机去北京要三个小时。",
-    "example_km": "ជិះយន្តហោះទៅប៉េកាំងត្រូវការបីម៉ោង។"
+    "example_km": "ជិះយន្តហោះទៅប៉េកាំងត្រូវការបីម៉ោង។",
+    "audio_word": "/audio/words/0038.mp3",
+    "audio_example": "/audio/examples/0038.mp3"
   },
   {
     "id": 39,
@@ -426,7 +502,9 @@
     "category": "transport",
     "hsk": 2,
     "example_cn": "中国的火车很快。",
-    "example_km": "រថភ្លើងចិនលឿនណាស់។"
+    "example_km": "រថភ្លើងចិនលឿនណាស់។",
+    "audio_word": "/audio/words/0039.mp3",
+    "audio_example": "/audio/examples/0039.mp3"
   },
   {
     "id": 40,
@@ -437,7 +515,9 @@
     "category": "transport",
     "hsk": 2,
     "example_cn": "我骑自行车去学校。",
-    "example_km": "ខ្ញុំជិះកង់ទៅសាលារៀន។"
+    "example_km": "ខ្ញុំជិះកង់ទៅសាលារៀន។",
+    "audio_word": "/audio/words/0040.mp3",
+    "audio_example": "/audio/examples/0040.mp3"
   },
   {
     "id": 41,
@@ -448,7 +528,9 @@
     "category": "transport",
     "hsk": 3,
     "example_cn": "我们坐船过河。",
-    "example_km": "យើងជិះទូកឆ្លងទន្លេ។"
+    "example_km": "យើងជិះទូកឆ្លងទន្លេ។",
+    "audio_word": "/audio/words/0041.mp3",
+    "audio_example": "/audio/examples/0041.mp3"
   },
   {
     "id": 42,
@@ -459,7 +541,9 @@
     "category": "transport",
     "hsk": 4,
     "example_cn": "柬埔寨很多人骑摩托车。",
-    "example_km": "មនុស្សច្រើនជិះម៉ូតូនៅកម្ពុជា។"
+    "example_km": "មនុស្សច្រើនជិះម៉ូតូនៅកម្ពុជា។",
+    "audio_word": "/audio/words/0042.mp3",
+    "audio_example": "/audio/examples/0042.mp3"
   },
   {
     "id": 43,
@@ -470,7 +554,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "我头疼。",
-    "example_km": "ខ្ញុំឈឺក្បាល។"
+    "example_km": "ខ្ញុំឈឺក្បាល។",
+    "audio_word": "/audio/words/0043.mp3",
+    "audio_example": "/audio/examples/0043.mp3"
   },
   {
     "id": 44,
@@ -481,7 +567,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "她的眼睛很大。",
-    "example_km": "ភ្នែករបស់នាងធំណាស់។"
+    "example_km": "ភ្នែករបស់នាងធំណាស់។",
+    "audio_word": "/audio/words/0044.mp3",
+    "audio_example": "/audio/examples/0044.mp3"
   },
   {
     "id": 45,
@@ -492,7 +580,9 @@
     "category": "body",
     "hsk": 3,
     "example_cn": "兔子的耳朵很长。",
-    "example_km": "ត្រចៀកទន្សាយវែងណាស់។"
+    "example_km": "ត្រចៀកទន្សាយវែងណាស់។",
+    "audio_word": "/audio/words/0045.mp3",
+    "audio_example": "/audio/examples/0045.mp3"
   },
   {
     "id": 46,
@@ -503,7 +593,9 @@
     "category": "body",
     "hsk": 3,
     "example_cn": "不要用嘴说别人坏话。",
-    "example_km": "កុំនិយាយអាក្រក់ពីអ្នកដទៃ។"
+    "example_km": "កុំនិយាយអាក្រក់ពីអ្នកដទៃ។",
+    "audio_word": "/audio/words/0046.mp3",
+    "audio_example": "/audio/examples/0046.mp3"
   },
   {
     "id": 47,
@@ -514,7 +606,9 @@
     "category": "body",
     "hsk": 1,
     "example_cn": "请洗手。",
-    "example_km": "សូមលាងដៃ។"
+    "example_km": "សូមលាងដៃ។",
+    "audio_word": "/audio/words/0047.mp3",
+    "audio_example": "/audio/examples/0047.mp3"
   },
   {
     "id": 48,
@@ -525,7 +619,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "走了很多路，脚很累。",
-    "example_km": "ដើរច្រើនហើយ ជើងនឿយណាស់។"
+    "example_km": "ដើរច្រើនហើយ ជើងនឿយណាស់។",
+    "audio_word": "/audio/words/0048.mp3",
+    "audio_example": "/audio/examples/0048.mp3"
   },
   {
     "id": 49,
@@ -536,7 +632,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "我心里很开心。",
-    "example_km": "ក្នុងចិត្តខ្ញុំសប្បាយណាស់។"
+    "example_km": "ក្នុងចិត្តខ្ញុំសប្បាយណាស់។",
+    "audio_word": "/audio/words/0049.mp3",
+    "audio_example": "/audio/examples/0049.mp3"
   },
   {
     "id": 50,
@@ -547,7 +645,9 @@
     "category": "body",
     "hsk": 3,
     "example_cn": "他的鼻子很高。",
-    "example_km": "ច្រមុះរបស់គាត់ខ្ពស់ណាស់។"
+    "example_km": "ច្រមុះរបស់គាត់ខ្ពស់ណាស់។",
+    "audio_word": "/audio/words/0050.mp3",
+    "audio_example": "/audio/examples/0050.mp3"
   },
   {
     "id": 51,
@@ -558,7 +658,9 @@
     "category": "family",
     "hsk": 1,
     "example_cn": "我爸爸是老师。",
-    "example_km": "ប៉ាខ្ញុំជាគ្រូបង្រៀន។"
+    "example_km": "ប៉ាខ្ញុំជាគ្រូបង្រៀន។",
+    "audio_word": "/audio/words/0051.mp3",
+    "audio_example": "/audio/examples/0051.mp3"
   },
   {
     "id": 52,
@@ -569,7 +671,9 @@
     "category": "family",
     "hsk": 1,
     "example_cn": "妈妈做的饭很好吃。",
-    "example_km": "បាយដែលម៉ាក់ធ្វើឆ្ងាញ់ណាស់។"
+    "example_km": "បាយដែលម៉ាក់ធ្វើឆ្ងាញ់ណាស់។",
+    "audio_word": "/audio/words/0052.mp3",
+    "audio_example": "/audio/examples/0052.mp3"
   },
   {
     "id": 53,
@@ -580,7 +684,9 @@
     "category": "family",
     "hsk": 2,
     "example_cn": "我哥哥比我大三岁。",
-    "example_km": "បងប្រុសខ្ញុំធំជាងខ្ញុំបីឆ្នាំ។"
+    "example_km": "បងប្រុសខ្ញុំធំជាងខ្ញុំបីឆ្នាំ។",
+    "audio_word": "/audio/words/0053.mp3",
+    "audio_example": "/audio/examples/0053.mp3"
   },
   {
     "id": 54,
@@ -591,7 +697,9 @@
     "category": "family",
     "hsk": 2,
     "example_cn": "我姐姐在大学读书。",
-    "example_km": "បងស្រីខ្ញុំរៀននៅសកលវិទ្យាល័យ។"
+    "example_km": "បងស្រីខ្ញុំរៀននៅសកលវិទ្យាល័យ។",
+    "audio_word": "/audio/words/0054.mp3",
+    "audio_example": "/audio/examples/0054.mp3"
   },
   {
     "id": 55,
@@ -602,7 +710,9 @@
     "category": "family",
     "hsk": 2,
     "example_cn": "我弟弟今年十岁。",
-    "example_km": "ប្អូនប្រុសខ្ញុំអាយុដប់ឆ្នាំ។"
+    "example_km": "ប្អូនប្រុសខ្ញុំអាយុដប់ឆ្នាំ។",
+    "audio_word": "/audio/words/0055.mp3",
+    "audio_example": "/audio/examples/0055.mp3"
   },
   {
     "id": 56,
@@ -613,7 +723,9 @@
     "category": "family",
     "hsk": 2,
     "example_cn": "我妹妹很聪明。",
-    "example_km": "ប្អូនស្រីខ្ញុំឆ្លាតណាស់។"
+    "example_km": "ប្អូនស្រីខ្ញុំឆ្លាតណាស់។",
+    "audio_word": "/audio/words/0056.mp3",
+    "audio_example": "/audio/examples/0056.mp3"
   },
   {
     "id": 57,
@@ -624,7 +736,9 @@
     "category": "family",
     "hsk": 3,
     "example_cn": "爷爷今年八十岁了。",
-    "example_km": "តាអាយុប៉ែតសិបឆ្នាំហើយ។"
+    "example_km": "តាអាយុប៉ែតសិបឆ្នាំហើយ។",
+    "audio_word": "/audio/words/0057.mp3",
+    "audio_example": "/audio/examples/0057.mp3"
   },
   {
     "id": 58,
@@ -635,7 +749,9 @@
     "category": "family",
     "hsk": 3,
     "example_cn": "奶奶很喜欢做饭。",
-    "example_km": "យាយចូលចិត្តធ្វើម្ហូបណាស់។"
+    "example_km": "យាយចូលចិត្តធ្វើម្ហូបណាស់។",
+    "audio_word": "/audio/words/0058.mp3",
+    "audio_example": "/audio/examples/0058.mp3"
   },
   {
     "id": 59,
@@ -646,7 +762,9 @@
     "category": "family",
     "hsk": 3,
     "example_cn": "她的丈夫是医生。",
-    "example_km": "ប្ដីរបស់នាងជាវេជ្ជបណ្ឌិត។"
+    "example_km": "ប្ដីរបស់នាងជាវេជ្ជបណ្ឌិត។",
+    "audio_word": "/audio/words/0059.mp3",
+    "audio_example": "/audio/examples/0059.mp3"
   },
   {
     "id": 60,
@@ -657,7 +775,9 @@
     "category": "family",
     "hsk": 3,
     "example_cn": "他的妻子很漂亮。",
-    "example_km": "ប្រពន្ធរបស់គាត់ស្រស់ស្អាតណាស់។"
+    "example_km": "ប្រពន្ធរបស់គាត់ស្រស់ស្អាតណាស់។",
+    "audio_word": "/audio/words/0060.mp3",
+    "audio_example": "/audio/examples/0060.mp3"
   },
   {
     "id": 61,
@@ -668,7 +788,9 @@
     "category": "family",
     "hsk": 2,
     "example_cn": "他的儿子在上学。",
-    "example_km": "កូនប្រុសគាត់កំពុងរៀន។"
+    "example_km": "កូនប្រុសគាត់កំពុងរៀន។",
+    "audio_word": "/audio/words/0061.mp3",
+    "audio_example": "/audio/examples/0061.mp3"
   },
   {
     "id": 62,
@@ -679,7 +801,9 @@
     "category": "family",
     "hsk": 2,
     "example_cn": "她的女儿三岁了。",
-    "example_km": "កូនស្រីនាងអាយុបីឆ្នាំហើយ។"
+    "example_km": "កូនស្រីនាងអាយុបីឆ្នាំហើយ។",
+    "audio_word": "/audio/words/0062.mp3",
+    "audio_example": "/audio/examples/0062.mp3"
   },
   {
     "id": 63,
@@ -690,7 +814,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "我有一个苹果。",
-    "example_km": "ខ្ញុំមានផ្លែប៉ោមមួយ។"
+    "example_km": "ខ្ញុំមានផ្លែប៉ោមមួយ។",
+    "audio_word": "/audio/words/0063.mp3",
+    "audio_example": "/audio/examples/0063.mp3"
   },
   {
     "id": 64,
@@ -701,7 +827,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "我有两个孩子。",
-    "example_km": "ខ្ញុំមានកូនពីរនាក់។"
+    "example_km": "ខ្ញុំមានកូនពីរនាក់។",
+    "audio_word": "/audio/words/0064.mp3",
+    "audio_example": "/audio/examples/0064.mp3"
   },
   {
     "id": 65,
@@ -712,7 +840,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "三个人一起去。",
-    "example_km": "បីនាក់ទៅជាមួយគ្នា។"
+    "example_km": "បីនាក់ទៅជាមួយគ្នា។",
+    "audio_word": "/audio/words/0065.mp3",
+    "audio_example": "/audio/examples/0065.mp3"
   },
   {
     "id": 66,
@@ -723,7 +853,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "十个人都来了。",
-    "example_km": "ដប់នាក់មកគ្រប់គ្នាហើយ។"
+    "example_km": "ដប់នាក់មកគ្រប់គ្នាហើយ។",
+    "audio_word": "/audio/words/0066.mp3",
+    "audio_example": "/audio/examples/0066.mp3"
   },
   {
     "id": 67,
@@ -734,7 +866,9 @@
     "category": "numbers",
     "hsk": 2,
     "example_cn": "这件衣服一百块钱。",
-    "example_km": "អាវនេះតម្លៃមួយរយយាន។"
+    "example_km": "អាវនេះតម្លៃមួយរយយាន។",
+    "audio_word": "/audio/words/0067.mp3",
+    "audio_example": "/audio/examples/0067.mp3"
   },
   {
     "id": 68,
@@ -745,7 +879,9 @@
     "category": "numbers",
     "hsk": 2,
     "example_cn": "这本书一千块钱。",
-    "example_km": "សៀវភៅនេះតម្លៃមួយពាន់យាន។"
+    "example_km": "សៀវភៅនេះតម្លៃមួយពាន់យាន។",
+    "audio_word": "/audio/words/0068.mp3",
+    "audio_example": "/audio/examples/0068.mp3"
   },
   {
     "id": 69,
@@ -756,7 +892,9 @@
     "category": "colors",
     "hsk": 1,
     "example_cn": "中国人喜欢红色。",
-    "example_km": "ជនជាតិចិនចូលចិត្តពណ៌ក្រហម។"
+    "example_km": "ជនជាតិចិនចូលចិត្តពណ៌ក្រហម។",
+    "audio_word": "/audio/words/0069.mp3",
+    "audio_example": "/audio/examples/0069.mp3"
   },
   {
     "id": 70,
@@ -767,7 +905,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "天空是蓝色的。",
-    "example_km": "មេឃមានពណ៌ខៀវ។"
+    "example_km": "មេឃមានពណ៌ខៀវ។",
+    "audio_word": "/audio/words/0070.mp3",
+    "audio_example": "/audio/examples/0070.mp3"
   },
   {
     "id": 71,
@@ -778,7 +918,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "草是绿色的。",
-    "example_km": "ស្មៅមានពណ៌បៃតង។"
+    "example_km": "ស្មៅមានពណ៌បៃតង។",
+    "audio_word": "/audio/words/0071.mp3",
+    "audio_example": "/audio/examples/0071.mp3"
   },
   {
     "id": 72,
@@ -789,7 +931,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "雪是白色的。",
-    "example_km": "ព្រិលមានពណ៌ស។"
+    "example_km": "ព្រិលមានពណ៌ស។",
+    "audio_word": "/audio/words/0072.mp3",
+    "audio_example": "/audio/examples/0072.mp3"
   },
   {
     "id": 73,
@@ -800,7 +944,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "她穿了黑色的裙子。",
-    "example_km": "នាងពាក់សំពត់ពណ៌ខ្មៅ។"
+    "example_km": "នាងពាក់សំពត់ពណ៌ខ្មៅ។",
+    "audio_word": "/audio/words/0073.mp3",
+    "audio_example": "/audio/examples/0073.mp3"
   },
   {
     "id": 74,
@@ -811,7 +957,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "香蕉是黄色的。",
-    "example_km": "ចេកមានពណ៌លឿង។"
+    "example_km": "ចេកមានពណ៌លឿង។",
+    "audio_word": "/audio/words/0074.mp3",
+    "audio_example": "/audio/examples/0074.mp3"
   },
   {
     "id": 75,
@@ -822,7 +970,9 @@
     "category": "professions",
     "hsk": 1,
     "example_cn": "我的老师很好。",
-    "example_km": "គ្រូបង្រៀនរបស់ខ្ញុំល្អណាស់។"
+    "example_km": "គ្រូបង្រៀនរបស់ខ្ញុំល្អណាស់។",
+    "audio_word": "/audio/words/0075.mp3",
+    "audio_example": "/audio/examples/0075.mp3"
   },
   {
     "id": 76,
@@ -833,7 +983,9 @@
     "category": "professions",
     "hsk": 2,
     "example_cn": "她是一位好医生。",
-    "example_km": "នាងជាវេជ្ជបណ្ឌិតល្អម្នាក់។"
+    "example_km": "នាងជាវេជ្ជបណ្ឌិតល្អម្នាក់។",
+    "audio_word": "/audio/words/0076.mp3",
+    "audio_example": "/audio/examples/0076.mp3"
   },
   {
     "id": 77,
@@ -844,7 +996,9 @@
     "category": "professions",
     "hsk": 1,
     "example_cn": "我是一个学生。",
-    "example_km": "ខ្ញុំជាសិស្សម្នាក់។"
+    "example_km": "ខ្ញុំជាសិស្សម្នាក់។",
+    "audio_word": "/audio/words/0077.mp3",
+    "audio_example": "/audio/examples/0077.mp3"
   },
   {
     "id": 78,
@@ -855,7 +1009,9 @@
     "category": "professions",
     "hsk": 3,
     "example_cn": "出租车司机很热情。",
-    "example_km": "អ្នកបើកតាក់ស៊ីរួសរាយណាស់។"
+    "example_km": "អ្នកបើកតាក់ស៊ីរួសរាយណាស់។",
+    "audio_word": "/audio/words/0078.mp3",
+    "audio_example": "/audio/examples/0078.mp3"
   },
   {
     "id": 79,
@@ -866,7 +1022,9 @@
     "category": "professions",
     "hsk": 4,
     "example_cn": "这个厨师做的菜很好吃。",
-    "example_km": "ម្ហូបដែលចុងភៅនេះធ្វើឆ្ងាញ់ណាស់។"
+    "example_km": "ម្ហូបដែលចុងភៅនេះធ្វើឆ្ងាញ់ណាស់។",
+    "audio_word": "/audio/words/0079.mp3",
+    "audio_example": "/audio/examples/0079.mp3"
   },
   {
     "id": 80,
@@ -877,7 +1035,9 @@
     "category": "professions",
     "hsk": 3,
     "example_cn": "警察保护我们的安全。",
-    "example_km": "ប៉ូលីសការពារសុវត្ថិភាពយើង។"
+    "example_km": "ប៉ូលីសការពារសុវត្ថិភាពយើង។",
+    "audio_word": "/audio/words/0080.mp3",
+    "audio_example": "/audio/examples/0080.mp3"
   },
   {
     "id": 81,
@@ -888,7 +1048,9 @@
     "category": "professions",
     "hsk": 3,
     "example_cn": "护士照顾病人。",
-    "example_km": "គិលានុបដ្ឋាយិកាមើលថែអ្នកជំងឺ។"
+    "example_km": "គិលានុបដ្ឋាយិកាមើលថែអ្នកជំងឺ។",
+    "audio_word": "/audio/words/0081.mp3",
+    "audio_example": "/audio/examples/0081.mp3"
   },
   {
     "id": 82,
@@ -899,7 +1061,9 @@
     "category": "professions",
     "hsk": 3,
     "example_cn": "工人在建房子。",
-    "example_km": "កម្មករកំពុងសង់ផ្ទះ។"
+    "example_km": "កម្មករកំពុងសង់ផ្ទះ។",
+    "audio_word": "/audio/words/0082.mp3",
+    "audio_example": "/audio/examples/0082.mp3"
   },
   {
     "id": 83,
@@ -910,7 +1074,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "你好，很高兴认识你。",
-    "example_km": "សួស្តី រីករាយដែលបានស្គាល់។"
+    "example_km": "សួស្តី រីករាយដែលបានស្គាល់។",
+    "audio_word": "/audio/words/0083.mp3",
+    "audio_example": "/audio/examples/0083.mp3"
   },
   {
     "id": 84,
@@ -921,7 +1087,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "谢谢你的帮助。",
-    "example_km": "អរគុណសម្រាប់ជំនួយរបស់អ្នក។"
+    "example_km": "អរគុណសម្រាប់ជំនួយរបស់អ្នក។",
+    "audio_word": "/audio/words/0084.mp3",
+    "audio_example": "/audio/examples/0084.mp3"
   },
   {
     "id": 85,
@@ -932,7 +1100,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "明天见，再见！",
-    "example_km": "ជួបគ្នាថ្ងៃស្អែក លាហើយ!"
+    "example_km": "ជួបគ្នាថ្ងៃស្អែក លាហើយ!",
+    "audio_word": "/audio/words/0085.mp3",
+    "audio_example": "/audio/examples/0085.mp3"
   },
   {
     "id": 86,
@@ -943,7 +1113,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "对不起，我迟到了。",
-    "example_km": "សូមទោស ខ្ញុំមកយឺតហើយ។"
+    "example_km": "សូមទោស ខ្ញុំមកយឺតហើយ។",
+    "audio_word": "/audio/words/0086.mp3",
+    "audio_example": "/audio/examples/0086.mp3"
   },
   {
     "id": 87,
@@ -954,7 +1126,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "没关系，别担心。",
-    "example_km": "មិនអីទេ កុំបារម្ភ។"
+    "example_km": "មិនអីទេ កុំបារម្ភ។",
+    "audio_word": "/audio/words/0087.mp3",
+    "audio_example": "/audio/examples/0087.mp3"
   },
   {
     "id": 88,
@@ -965,7 +1139,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "请坐。",
-    "example_km": "សូមអង្គុយ។"
+    "example_km": "សូមអង្គុយ។",
+    "audio_word": "/audio/words/0088.mp3",
+    "audio_example": "/audio/examples/0088.mp3"
   },
   {
     "id": 89,
@@ -976,7 +1152,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "今天天气很好。",
-    "example_km": "ថ្ងៃនេះអាកាសធាតុល្អណាស់។"
+    "example_km": "ថ្ងៃនេះអាកាសធាតុល្អណាស់។",
+    "audio_word": "/audio/words/0089.mp3",
+    "audio_example": "/audio/examples/0089.mp3"
   },
   {
     "id": 90,
@@ -987,7 +1165,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "明天我去上班。",
-    "example_km": "ថ្ងៃស្អែកខ្ញុំទៅធ្វើការ។"
+    "example_km": "ថ្ងៃស្អែកខ្ញុំទៅធ្វើការ។",
+    "audio_word": "/audio/words/0090.mp3",
+    "audio_example": "/audio/examples/0090.mp3"
   },
   {
     "id": 91,
@@ -998,7 +1178,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "昨天下雨了。",
-    "example_km": "ម្សិលមិញភ្លៀងធ្លាក់។"
+    "example_km": "ម្សិលមិញភ្លៀងធ្លាក់។",
+    "audio_word": "/audio/words/0091.mp3",
+    "audio_example": "/audio/examples/0091.mp3"
   },
   {
     "id": 92,
@@ -1009,7 +1191,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "早上好！",
-    "example_km": "អរុណសួស្តី!"
+    "example_km": "អរុណសួស្តី!",
+    "audio_word": "/audio/words/0092.mp3",
+    "audio_example": "/audio/examples/0092.mp3"
   },
   {
     "id": 93,
@@ -1020,7 +1204,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "晚上我看电视。",
-    "example_km": "ពេលយប់ខ្ញុំមើលទូរទស្សន៍។"
+    "example_km": "ពេលយប់ខ្ញុំមើលទូរទស្សន៍។",
+    "audio_word": "/audio/words/0093.mp3",
+    "audio_example": "/audio/examples/0093.mp3"
   },
   {
     "id": 94,
@@ -1031,7 +1217,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "现在几点了？",
-    "example_km": "ឥឡូវម៉ោងប៉ុន្មានហើយ?"
+    "example_km": "ឥឡូវម៉ោងប៉ុន្មានហើយ?",
+    "audio_word": "/audio/words/0094.mp3",
+    "audio_example": "/audio/examples/0094.mp3"
   },
   {
     "id": 95,
@@ -1042,7 +1230,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "一个星期有七天。",
-    "example_km": "មួយសប្ដាហ៍មានប្រាំពីរថ្ងៃ។"
+    "example_km": "មួយសប្ដាហ៍មានប្រាំពីរថ្ងៃ។",
+    "audio_word": "/audio/words/0095.mp3",
+    "audio_example": "/audio/examples/0095.mp3"
   },
   {
     "id": 96,
@@ -1053,7 +1243,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "一年有十二个月。",
-    "example_km": "មួយឆ្នាំមានដប់ពីរខែ។"
+    "example_km": "មួយឆ្នាំមានដប់ពីរខែ។",
+    "audio_word": "/audio/words/0096.mp3",
+    "audio_example": "/audio/examples/0096.mp3"
   },
   {
     "id": 97,
@@ -1064,7 +1256,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "今年是2026年。",
-    "example_km": "ឆ្នាំនេះជាឆ្នាំ 2026។"
+    "example_km": "ឆ្នាំនេះជាឆ្នាំ 2026។",
+    "audio_word": "/audio/words/0097.mp3",
+    "audio_example": "/audio/examples/0097.mp3"
   },
   {
     "id": 98,
@@ -1075,7 +1269,9 @@
     "category": "places",
     "hsk": 1,
     "example_cn": "我在家休息。",
-    "example_km": "ខ្ញុំសម្រាកនៅផ្ទះ។"
+    "example_km": "ខ្ញុំសម្រាកនៅផ្ទះ។",
+    "audio_word": "/audio/words/0098.mp3",
+    "audio_example": "/audio/examples/0098.mp3"
   },
   {
     "id": 99,
@@ -1086,7 +1282,9 @@
     "category": "places",
     "hsk": 1,
     "example_cn": "我们的学校很大。",
-    "example_km": "សាលារៀនរបស់យើងធំណាស់។"
+    "example_km": "សាលារៀនរបស់យើងធំណាស់។",
+    "audio_word": "/audio/words/0099.mp3",
+    "audio_example": "/audio/examples/0099.mp3"
   },
   {
     "id": 100,
@@ -1097,7 +1295,9 @@
     "category": "places",
     "hsk": 2,
     "example_cn": "他在医院工作。",
-    "example_km": "គាត់ធ្វើការនៅមន្ទីរពេទ្យ។"
+    "example_km": "គាត់ធ្វើការនៅមន្ទីរពេទ្យ។",
+    "audio_word": "/audio/words/0100.mp3",
+    "audio_example": "/audio/examples/0100.mp3"
   },
   {
     "id": 101,
@@ -1108,7 +1308,9 @@
     "category": "places",
     "hsk": 3,
     "example_cn": "我去银行取钱。",
-    "example_km": "ខ្ញុំទៅធនាគារដកលុយ។"
+    "example_km": "ខ្ញុំទៅធនាគារដកលុយ។",
+    "audio_word": "/audio/words/0101.mp3",
+    "audio_example": "/audio/examples/0101.mp3"
   },
   {
     "id": 102,
@@ -1119,7 +1321,9 @@
     "category": "places",
     "hsk": 3,
     "example_cn": "我在超市买东西。",
-    "example_km": "ខ្ញុំទិញឥវ៉ាន់នៅផ្សារទំនើប។"
+    "example_km": "ខ្ញុំទិញឥវ៉ាន់នៅផ្សារទំនើប។",
+    "audio_word": "/audio/words/0102.mp3",
+    "audio_example": "/audio/examples/0102.mp3"
   },
   {
     "id": 103,
@@ -1130,7 +1334,9 @@
     "category": "places",
     "hsk": 2,
     "example_cn": "这家餐厅的菜很好吃。",
-    "example_km": "ម្ហូបនៅភោជនីយដ្ឋាននេះឆ្ងាញ់ណាស់។"
+    "example_km": "ម្ហូបនៅភោជនីយដ្ឋាននេះឆ្ងាញ់ណាស់។",
+    "audio_word": "/audio/words/0103.mp3",
+    "audio_example": "/audio/examples/0103.mp3"
   },
   {
     "id": 104,
@@ -1141,7 +1347,9 @@
     "category": "places",
     "hsk": 3,
     "example_cn": "我们在机场见面。",
-    "example_km": "យើងជួបគ្នានៅព្រលានយន្តហោះ។"
+    "example_km": "យើងជួបគ្នានៅព្រលានយន្តហោះ។",
+    "audio_word": "/audio/words/0104.mp3",
+    "audio_example": "/audio/examples/0104.mp3"
   },
   {
     "id": 105,
@@ -1152,7 +1360,9 @@
     "category": "places",
     "hsk": 3,
     "example_cn": "我们去公园散步。",
-    "example_km": "យើងទៅដើរលេងនៅសួនសាធារណៈ។"
+    "example_km": "យើងទៅដើរលេងនៅសួនសាធារណៈ។",
+    "audio_word": "/audio/words/0105.mp3",
+    "audio_example": "/audio/examples/0105.mp3"
   },
   {
     "id": 106,
@@ -1163,7 +1373,9 @@
     "category": "places",
     "hsk": 2,
     "example_cn": "这家商店很大。",
-    "example_km": "ហាងនេះធំណាស់។"
+    "example_km": "ហាងនេះធំណាស់។",
+    "audio_word": "/audio/words/0106.mp3",
+    "audio_example": "/audio/examples/0106.mp3"
   },
   {
     "id": 107,
@@ -1174,7 +1386,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我们一起吃饭吧。",
-    "example_km": "យើងញ៉ាំបាយជាមួយគ្នា។"
+    "example_km": "យើងញ៉ាំបាយជាមួយគ្នា។",
+    "audio_word": "/audio/words/0107.mp3",
+    "audio_example": "/audio/examples/0107.mp3"
   },
   {
     "id": 108,
@@ -1185,7 +1399,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "多喝水对身体好。",
-    "example_km": "ផឹកទឹកច្រើនល្អសម្រាប់រាងកាយ។"
+    "example_km": "ផឹកទឹកច្រើនល្អសម្រាប់រាងកាយ។",
+    "audio_word": "/audio/words/0108.mp3",
+    "audio_example": "/audio/examples/0108.mp3"
   },
   {
     "id": 109,
@@ -1196,7 +1412,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我在看书。",
-    "example_km": "ខ្ញុំកំពុងមើលសៀវភៅ។"
+    "example_km": "ខ្ញុំកំពុងមើលសៀវភៅ។",
+    "audio_word": "/audio/words/0109.mp3",
+    "audio_example": "/audio/examples/0109.mp3"
   },
   {
     "id": 110,
@@ -1207,7 +1425,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我喜欢听音乐。",
-    "example_km": "ខ្ញុំចូលចិត្តស្ដាប់តន្ត្រី។"
+    "example_km": "ខ្ញុំចូលចិត្តស្ដាប់តន្ត្រី។",
+    "audio_word": "/audio/words/0110.mp3",
+    "audio_example": "/audio/examples/0110.mp3"
   },
   {
     "id": 111,
@@ -1218,7 +1438,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "请说慢一点。",
-    "example_km": "សូមនិយាយយឺតៗ។"
+    "example_km": "សូមនិយាយយឺតៗ។",
+    "audio_word": "/audio/words/0111.mp3",
+    "audio_example": "/audio/examples/0111.mp3"
   },
   {
     "id": 112,
@@ -1229,7 +1451,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我在写作业。",
-    "example_km": "ខ្ញុំកំពុងសរសេរកិច្ចការ។"
+    "example_km": "ខ្ញុំកំពុងសរសេរកិច្ចការ។",
+    "audio_word": "/audio/words/0112.mp3",
+    "audio_example": "/audio/examples/0112.mp3"
   },
   {
     "id": 113,
@@ -1240,7 +1464,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我喜欢读书。",
-    "example_km": "ខ្ញុំចូលចិត្តអានសៀវភៅ។"
+    "example_km": "ខ្ញុំចូលចិត្តអានសៀវភៅ។",
+    "audio_word": "/audio/words/0113.mp3",
+    "audio_example": "/audio/examples/0113.mp3"
   },
   {
     "id": 114,
@@ -1251,7 +1477,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我们走吧。",
-    "example_km": "យើងទៅ។"
+    "example_km": "យើងទៅ។",
+    "audio_word": "/audio/words/0114.mp3",
+    "audio_example": "/audio/examples/0114.mp3"
   },
   {
     "id": 115,
@@ -1262,7 +1490,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "他跑得很快。",
-    "example_km": "គាត់រត់លឿនណាស់។"
+    "example_km": "គាត់រត់លឿនណាស់។",
+    "audio_word": "/audio/words/0115.mp3",
+    "audio_example": "/audio/examples/0115.mp3"
   },
   {
     "id": 116,
@@ -1273,7 +1503,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我想买这个。",
-    "example_km": "ខ្ញុំចង់ទិញនេះ។"
+    "example_km": "ខ្ញុំចង់ទិញនេះ។",
+    "audio_word": "/audio/words/0116.mp3",
+    "audio_example": "/audio/examples/0116.mp3"
   },
   {
     "id": 117,
@@ -1284,7 +1516,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "他在市场卖水果。",
-    "example_km": "គាត់លក់ផ្លែឈើនៅផ្សារ។"
+    "example_km": "គាត់លក់ផ្លែឈើនៅផ្សារ។",
+    "audio_word": "/audio/words/0117.mp3",
+    "audio_example": "/audio/examples/0117.mp3"
   },
   {
     "id": 118,
@@ -1295,7 +1529,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我在公司工作。",
-    "example_km": "ខ្ញុំធ្វើការនៅក្រុមហ៊ុន។"
+    "example_km": "ខ្ញុំធ្វើការនៅក្រុមហ៊ុន។",
+    "audio_word": "/audio/words/0118.mp3",
+    "audio_example": "/audio/examples/0118.mp3"
   },
   {
     "id": 119,
@@ -1306,7 +1542,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我在学习中文。",
-    "example_km": "ខ្ញុំកំពុងរៀនភាសាចិន។"
+    "example_km": "ខ្ញុំកំពុងរៀនភាសាចិន។",
+    "audio_word": "/audio/words/0119.mp3",
+    "audio_example": "/audio/examples/0119.mp3"
   },
   {
     "id": 120,
@@ -1317,7 +1555,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "晚上十点我睡觉。",
-    "example_km": "ម៉ោងដប់យប់ខ្ញុំគេង។"
+    "example_km": "ម៉ោងដប់យប់ខ្ញុំគេង។",
+    "audio_word": "/audio/words/0120.mp3",
+    "audio_example": "/audio/examples/0120.mp3"
   },
   {
     "id": 121,
@@ -1328,7 +1568,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "我每天六点起床。",
-    "example_km": "ខ្ញុំភ្ញាក់ពីគេងម៉ោង៦រៀងរាល់ថ្ងៃ។"
+    "example_km": "ខ្ញុំភ្ញាក់ពីគេងម៉ោង៦រៀងរាល់ថ្ងៃ។",
+    "audio_word": "/audio/words/0121.mp3",
+    "audio_example": "/audio/examples/0121.mp3"
   },
   {
     "id": 122,
@@ -1339,7 +1581,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "她唱歌唱得很好。",
-    "example_km": "នាងច្រៀងពិរោះណាស់។"
+    "example_km": "នាងច្រៀងពិរោះណាស់។",
+    "audio_word": "/audio/words/0122.mp3",
+    "audio_example": "/audio/examples/0122.mp3"
   },
   {
     "id": 123,
@@ -1350,7 +1594,9 @@
     "category": "actions",
     "hsk": 3,
     "example_cn": "柬埔寨的传统舞蹈很美。",
-    "example_km": "របាំប្រពៃណីកម្ពុជាស្រស់ស្អាតណាស់។"
+    "example_km": "របាំប្រពៃណីកម្ពុជាស្រស់ស្អាតណាស់។",
+    "audio_word": "/audio/words/0123.mp3",
+    "audio_example": "/audio/examples/0123.mp3"
   },
   {
     "id": 124,
@@ -1361,7 +1607,9 @@
     "category": "actions",
     "hsk": 3,
     "example_cn": "夏天我喜欢游泳。",
-    "example_km": "រដូវក្ដៅខ្ញុំចូលចិត្តហែលទឹក។"
+    "example_km": "រដូវក្ដៅខ្ញុំចូលចិត្តហែលទឹក។",
+    "audio_word": "/audio/words/0124.mp3",
+    "audio_example": "/audio/examples/0124.mp3"
   },
   {
     "id": 125,
@@ -1372,7 +1620,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "这个房间很大。",
-    "example_km": "បន្ទប់នេះធំណាស់។"
+    "example_km": "បន្ទប់នេះធំណាស់។",
+    "audio_word": "/audio/words/0125.mp3",
+    "audio_example": "/audio/examples/0125.mp3"
   },
   {
     "id": 126,
@@ -1383,7 +1633,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "这只猫很小。",
-    "example_km": "ឆ្មានេះតូចណាស់។"
+    "example_km": "ឆ្មានេះតូចណាស់។",
+    "audio_word": "/audio/words/0126.mp3",
+    "audio_example": "/audio/examples/0126.mp3"
   },
   {
     "id": 127,
@@ -1394,7 +1646,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "你真好。",
-    "example_km": "អ្នកល្អណាស់។"
+    "example_km": "អ្នកល្អណាស់។",
+    "audio_word": "/audio/words/0127.mp3",
+    "audio_example": "/audio/examples/0127.mp3"
   },
   {
     "id": 128,
@@ -1405,7 +1659,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "人很多。",
-    "example_km": "មនុស្សច្រើនណាស់។"
+    "example_km": "មនុស្សច្រើនណាស់។",
+    "audio_word": "/audio/words/0128.mp3",
+    "audio_example": "/audio/examples/0128.mp3"
   },
   {
     "id": 129,
@@ -1416,7 +1672,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "人很少。",
-    "example_km": "មនុស្សតិចណាស់។"
+    "example_km": "មនុស្សតិចណាស់។",
+    "audio_word": "/audio/words/0129.mp3",
+    "audio_example": "/audio/examples/0129.mp3"
   },
   {
     "id": 130,
@@ -1427,7 +1685,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个女孩很漂亮。",
-    "example_km": "ក្មេងស្រីនេះស្រស់ស្អាតណាស់។"
+    "example_km": "ក្មេងស្រីនេះស្រស់ស្អាតណាស់។",
+    "audio_word": "/audio/words/0130.mp3",
+    "audio_example": "/audio/examples/0130.mp3"
   },
   {
     "id": 131,
@@ -1438,7 +1698,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "认识你很高兴。",
-    "example_km": "រីករាយដែលបានស្គាល់អ្នក។"
+    "example_km": "រីករាយដែលបានស្គាល់អ្នក។",
+    "audio_word": "/audio/words/0131.mp3",
+    "audio_example": "/audio/examples/0131.mp3"
   },
   {
     "id": 132,
@@ -1449,7 +1711,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "他走得很快。",
-    "example_km": "គាត់ដើរលឿនណាស់។"
+    "example_km": "គាត់ដើរលឿនណាស់។",
+    "audio_word": "/audio/words/0132.mp3",
+    "audio_example": "/audio/examples/0132.mp3"
   },
   {
     "id": 133,
@@ -1460,7 +1724,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "请说慢一点。",
-    "example_km": "សូមនិយាយយឺតៗ។"
+    "example_km": "សូមនិយាយយឺតៗ។",
+    "audio_word": "/audio/words/0133.mp3",
+    "audio_example": "/audio/examples/0133.mp3"
   },
   {
     "id": 134,
@@ -1471,7 +1737,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "我买了一件新衣服。",
-    "example_km": "ខ្ញុំបានទិញអាវថ្មីមួយ។"
+    "example_km": "ខ្ញុំបានទិញអាវថ្មីមួយ។",
+    "audio_word": "/audio/words/0134.mp3",
+    "audio_example": "/audio/examples/0134.mp3"
   },
   {
     "id": 135,
@@ -1482,7 +1750,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "这是一本旧书。",
-    "example_km": "នេះជាសៀវភៅចាស់មួយ។"
+    "example_km": "នេះជាសៀវភៅចាស់មួយ។",
+    "audio_word": "/audio/words/0135.mp3",
+    "audio_example": "/audio/examples/0135.mp3"
   },
   {
     "id": 136,
@@ -1493,7 +1763,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个太贵了。",
-    "example_km": "នេះថ្លៃពេកហើយ។"
+    "example_km": "នេះថ្លៃពេកហើយ។",
+    "audio_word": "/audio/words/0136.mp3",
+    "audio_example": "/audio/examples/0136.mp3"
   },
   {
     "id": 137,
@@ -1504,7 +1776,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个很便宜。",
-    "example_km": "នេះថោកណាស់។"
+    "example_km": "នេះថោកណាស់។",
+    "audio_word": "/audio/words/0137.mp3",
+    "audio_example": "/audio/examples/0137.mp3"
   },
   {
     "id": 138,
@@ -1515,7 +1789,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "冬天很冷。",
-    "example_km": "រដូវរងារត្រជាក់ណាស់។"
+    "example_km": "រដូវរងារត្រជាក់ណាស់។",
+    "audio_word": "/audio/words/0138.mp3",
+    "audio_example": "/audio/examples/0138.mp3"
   },
   {
     "id": 139,
@@ -1526,7 +1802,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "今天很热。",
-    "example_km": "ថ្ងៃនេះក្ដៅណាស់។"
+    "example_km": "ថ្ងៃនេះក្ដៅណាស់។",
+    "audio_word": "/audio/words/0139.mp3",
+    "audio_example": "/audio/examples/0139.mp3"
   },
   {
     "id": 140,
@@ -1537,7 +1815,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "我最近很忙。",
-    "example_km": "ខ្ញុំរវល់ណាស់ពេលនេះ។"
+    "example_km": "ខ្ញុំរវល់ណាស់ពេលនេះ។",
+    "audio_word": "/audio/words/0140.mp3",
+    "audio_example": "/audio/examples/0140.mp3"
   },
   {
     "id": 141,
@@ -1548,7 +1828,9 @@
     "category": "weather",
     "hsk": 1,
     "example_cn": "今天天气很好。",
-    "example_km": "ថ្ងៃនេះអាកាសធាតុល្អណាស់។"
+    "example_km": "ថ្ងៃនេះអាកាសធាតុល្អណាស់។",
+    "audio_word": "/audio/words/0141.mp3",
+    "audio_example": "/audio/examples/0141.mp3"
   },
   {
     "id": 142,
@@ -1559,7 +1841,9 @@
     "category": "weather",
     "hsk": 1,
     "example_cn": "今天下雨了。",
-    "example_km": "ថ្ងៃនេះភ្លៀងធ្លាក់ហើយ។"
+    "example_km": "ថ្ងៃនេះភ្លៀងធ្លាក់ហើយ។",
+    "audio_word": "/audio/words/0142.mp3",
+    "audio_example": "/audio/examples/0142.mp3"
   },
   {
     "id": 143,
@@ -1570,7 +1854,9 @@
     "category": "weather",
     "hsk": 2,
     "example_cn": "太阳出来了。",
-    "example_km": "ព្រះអាទិត្យរះហើយ។"
+    "example_km": "ព្រះអាទិត្យរះហើយ។",
+    "audio_word": "/audio/words/0143.mp3",
+    "audio_example": "/audio/examples/0143.mp3"
   },
   {
     "id": 144,
@@ -1581,7 +1867,9 @@
     "category": "weather",
     "hsk": 3,
     "example_cn": "今天风很大。",
-    "example_km": "ថ្ងៃនេះខ្យល់បក់ខ្លាំងណាស់។"
+    "example_km": "ថ្ងៃនេះខ្យល់បក់ខ្លាំងណាស់។",
+    "audio_word": "/audio/words/0144.mp3",
+    "audio_example": "/audio/examples/0144.mp3"
   },
   {
     "id": 145,
@@ -1592,7 +1880,9 @@
     "category": "weather",
     "hsk": 3,
     "example_cn": "天上有很多云。",
-    "example_km": "នៅលើមេឃមានពពកច្រើន។"
+    "example_km": "នៅលើមេឃមានពពកច្រើន។",
+    "audio_word": "/audio/words/0145.mp3",
+    "audio_example": "/audio/examples/0145.mp3"
   },
   {
     "id": 146,
@@ -1603,7 +1893,9 @@
     "category": "weather",
     "hsk": 3,
     "example_cn": "北京冬天会下雪。",
-    "example_km": "ប៉េកាំងរដូវរងារមានព្រិលធ្លាក់។"
+    "example_km": "ប៉េកាំងរដូវរងារមានព្រិលធ្លាក់។",
+    "audio_word": "/audio/words/0146.mp3",
+    "audio_example": "/audio/examples/0146.mp3"
   },
   {
     "id": 147,
@@ -1614,7 +1906,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "我的手机没电了。",
-    "example_km": "ទូរស័ព្ទខ្ញុំអស់ថ្មហើយ។"
+    "example_km": "ទូរស័ព្ទខ្ញុំអស់ថ្មហើយ។",
+    "audio_word": "/audio/words/0147.mp3",
+    "audio_example": "/audio/examples/0147.mp3"
   },
   {
     "id": 148,
@@ -1625,7 +1919,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "我用电脑工作。",
-    "example_km": "ខ្ញុំប្រើកុំព្យូទ័រធ្វើការ។"
+    "example_km": "ខ្ញុំប្រើកុំព្យូទ័រធ្វើការ។",
+    "audio_word": "/audio/words/0148.mp3",
+    "audio_example": "/audio/examples/0148.mp3"
   },
   {
     "id": 149,
@@ -1636,7 +1932,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "晚上我看电视。",
-    "example_km": "ពេលយប់ខ្ញុំមើលទូរទស្សន៍។"
+    "example_km": "ពេលយប់ខ្ញុំមើលទូរទស្សន៍។",
+    "audio_word": "/audio/words/0149.mp3",
+    "audio_example": "/audio/examples/0149.mp3"
   },
   {
     "id": 150,
@@ -1647,7 +1945,9 @@
     "category": "technology",
     "hsk": 4,
     "example_cn": "这里的网络很快。",
-    "example_km": "អ៊ីនធឺណិតនៅទីនេះលឿនណាស់។"
+    "example_km": "អ៊ីនធឺណិតនៅទីនេះលឿនណាស់។",
+    "audio_word": "/audio/words/0150.mp3",
+    "audio_example": "/audio/examples/0150.mp3"
   },
   {
     "id": 151,
@@ -1658,7 +1958,9 @@
     "category": "technology",
     "hsk": 3,
     "example_cn": "我们一起拍照片吧。",
-    "example_km": "យើងថតរូបជាមួយគ្នា។"
+    "example_km": "យើងថតរូបជាមួយគ្នា។",
+    "audio_word": "/audio/words/0151.mp3",
+    "audio_example": "/audio/examples/0151.mp3"
   },
   {
     "id": 152,
@@ -1669,7 +1971,9 @@
     "category": "school",
     "hsk": 1,
     "example_cn": "这本书很有意思。",
-    "example_km": "សៀវភៅនេះគួរឱ្យចាប់អារម្មណ៍ណាស់។"
+    "example_km": "សៀវភៅនេះគួរឱ្យចាប់អារម្មណ៍ណាស់។",
+    "audio_word": "/audio/words/0152.mp3",
+    "audio_example": "/audio/examples/0152.mp3"
   },
   {
     "id": 153,
@@ -1680,7 +1984,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "请给我一支笔。",
-    "example_km": "សូមឱ្យខ្ញុំប៊ិចមួយ។"
+    "example_km": "សូមឱ្យខ្ញុំប៊ិចមួយ។",
+    "audio_word": "/audio/words/0153.mp3",
+    "audio_example": "/audio/examples/0153.mp3"
   },
   {
     "id": 154,
@@ -1691,7 +1997,9 @@
     "category": "school",
     "hsk": 1,
     "example_cn": "汉字很难写。",
-    "example_km": "អក្សរចិនពិបាកសរសេរ។"
+    "example_km": "អក្សរចិនពិបាកសរសេរ។",
+    "audio_word": "/audio/words/0154.mp3",
+    "audio_example": "/audio/examples/0154.mp3"
   },
   {
     "id": 155,
@@ -1702,7 +2010,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "明天有考试。",
-    "example_km": "ថ្ងៃស្អែកមានប្រឡង។"
+    "example_km": "ថ្ងៃស្អែកមានប្រឡង។",
+    "audio_word": "/audio/words/0155.mp3",
+    "audio_example": "/audio/examples/0155.mp3"
   },
   {
     "id": 156,
@@ -1713,7 +2023,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "我在做作业。",
-    "example_km": "ខ្ញុំកំពុងធ្វើកិច្ចការផ្ទះ។"
+    "example_km": "ខ្ញុំកំពុងធ្វើកិច្ចការផ្ទះ។",
+    "audio_word": "/audio/words/0156.mp3",
+    "audio_example": "/audio/examples/0156.mp3"
   },
   {
     "id": 157,
@@ -1724,7 +2036,9 @@
     "category": "school",
     "hsk": 3,
     "example_cn": "我们在教室上课。",
-    "example_km": "យើងរៀននៅក្នុងបន្ទប់រៀន។"
+    "example_km": "យើងរៀននៅក្នុងបន្ទប់រៀន។",
+    "audio_word": "/audio/words/0157.mp3",
+    "audio_example": "/audio/examples/0157.mp3"
   },
   {
     "id": 158,
@@ -1735,7 +2049,9 @@
     "category": "clothes",
     "hsk": 2,
     "example_cn": "这件衣服很漂亮。",
-    "example_km": "សម្លៀកបំពាក់នេះស្រស់ស្អាតណាស់។"
+    "example_km": "សម្លៀកបំពាក់នេះស្រស់ស្អាតណាស់។",
+    "audio_word": "/audio/words/0158.mp3",
+    "audio_example": "/audio/examples/0158.mp3"
   },
   {
     "id": 159,
@@ -1746,7 +2062,9 @@
     "category": "clothes",
     "hsk": 3,
     "example_cn": "这条裤子太长了。",
-    "example_km": "ខោនេះវែងពេក។"
+    "example_km": "ខោនេះវែងពេក។",
+    "audio_word": "/audio/words/0159.mp3",
+    "audio_example": "/audio/examples/0159.mp3"
   },
   {
     "id": 160,
@@ -1757,7 +2075,9 @@
     "category": "clothes",
     "hsk": 3,
     "example_cn": "我买了一双新鞋子。",
-    "example_km": "ខ្ញុំទិញស្បែកជើងថ្មីមួយគូ។"
+    "example_km": "ខ្ញុំទិញស្បែកជើងថ្មីមួយគូ។",
+    "audio_word": "/audio/words/0160.mp3",
+    "audio_example": "/audio/examples/0160.mp3"
   },
   {
     "id": 161,
@@ -1768,7 +2088,9 @@
     "category": "clothes",
     "hsk": 3,
     "example_cn": "天气热要戴帽子。",
-    "example_km": "អាកាសធាតុក្ដៅត្រូវពាក់មួក។"
+    "example_km": "អាកាសធាតុក្ដៅត្រូវពាក់មួក។",
+    "audio_word": "/audio/words/0161.mp3",
+    "audio_example": "/audio/examples/0161.mp3"
   },
   {
     "id": 162,
@@ -1779,7 +2101,9 @@
     "category": "emotions",
     "hsk": 2,
     "example_cn": "今天我很开心。",
-    "example_km": "ថ្ងៃនេះខ្ញុំរីករាយណាស់។"
+    "example_km": "ថ្ងៃនេះខ្ញុំរីករាយណាស់។",
+    "audio_word": "/audio/words/0162.mp3",
+    "audio_example": "/audio/examples/0162.mp3"
   },
   {
     "id": 163,
@@ -1790,7 +2114,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "他很难过。",
-    "example_km": "គាត់ក្រៀមក្រំណាស់។"
+    "example_km": "គាត់ក្រៀមក្រំណាស់។",
+    "audio_word": "/audio/words/0163.mp3",
+    "audio_example": "/audio/examples/0163.mp3"
   },
   {
     "id": 164,
@@ -1801,7 +2127,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "小孩子害怕黑暗。",
-    "example_km": "ក្មេងៗខ្លាចងងឹត។"
+    "example_km": "ក្មេងៗខ្លាចងងឹត។",
+    "audio_word": "/audio/words/0164.mp3",
+    "audio_example": "/audio/examples/0164.mp3"
   },
   {
     "id": 165,
@@ -1812,7 +2140,9 @@
     "category": "emotions",
     "hsk": 2,
     "example_cn": "不要生气了。",
-    "example_km": "កុំខឹងអី។"
+    "example_km": "កុំខឹងអី។",
+    "audio_word": "/audio/words/0165.mp3",
+    "audio_example": "/audio/examples/0165.mp3"
   },
   {
     "id": 166,
@@ -1823,7 +2153,9 @@
     "category": "emotions",
     "hsk": 2,
     "example_cn": "我爱我的家人。",
-    "example_km": "ខ្ញុំស្រឡាញ់គ្រួសាររបស់ខ្ញុំ។"
+    "example_km": "ខ្ញុំស្រឡាញ់គ្រួសាររបស់ខ្ញុំ។",
+    "audio_word": "/audio/words/0166.mp3",
+    "audio_example": "/audio/examples/0166.mp3"
   },
   {
     "id": 167,
@@ -1834,7 +2166,9 @@
     "category": "emotions",
     "hsk": 1,
     "example_cn": "我喜欢中国文化。",
-    "example_km": "ខ្ញុំចូលចិត្តវប្បធម៌ចិន។"
+    "example_km": "ខ្ញុំចូលចិត្តវប្បធម៌ចិន។",
+    "audio_word": "/audio/words/0167.mp3",
+    "audio_example": "/audio/examples/0167.mp3"
   },
   {
     "id": 168,
@@ -1845,7 +2179,9 @@
     "category": "nature",
     "hsk": 2,
     "example_cn": "这座山很高。",
-    "example_km": "ភ្នំនេះខ្ពស់ណាស់។"
+    "example_km": "ភ្នំនេះខ្ពស់ណាស់។",
+    "audio_word": "/audio/words/0168.mp3",
+    "audio_example": "/audio/examples/0168.mp3"
   },
   {
     "id": 169,
@@ -1856,7 +2192,9 @@
     "category": "nature",
     "hsk": 3,
     "example_cn": "这条河很长。",
-    "example_km": "ទន្លេនេះវែងណាស់។"
+    "example_km": "ទន្លេនេះវែងណាស់។",
+    "audio_word": "/audio/words/0169.mp3",
+    "audio_example": "/audio/examples/0169.mp3"
   },
   {
     "id": 170,
@@ -1867,7 +2205,9 @@
     "category": "nature",
     "hsk": 3,
     "example_cn": "柬埔寨有美丽的海。",
-    "example_km": "កម្ពុជាមានសមុទ្រស្រស់ស្អាត។"
+    "example_km": "កម្ពុជាមានសមុទ្រស្រស់ស្អាត។",
+    "audio_word": "/audio/words/0170.mp3",
+    "audio_example": "/audio/examples/0170.mp3"
   },
   {
     "id": 171,
@@ -1878,7 +2218,9 @@
     "category": "nature",
     "hsk": 2,
     "example_cn": "公园里有很多树。",
-    "example_km": "នៅក្នុងសួនមានដើមឈើច្រើន។"
+    "example_km": "នៅក្នុងសួនមានដើមឈើច្រើន។",
+    "audio_word": "/audio/words/0171.mp3",
+    "audio_example": "/audio/examples/0171.mp3"
   },
   {
     "id": 172,
@@ -1889,7 +2231,9 @@
     "category": "nature",
     "hsk": 2,
     "example_cn": "这朵花很漂亮。",
-    "example_km": "ផ្កានេះស្រស់ស្អាតណាស់។"
+    "example_km": "ផ្កានេះស្រស់ស្អាតណាស់។",
+    "audio_word": "/audio/words/0172.mp3",
+    "audio_example": "/audio/examples/0172.mp3"
   },
   {
     "id": 173,
@@ -1900,7 +2244,9 @@
     "category": "nature",
     "hsk": 3,
     "example_cn": "今晚的月亮很圆。",
-    "example_km": "ព្រះច័ន្ទយប់នេះមូលណាស់។"
+    "example_km": "ព្រះច័ន្ទយប់នេះមូលណាស់។",
+    "audio_word": "/audio/words/0173.mp3",
+    "audio_example": "/audio/examples/0173.mp3"
   },
   {
     "id": 174,
@@ -1911,7 +2257,9 @@
     "category": "nature",
     "hsk": 3,
     "example_cn": "天上有很多星星。",
-    "example_km": "នៅលើមេឃមានផ្កាយច្រើន។"
+    "example_km": "នៅលើមេឃមានផ្កាយច្រើន។",
+    "audio_word": "/audio/words/0174.mp3",
+    "audio_example": "/audio/examples/0174.mp3"
   },
   {
     "id": 175,
@@ -1922,7 +2270,9 @@
     "category": "house",
     "hsk": 2,
     "example_cn": "请关门。",
-    "example_km": "សូមបិទទ្វារ។"
+    "example_km": "សូមបិទទ្វារ។",
+    "audio_word": "/audio/words/0175.mp3",
+    "audio_example": "/audio/examples/0175.mp3"
   },
   {
     "id": 176,
@@ -1933,7 +2283,9 @@
     "category": "house",
     "hsk": 3,
     "example_cn": "请打开窗户。",
-    "example_km": "សូមបើកបង្អួច។"
+    "example_km": "សូមបើកបង្អួច។",
+    "audio_word": "/audio/words/0176.mp3",
+    "audio_example": "/audio/examples/0176.mp3"
   },
   {
     "id": 177,
@@ -1944,7 +2296,9 @@
     "category": "house",
     "hsk": 2,
     "example_cn": "桌子上有一本书。",
-    "example_km": "នៅលើតុមានសៀវភៅមួយ។"
+    "example_km": "នៅលើតុមានសៀវភៅមួយ។",
+    "audio_word": "/audio/words/0177.mp3",
+    "audio_example": "/audio/examples/0177.mp3"
   },
   {
     "id": 178,
@@ -1955,7 +2309,9 @@
     "category": "house",
     "hsk": 2,
     "example_cn": "请坐椅子。",
-    "example_km": "សូមអង្គុយកៅអី។"
+    "example_km": "សូមអង្គុយកៅអី។",
+    "audio_word": "/audio/words/0178.mp3",
+    "audio_example": "/audio/examples/0178.mp3"
   },
   {
     "id": 179,
@@ -1966,7 +2322,9 @@
     "category": "house",
     "hsk": 3,
     "example_cn": "我买了一张新床。",
-    "example_km": "ខ្ញុំទិញគ្រែថ្មីមួយ។"
+    "example_km": "ខ្ញុំទិញគ្រែថ្មីមួយ។",
+    "audio_word": "/audio/words/0179.mp3",
+    "audio_example": "/audio/examples/0179.mp3"
   },
   {
     "id": 180,
@@ -1977,7 +2335,9 @@
     "category": "house",
     "hsk": 3,
     "example_cn": "厕所在哪儿？",
-    "example_km": "បន្ទប់ទឹកនៅណា?"
+    "example_km": "បន្ទប់ទឹកនៅណា?",
+    "audio_word": "/audio/words/0180.mp3",
+    "audio_example": "/audio/examples/0180.mp3"
   },
   {
     "id": 181,
@@ -1988,7 +2348,9 @@
     "category": "daily_items",
     "hsk": 1,
     "example_cn": "这个多少钱？",
-    "example_km": "នេះថ្លៃប៉ុន្មាន?"
+    "example_km": "នេះថ្លៃប៉ុន្មាន?",
+    "audio_word": "/audio/words/0181.mp3",
+    "audio_example": "/audio/examples/0181.mp3"
   },
   {
     "id": 182,
@@ -1999,7 +2361,9 @@
     "category": "daily_items",
     "hsk": 3,
     "example_cn": "我的钥匙找不到了。",
-    "example_km": "ខ្ញុំរកកូនសោមិនឃើញ។"
+    "example_km": "ខ្ញុំរកកូនសោមិនឃើញ។",
+    "audio_word": "/audio/words/0182.mp3",
+    "audio_example": "/audio/examples/0182.mp3"
   },
   {
     "id": 183,
@@ -2010,7 +2374,9 @@
     "category": "daily_items",
     "hsk": 3,
     "example_cn": "这个包很好看。",
-    "example_km": "កាបូបនេះស្រស់ស្អាតណាស់។"
+    "example_km": "កាបូបនេះស្រស់ស្អាតណាស់។",
+    "audio_word": "/audio/words/0183.mp3",
+    "audio_example": "/audio/examples/0183.mp3"
   },
   {
     "id": 184,
@@ -2021,7 +2387,9 @@
     "category": "daily_items",
     "hsk": 3,
     "example_cn": "下雨了，带伞吧。",
-    "example_km": "ភ្លៀងធ្លាក់ហើយ យកឆត្រទៅ។"
+    "example_km": "ភ្លៀងធ្លាក់ហើយ យកឆត្រទៅ។",
+    "audio_word": "/audio/words/0184.mp3",
+    "audio_example": "/audio/examples/0184.mp3"
   },
   {
     "id": 185,
@@ -2032,7 +2400,9 @@
     "category": "daily_items",
     "hsk": 3,
     "example_cn": "我需要戴眼镜。",
-    "example_km": "ខ្ញុំត្រូវពាក់វ៉ែនតា។"
+    "example_km": "ខ្ញុំត្រូវពាក់វ៉ែនតា។",
+    "audio_word": "/audio/words/0185.mp3",
+    "audio_example": "/audio/examples/0185.mp3"
   },
   {
     "id": 186,
@@ -2043,7 +2413,9 @@
     "category": "market",
     "hsk": 3,
     "example_cn": "市场里人很多。",
-    "example_km": "នៅក្នុងផ្សារមានមនុស្សច្រើន។"
+    "example_km": "នៅក្នុងផ្សារមានមនុស្សច្រើន។",
+    "audio_word": "/audio/words/0186.mp3",
+    "audio_example": "/audio/examples/0186.mp3"
   },
   {
     "id": 187,
@@ -2054,7 +2426,9 @@
     "category": "market",
     "hsk": 4,
     "example_cn": "这个的价格是多少？",
-    "example_km": "តម្លៃរបស់នេះប៉ុន្មាន?"
+    "example_km": "តម្លៃរបស់នេះប៉ុន្មាន?",
+    "audio_word": "/audio/words/0187.mp3",
+    "audio_example": "/audio/examples/0187.mp3"
   },
   {
     "id": 188,
@@ -2065,7 +2439,9 @@
     "category": "market",
     "hsk": 4,
     "example_cn": "这件衣服打折了。",
-    "example_km": "អាវនេះបញ្ចុះតម្លៃហើយ។"
+    "example_km": "អាវនេះបញ្ចុះតម្លៃហើយ។",
+    "audio_word": "/audio/words/0188.mp3",
+    "audio_example": "/audio/examples/0188.mp3"
   },
   {
     "id": 189,
@@ -2076,7 +2452,9 @@
     "category": "sports",
     "hsk": 3,
     "example_cn": "我喜欢踢足球。",
-    "example_km": "ខ្ញុំចូលចិត្តទាត់បាល់ទាត់។"
+    "example_km": "ខ្ញុំចូលចិត្តទាត់បាល់ទាត់។",
+    "audio_word": "/audio/words/0189.mp3",
+    "audio_example": "/audio/examples/0189.mp3"
   },
   {
     "id": 190,
@@ -2087,7 +2465,9 @@
     "category": "sports",
     "hsk": 3,
     "example_cn": "他打篮球很厉害。",
-    "example_km": "គាត់លេងបាល់បោះពូកែណាស់។"
+    "example_km": "គាត់លេងបាល់បោះពូកែណាស់។",
+    "audio_word": "/audio/words/0190.mp3",
+    "audio_example": "/audio/examples/0190.mp3"
   },
   {
     "id": 191,
@@ -2098,7 +2478,9 @@
     "category": "sports",
     "hsk": 2,
     "example_cn": "运动对身体很好。",
-    "example_km": "កីឡាល្អសម្រាប់រាងកាយ។"
+    "example_km": "កីឡាល្អសម្រាប់រាងកាយ។",
+    "audio_word": "/audio/words/0191.mp3",
+    "audio_example": "/audio/examples/0191.mp3"
   },
   {
     "id": 192,
@@ -2109,7 +2491,9 @@
     "category": "health",
     "hsk": 2,
     "example_cn": "他生病了。",
-    "example_km": "គាត់ឈឺហើយ។"
+    "example_km": "គាត់ឈឺហើយ។",
+    "audio_word": "/audio/words/0192.mp3",
+    "audio_example": "/audio/examples/0192.mp3"
   },
   {
     "id": 193,
@@ -2120,7 +2504,9 @@
     "category": "health",
     "hsk": 3,
     "example_cn": "我感冒了。",
-    "example_km": "ខ្ញុំផ្ដាសាយហើយ។"
+    "example_km": "ខ្ញុំផ្ដាសាយហើយ។",
+    "audio_word": "/audio/words/0193.mp3",
+    "audio_example": "/audio/examples/0193.mp3"
   },
   {
     "id": 194,
@@ -2131,7 +2517,9 @@
     "category": "health",
     "hsk": 3,
     "example_cn": "吃了药就会好的。",
-    "example_km": "ញ៉ាំថ្នាំហើយនឹងជាសះឡើង។"
+    "example_km": "ញ៉ាំថ្នាំហើយនឹងជាសះឡើង។",
+    "audio_word": "/audio/words/0194.mp3",
+    "audio_example": "/audio/examples/0194.mp3"
   },
   {
     "id": 195,
@@ -2142,7 +2530,9 @@
     "category": "health",
     "hsk": 3,
     "example_cn": "健康是最重要的。",
-    "example_km": "សុខភាពសំខាន់ជាងគេ។"
+    "example_km": "សុខភាពសំខាន់ជាងគេ។",
+    "audio_word": "/audio/words/0195.mp3",
+    "audio_example": "/audio/examples/0195.mp3"
   },
   {
     "id": 196,
@@ -2153,7 +2543,9 @@
     "category": "places",
     "hsk": 1,
     "example_cn": "中国是一个大国家。",
-    "example_km": "ចិនជាប្រទេសធំ។"
+    "example_km": "ចិនជាប្រទេសធំ។",
+    "audio_word": "/audio/words/0196.mp3",
+    "audio_example": "/audio/examples/0196.mp3"
   },
   {
     "id": 197,
@@ -2164,7 +2556,9 @@
     "category": "places",
     "hsk": 4,
     "example_cn": "柬埔寨是一个美丽的国家。",
-    "example_km": "កម្ពុជាជាប្រទេសស្រស់ស្អាត។"
+    "example_km": "កម្ពុជាជាប្រទេសស្រស់ស្អាត។",
+    "audio_word": "/audio/words/0197.mp3",
+    "audio_example": "/audio/examples/0197.mp3"
   },
   {
     "id": 198,
@@ -2175,7 +2569,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "他是我的好朋友。",
-    "example_km": "គាត់ជាមិត្តល្អរបស់ខ្ញុំ។"
+    "example_km": "គាត់ជាមិត្តល្អរបស់ខ្ញុំ។",
+    "audio_word": "/audio/words/0198.mp3",
+    "audio_example": "/audio/examples/0198.mp3"
   },
   {
     "id": 199,
@@ -2186,7 +2582,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "你叫什么名字？",
-    "example_km": "អ្នកឈ្មោះអ្វី?"
+    "example_km": "អ្នកឈ្មោះអ្វី?",
+    "audio_word": "/audio/words/0199.mp3",
+    "audio_example": "/audio/examples/0199.mp3"
   },
   {
     "id": 200,
@@ -2197,7 +2595,9 @@
     "category": "technology",
     "hsk": 1,
     "example_cn": "你的电话号码是多少？",
-    "example_km": "លេខទូរស័ព្ទអ្នកប៉ុន្មាន?"
+    "example_km": "លេខទូរស័ព្ទអ្នកប៉ុន្មាន?",
+    "audio_word": "/audio/words/0200.mp3",
+    "audio_example": "/audio/examples/0200.mp3"
   },
   {
     "id": 201,
@@ -2208,7 +2608,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我去学校。",
-    "example_km": "ខ្ញុំទៅសាលារៀន។"
+    "example_km": "ខ្ញុំទៅសាលារៀន។",
+    "audio_word": "/audio/words/0201.mp3",
+    "audio_example": "/audio/examples/0201.mp3"
   },
   {
     "id": 202,
@@ -2219,7 +2621,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "请过来。",
-    "example_km": "សូមអញ្ជើញមក។"
+    "example_km": "សូមអញ្ជើញមក។",
+    "audio_word": "/audio/words/0202.mp3",
+    "audio_example": "/audio/examples/0202.mp3"
   },
   {
     "id": 203,
@@ -2230,7 +2634,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我要回家了。",
-    "example_km": "ខ្ញុំត្រូវត្រឡប់ទៅផ្ទះហើយ។"
+    "example_km": "ខ្ញុំត្រូវត្រឡប់ទៅផ្ទះហើយ។",
+    "audio_word": "/audio/words/0203.mp3",
+    "audio_example": "/audio/examples/0203.mp3"
   },
   {
     "id": 204,
@@ -2241,7 +2647,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我想去中国。",
-    "example_km": "ខ្ញុំចង់ទៅចិន។"
+    "example_km": "ខ្ញុំចង់ទៅចិន។",
+    "audio_word": "/audio/words/0204.mp3",
+    "audio_example": "/audio/examples/0204.mp3"
   },
   {
     "id": 205,
@@ -2252,7 +2660,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我知道了。",
-    "example_km": "ខ្ញុំដឹងហើយ។"
+    "example_km": "ខ្ញុំដឹងហើយ។",
+    "audio_word": "/audio/words/0205.mp3",
+    "audio_example": "/audio/examples/0205.mp3"
   },
   {
     "id": 206,
@@ -2263,7 +2673,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "很高兴认识你。",
-    "example_km": "រីករាយដែលបានស្គាល់អ្នក។"
+    "example_km": "រីករាយដែលបានស្គាល់អ្នក។",
+    "audio_word": "/audio/words/0206.mp3",
+    "audio_example": "/audio/examples/0206.mp3"
   },
   {
     "id": 207,
@@ -2274,7 +2686,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "谢谢你帮助我。",
-    "example_km": "អរគុណដែលជួយខ្ញុំ។"
+    "example_km": "អរគុណដែលជួយខ្ញុំ។",
+    "audio_word": "/audio/words/0207.mp3",
+    "audio_example": "/audio/examples/0207.mp3"
   },
   {
     "id": 208,
@@ -2285,7 +2699,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "我打电话给你。",
-    "example_km": "ខ្ញុំទូរស័ព្ទទៅអ្នក។"
+    "example_km": "ខ្ញុំទូរស័ព្ទទៅអ្នក។",
+    "audio_word": "/audio/words/0208.mp3",
+    "audio_example": "/audio/examples/0208.mp3"
   },
   {
     "id": 209,
@@ -2296,7 +2712,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "请等一下。",
-    "example_km": "សូមរង់ចាំបន្តិច។"
+    "example_km": "សូមរង់ចាំបន្តិច។",
+    "audio_word": "/audio/words/0209.mp3",
+    "audio_example": "/audio/examples/0209.mp3"
   },
   {
     "id": 210,
@@ -2307,7 +2725,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "我在找我的手机。",
-    "example_km": "ខ្ញុំកំពុងរកទូរស័ព្ទរបស់ខ្ញុំ។"
+    "example_km": "ខ្ញុំកំពុងរកទូរស័ព្ទរបស់ខ្ញុំ។",
+    "audio_word": "/audio/words/0210.mp3",
+    "audio_example": "/audio/examples/0210.mp3"
   },
   {
     "id": 211,
@@ -2318,7 +2738,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "这里有很多人。",
-    "example_km": "ទីនេះមានមនុស្សច្រើន។"
+    "example_km": "ទីនេះមានមនុស្សច្រើន។",
+    "audio_word": "/audio/words/0211.mp3",
+    "audio_example": "/audio/examples/0211.mp3"
   },
   {
     "id": 212,
@@ -2329,7 +2751,9 @@
     "category": "daily_items",
     "hsk": 1,
     "example_cn": "你要买什么东西？",
-    "example_km": "អ្នកចង់ទិញឥវ៉ាន់អ្វី?"
+    "example_km": "អ្នកចង់ទិញឥវ៉ាន់អ្វី?",
+    "audio_word": "/audio/words/0212.mp3",
+    "audio_example": "/audio/examples/0212.mp3"
   },
   {
     "id": 213,
@@ -2340,7 +2764,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "你有问题吗？",
-    "example_km": "អ្នកមានសំណួរទេ?"
+    "example_km": "អ្នកមានសំណួរទេ?",
+    "audio_word": "/audio/words/0213.mp3",
+    "audio_example": "/audio/examples/0213.mp3"
   },
   {
     "id": 214,
@@ -2351,7 +2777,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "我有一件事情要做。",
-    "example_km": "ខ្ញុំមានរឿងមួយត្រូវធ្វើ។"
+    "example_km": "ខ្ញុំមានរឿងមួយត្រូវធ្វើ។",
+    "audio_word": "/audio/words/0214.mp3",
+    "audio_example": "/audio/examples/0214.mp3"
   },
   {
     "id": 215,
@@ -2362,7 +2790,9 @@
     "category": "places",
     "hsk": 2,
     "example_cn": "这个地方很美。",
-    "example_km": "កន្លែងនេះស្រស់ស្អាតណាស់។"
+    "example_km": "កន្លែងនេះស្រស់ស្អាតណាស់។",
+    "audio_word": "/audio/words/0215.mp3",
+    "audio_example": "/audio/examples/0215.mp3"
   },
   {
     "id": 216,
@@ -2373,7 +2803,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "时间过得很快。",
-    "example_km": "ពេលវេលាកន្លងទៅលឿនណាស់។"
+    "example_km": "ពេលវេលាកន្លងទៅលឿនណាស់។",
+    "audio_word": "/audio/words/0216.mp3",
+    "audio_example": "/audio/examples/0216.mp3"
   },
   {
     "id": 217,
@@ -2384,7 +2816,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "我们一起看电影吧。",
-    "example_km": "យើងមើលភាពយន្តជាមួយគ្នា។"
+    "example_km": "យើងមើលភាពយន្តជាមួយគ្នា។",
+    "audio_word": "/audio/words/0217.mp3",
+    "audio_example": "/audio/examples/0217.mp3"
   },
   {
     "id": 218,
@@ -2395,7 +2829,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "我喜欢听中国音乐。",
-    "example_km": "ខ្ញុំចូលចិត្តស្ដាប់តន្ត្រីចិន។"
+    "example_km": "ខ្ញុំចូលចិត្តស្ដាប់តន្ត្រីចិន។",
+    "audio_word": "/audio/words/0218.mp3",
+    "audio_example": "/audio/examples/0218.mp3"
   },
   {
     "id": 219,
@@ -2406,7 +2842,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "今天是我的生日。",
-    "example_km": "ថ្ងៃនេះជាថ្ងៃកំណើតរបស់ខ្ញុំ។"
+    "example_km": "ថ្ងៃនេះជាថ្ងៃកំណើតរបស់ខ្ញុំ។",
+    "audio_word": "/audio/words/0219.mp3",
+    "audio_example": "/audio/examples/0219.mp3"
   },
   {
     "id": 220,
@@ -2417,7 +2855,9 @@
     "category": "daily_items",
     "hsk": 3,
     "example_cn": "谢谢你的礼物。",
-    "example_km": "អរគុណសម្រាប់អំណោយរបស់អ្នក។"
+    "example_km": "អរគុណសម្រាប់អំណោយរបស់អ្នក។",
+    "audio_word": "/audio/words/0220.mp3",
+    "audio_example": "/audio/examples/0220.mp3"
   },
   {
     "id": 221,
@@ -2428,7 +2868,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "你家离学校远吗？",
-    "example_km": "ផ្ទះអ្នកឆ្ងាយពីសាលារៀនទេ?"
+    "example_km": "ផ្ទះអ្នកឆ្ងាយពីសាលារៀនទេ?",
+    "audio_word": "/audio/words/0221.mp3",
+    "audio_example": "/audio/examples/0221.mp3"
   },
   {
     "id": 222,
@@ -2439,7 +2881,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "超市离这里很近。",
-    "example_km": "ផ្សារទំនើបជិតពីទីនេះ។"
+    "example_km": "ផ្សារទំនើបជិតពីទីនេះ។",
+    "audio_word": "/audio/words/0222.mp3",
+    "audio_example": "/audio/examples/0222.mp3"
   },
   {
     "id": 223,
@@ -2450,7 +2894,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "中国的长城很长。",
-    "example_km": "កំផែងចិនវែងណាស់។"
+    "example_km": "កំផែងចិនវែងណាស់។",
+    "audio_word": "/audio/words/0223.mp3",
+    "audio_example": "/audio/examples/0223.mp3"
   },
   {
     "id": 224,
@@ -2461,7 +2907,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "这条裙子太短了。",
-    "example_km": "សំពត់នេះខ្លីពេក។"
+    "example_km": "សំពត់នេះខ្លីពេក។",
+    "audio_word": "/audio/words/0224.mp3",
+    "audio_example": "/audio/examples/0224.mp3"
   },
   {
     "id": 225,
@@ -2472,7 +2920,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "这只猫很胖。",
-    "example_km": "ឆ្មានេះធាត់ណាស់។"
+    "example_km": "ឆ្មានេះធាត់ណាស់។",
+    "audio_word": "/audio/words/0225.mp3",
+    "audio_example": "/audio/examples/0225.mp3"
   },
   {
     "id": 226,
@@ -2483,7 +2933,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "他太瘦了。",
-    "example_km": "គាត់ស្គមពេក។"
+    "example_km": "គាត់ស្គមពេក។",
+    "audio_word": "/audio/words/0226.mp3",
+    "audio_example": "/audio/examples/0226.mp3"
   },
   {
     "id": 227,
@@ -2494,7 +2946,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "他很高。",
-    "example_km": "គាត់ខ្ពស់ណាស់។"
+    "example_km": "គាត់ខ្ពស់ណាស់។",
+    "audio_word": "/audio/words/0227.mp3",
+    "audio_example": "/audio/examples/0227.mp3"
   },
   {
     "id": 228,
@@ -2505,7 +2959,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "这棵树很矮。",
-    "example_km": "ដើមឈើនេះទាបណាស់។"
+    "example_km": "ដើមឈើនេះទាបណាស់។",
+    "audio_word": "/audio/words/0228.mp3",
+    "audio_example": "/audio/examples/0228.mp3"
   },
   {
     "id": 229,
@@ -2516,7 +2972,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "这个房间很干净。",
-    "example_km": "បន្ទប់នេះស្អាតណាស់។"
+    "example_km": "បន្ទប់នេះស្អាតណាស់។",
+    "audio_word": "/audio/words/0229.mp3",
+    "audio_example": "/audio/examples/0229.mp3"
   },
   {
     "id": 230,
@@ -2527,7 +2985,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "这道题很容易。",
-    "example_km": "លំហាត់នេះងាយណាស់។"
+    "example_km": "លំហាត់នេះងាយណាស់។",
+    "audio_word": "/audio/words/0230.mp3",
+    "audio_example": "/audio/examples/0230.mp3"
   },
   {
     "id": 231,
@@ -2538,7 +2998,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "中文很难学。",
-    "example_km": "ភាសាចិនពិបាករៀន។"
+    "example_km": "ភាសាចិនពិបាករៀន។",
+    "audio_word": "/audio/words/0231.mp3",
+    "audio_example": "/audio/examples/0231.mp3"
   },
   {
     "id": 232,
@@ -2549,7 +3011,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "健康很重要。",
-    "example_km": "សុខភាពសំខាន់ណាស់។"
+    "example_km": "សុខភាពសំខាន់ណាស់។",
+    "audio_word": "/audio/words/0232.mp3",
+    "audio_example": "/audio/examples/0232.mp3"
   },
   {
     "id": 233,
@@ -2560,7 +3024,9 @@
     "category": "school",
     "hsk": 1,
     "example_cn": "我在学中文。",
-    "example_km": "ខ្ញុំកំពុងរៀនភាសាចិន។"
+    "example_km": "ខ្ញុំកំពុងរៀនភាសាចិន។",
+    "audio_word": "/audio/words/0233.mp3",
+    "audio_example": "/audio/examples/0233.mp3"
   },
   {
     "id": 234,
@@ -2571,7 +3037,9 @@
     "category": "school",
     "hsk": 5,
     "example_cn": "你会说高棉语吗？",
-    "example_km": "អ្នកចេះនិយាយភាសាខ្មែរទេ?"
+    "example_km": "អ្នកចេះនិយាយភាសាខ្មែរទេ?",
+    "audio_word": "/audio/words/0234.mp3",
+    "audio_example": "/audio/examples/0234.mp3"
   },
   {
     "id": 235,
@@ -2582,7 +3050,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "你真厉害！",
-    "example_km": "អ្នកពូកែណាស់!"
+    "example_km": "អ្នកពូកែណាស់!",
+    "audio_word": "/audio/words/0235.mp3",
+    "audio_example": "/audio/examples/0235.mp3"
   },
   {
     "id": 236,
@@ -2593,7 +3063,9 @@
     "category": "greetings",
     "hsk": 3,
     "example_cn": "加油！你可以的！",
-    "example_km": "សូមប្រឹង! អ្នកធ្វើបាន!"
+    "example_km": "សូមប្រឹង! អ្នកធ្វើបាន!",
+    "audio_word": "/audio/words/0236.mp3",
+    "audio_example": "/audio/examples/0236.mp3"
   },
   {
     "id": 237,
@@ -2604,7 +3076,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "现在八点钟。",
-    "example_km": "ឥឡូវម៉ោង ៨។"
+    "example_km": "ឥឡូវម៉ោង ៨។",
+    "audio_word": "/audio/words/0237.mp3",
+    "audio_example": "/audio/examples/0237.mp3"
   },
   {
     "id": 238,
@@ -2615,7 +3089,9 @@
     "category": "places",
     "hsk": 2,
     "example_cn": "这条路很长。",
-    "example_km": "ផ្លូវនេះវែងណាស់។"
+    "example_km": "ផ្លូវនេះវែងណាស់។",
+    "audio_word": "/audio/words/0238.mp3",
+    "audio_example": "/audio/examples/0238.mp3"
   },
   {
     "id": 239,
@@ -2626,7 +3102,9 @@
     "category": "weather",
     "hsk": 2,
     "example_cn": "柬埔寨雨季雨很多。",
-    "example_km": "នៅកម្ពុជារដូវភ្លៀងមានភ្លៀងច្រើន។"
+    "example_km": "នៅកម្ពុជារដូវភ្លៀងមានភ្លៀងច្រើន។",
+    "audio_word": "/audio/words/0239.mp3",
+    "audio_example": "/audio/examples/0239.mp3"
   },
   {
     "id": 240,
@@ -2637,7 +3115,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "你吃饭了吗？",
-    "example_km": "អ្នកញ៉ាំបាយហើយឬនៅ?"
+    "example_km": "អ្នកញ៉ាំបាយហើយឬនៅ?",
+    "audio_word": "/audio/words/0240.mp3",
+    "audio_example": "/audio/examples/0240.mp3"
   },
   {
     "id": 241,
@@ -2648,7 +3128,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "先生，您好。",
-    "example_km": "សួស្តី លោក។"
+    "example_km": "សួស្តី លោក។",
+    "audio_word": "/audio/words/0241.mp3",
+    "audio_example": "/audio/examples/0241.mp3"
   },
   {
     "id": 242,
@@ -2659,7 +3141,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "小姐，请问…",
-    "example_km": "កញ្ញា សូមសួរ..."
+    "example_km": "កញ្ញា សូមសួរ...",
+    "audio_word": "/audio/words/0242.mp3",
+    "audio_example": "/audio/examples/0242.mp3"
   },
   {
     "id": 243,
@@ -2670,7 +3154,9 @@
     "category": "places",
     "hsk": 2,
     "example_cn": "我在公司上班。",
-    "example_km": "ខ្ញុំធ្វើការនៅក្រុមហ៊ុន។"
+    "example_km": "ខ្ញុំធ្វើការនៅក្រុមហ៊ុន។",
+    "audio_word": "/audio/words/0243.mp3",
+    "audio_example": "/audio/examples/0243.mp3"
   },
   {
     "id": 244,
@@ -2681,7 +3167,9 @@
     "category": "daily_items",
     "hsk": 4,
     "example_cn": "请出示你的护照。",
-    "example_km": "សូមបង្ហាញលិខិតឆ្លងដែនរបស់អ្នក។"
+    "example_km": "សូមបង្ហាញលិខិតឆ្លងដែនរបស់អ្នក។",
+    "audio_word": "/audio/words/0244.mp3",
+    "audio_example": "/audio/examples/0244.mp3"
   },
   {
     "id": 245,
@@ -2692,7 +3180,9 @@
     "category": "daily_items",
     "hsk": 4,
     "example_cn": "我需要办签证。",
-    "example_km": "ខ្ញុំត្រូវការធ្វើទិដ្ឋាការ។"
+    "example_km": "ខ្ញុំត្រូវការធ្វើទិដ្ឋាការ។",
+    "audio_word": "/audio/words/0245.mp3",
+    "audio_example": "/audio/examples/0245.mp3"
   },
   {
     "id": 246,
@@ -2703,7 +3193,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "零度以下很冷。",
-    "example_km": "ក្រោមសូន្យដឺក្រេត្រជាក់ណាស់។"
+    "example_km": "ក្រោមសូន្យដឺក្រេត្រជាក់ណាស់។",
+    "audio_word": "/audio/words/0246.mp3",
+    "audio_example": "/audio/examples/0246.mp3"
   },
   {
     "id": 247,
@@ -2714,7 +3206,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "我有四个朋友。",
-    "example_km": "ខ្ញុំមានមិត្តបួននាក់។"
+    "example_km": "ខ្ញុំមានមិត្តបួននាក់។",
+    "audio_word": "/audio/words/0247.mp3",
+    "audio_example": "/audio/examples/0247.mp3"
   },
   {
     "id": 248,
@@ -2725,7 +3219,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "我等了五分钟。",
-    "example_km": "ខ្ញុំរង់ចាំប្រាំនាទី។"
+    "example_km": "ខ្ញុំរង់ចាំប្រាំនាទី។",
+    "audio_word": "/audio/words/0248.mp3",
+    "audio_example": "/audio/examples/0248.mp3"
   },
   {
     "id": 249,
@@ -2736,7 +3232,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "六月天气很热。",
-    "example_km": "ខែប្រាំមួយអាកាសធាតុក្ដៅ។"
+    "example_km": "ខែប្រាំមួយអាកាសធាតុក្ដៅ។",
+    "audio_word": "/audio/words/0249.mp3",
+    "audio_example": "/audio/examples/0249.mp3"
   },
   {
     "id": 250,
@@ -2747,7 +3245,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "一个星期有七天。",
-    "example_km": "មួយសប្ដាហ៍មានប្រាំពីរថ្ងៃ។"
+    "example_km": "មួយសប្ដាហ៍មានប្រាំពីរថ្ងៃ។",
+    "audio_word": "/audio/words/0250.mp3",
+    "audio_example": "/audio/examples/0250.mp3"
   },
   {
     "id": 251,
@@ -2758,7 +3258,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "八是中国的幸运数字。",
-    "example_km": "ប្រាំបីជាលេខសំណាងរបស់ចិន។"
+    "example_km": "ប្រាំបីជាលេខសំណាងរបស់ចិន។",
+    "audio_word": "/audio/words/0251.mp3",
+    "audio_example": "/audio/examples/0251.mp3"
   },
   {
     "id": 252,
@@ -2769,7 +3271,9 @@
     "category": "numbers",
     "hsk": 1,
     "example_cn": "九点上课。",
-    "example_km": "ម៉ោងប្រាំបួនចូលរៀន។"
+    "example_km": "ម៉ោងប្រាំបួនចូលរៀន។",
+    "audio_word": "/audio/words/0252.mp3",
+    "audio_example": "/audio/examples/0252.mp3"
   },
   {
     "id": 253,
@@ -2780,7 +3284,9 @@
     "category": "numbers",
     "hsk": 3,
     "example_cn": "一万块钱不少了。",
-    "example_km": "មួយម៉ឺនយាន់មិនតិចទេ។"
+    "example_km": "មួយម៉ឺនយាន់មិនតិចទេ។",
+    "audio_word": "/audio/words/0253.mp3",
+    "audio_example": "/audio/examples/0253.mp3"
   },
   {
     "id": 254,
@@ -2791,7 +3297,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "向右转。",
-    "example_km": "បត់ស្ដាំ។"
+    "example_km": "បត់ស្ដាំ។",
+    "audio_word": "/audio/words/0254.mp3",
+    "audio_example": "/audio/examples/0254.mp3"
   },
   {
     "id": 255,
@@ -2802,7 +3310,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "向左转。",
-    "example_km": "បត់ឆ្វេង។"
+    "example_km": "បត់ឆ្វេង។",
+    "audio_word": "/audio/words/0255.mp3",
+    "audio_example": "/audio/examples/0255.mp3"
   },
   {
     "id": 256,
@@ -2813,7 +3323,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "学校在前面。",
-    "example_km": "សាលារៀននៅខាងមុខ។"
+    "example_km": "សាលារៀននៅខាងមុខ។",
+    "audio_word": "/audio/words/0256.mp3",
+    "audio_example": "/audio/examples/0256.mp3"
   },
   {
     "id": 257,
@@ -2824,7 +3336,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "停车场在后面。",
-    "example_km": "កន្លែងចតឡាននៅខាងក្រោយ។"
+    "example_km": "កន្លែងចតឡាននៅខាងក្រោយ។",
+    "audio_word": "/audio/words/0257.mp3",
+    "audio_example": "/audio/examples/0257.mp3"
   },
   {
     "id": 258,
@@ -2835,7 +3349,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "书在桌子上面。",
-    "example_km": "សៀវភៅនៅលើតុ។"
+    "example_km": "សៀវភៅនៅលើតុ។",
+    "audio_word": "/audio/words/0258.mp3",
+    "audio_example": "/audio/examples/0258.mp3"
   },
   {
     "id": 259,
@@ -2846,7 +3362,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "猫在桌子下面。",
-    "example_km": "ឆ្មានៅក្រោមតុ។"
+    "example_km": "ឆ្មានៅក្រោមតុ។",
+    "audio_word": "/audio/words/0259.mp3",
+    "audio_example": "/audio/examples/0259.mp3"
   },
   {
     "id": 260,
@@ -2857,7 +3375,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "人在房间里面。",
-    "example_km": "មនុស្សនៅក្នុងបន្ទប់។"
+    "example_km": "មនុស្សនៅក្នុងបន្ទប់។",
+    "audio_word": "/audio/words/0260.mp3",
+    "audio_example": "/audio/examples/0260.mp3"
   },
   {
     "id": 261,
@@ -2868,7 +3388,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "外面下雨了。",
-    "example_km": "ខាងក្រៅភ្លៀងធ្លាក់ហើយ។"
+    "example_km": "ខាងក្រៅភ្លៀងធ្លាក់ហើយ។",
+    "audio_word": "/audio/words/0261.mp3",
+    "audio_example": "/audio/examples/0261.mp3"
   },
   {
     "id": 262,
@@ -2879,7 +3401,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "银行在学校旁边。",
-    "example_km": "ធនាគារនៅក្បែរសាលារៀន។"
+    "example_km": "ធនាគារនៅក្បែរសាលារៀន។",
+    "audio_word": "/audio/words/0262.mp3",
+    "audio_example": "/audio/examples/0262.mp3"
   },
   {
     "id": 263,
@@ -2890,7 +3414,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "你怎么了？",
-    "example_km": "អ្នកយ៉ាងម៉េចហើយ?"
+    "example_km": "អ្នកយ៉ាងម៉េចហើយ?",
+    "audio_word": "/audio/words/0263.mp3",
+    "audio_example": "/audio/examples/0263.mp3"
   },
   {
     "id": 264,
@@ -2901,7 +3427,9 @@
     "category": "greetings",
     "hsk": 2,
     "example_cn": "你为什么迟到？",
-    "example_km": "ហេតុអ្វីបានជាអ្នកមកយឺត?"
+    "example_km": "ហេតុអ្វីបានជាអ្នកមកយឺត?",
+    "audio_word": "/audio/words/0264.mp3",
+    "audio_example": "/audio/examples/0264.mp3"
   },
   {
     "id": 265,
@@ -2912,7 +3440,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "这是什么？",
-    "example_km": "នេះជាអ្វី?"
+    "example_km": "នេះជាអ្វី?",
+    "audio_word": "/audio/words/0265.mp3",
+    "audio_example": "/audio/examples/0265.mp3"
   },
   {
     "id": 266,
@@ -2923,7 +3453,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "你家在哪里？",
-    "example_km": "ផ្ទះអ្នកនៅឯណា?"
+    "example_km": "ផ្ទះអ្នកនៅឯណា?",
+    "audio_word": "/audio/words/0266.mp3",
+    "audio_example": "/audio/examples/0266.mp3"
   },
   {
     "id": 267,
@@ -2934,7 +3466,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "他是谁？",
-    "example_km": "គាត់ជានរណា?"
+    "example_km": "គាត់ជានរណា?",
+    "audio_word": "/audio/words/0267.mp3",
+    "audio_example": "/audio/examples/0267.mp3"
   },
   {
     "id": 268,
@@ -2945,7 +3479,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "这个多少钱？",
-    "example_km": "នេះថ្លៃប៉ុន្មាន?"
+    "example_km": "នេះថ្លៃប៉ុន្មាន?",
+    "audio_word": "/audio/words/0268.mp3",
+    "audio_example": "/audio/examples/0268.mp3"
   },
   {
     "id": 269,
@@ -2956,7 +3492,9 @@
     "category": "nature",
     "hsk": 3,
     "example_cn": "春天花开了。",
-    "example_km": "រដូវផ្ការីកផ្កាបានរីក។"
+    "example_km": "រដូវផ្ការីកផ្កាបានរីក។",
+    "audio_word": "/audio/words/0269.mp3",
+    "audio_example": "/audio/examples/0269.mp3"
   },
   {
     "id": 270,
@@ -2967,7 +3505,9 @@
     "category": "nature",
     "hsk": 3,
     "example_cn": "夏天很热。",
-    "example_km": "រដូវក្ដៅក្ដៅណាស់។"
+    "example_km": "រដូវក្ដៅក្ដៅណាស់។",
+    "audio_word": "/audio/words/0270.mp3",
+    "audio_example": "/audio/examples/0270.mp3"
   },
   {
     "id": 271,
@@ -2978,7 +3518,9 @@
     "category": "nature",
     "hsk": 3,
     "example_cn": "秋天叶子变黄了。",
-    "example_km": "រដូវស្លឹកឈើជ្រុះស្លឹកប្រែពណ៌លឿង។"
+    "example_km": "រដូវស្លឹកឈើជ្រុះស្លឹកប្រែពណ៌លឿង។",
+    "audio_word": "/audio/words/0271.mp3",
+    "audio_example": "/audio/examples/0271.mp3"
   },
   {
     "id": 272,
@@ -2989,7 +3531,9 @@
     "category": "nature",
     "hsk": 3,
     "example_cn": "冬天要穿厚衣服。",
-    "example_km": "រដូវរងារត្រូវពាក់អាវក្រាស់។"
+    "example_km": "រដូវរងារត្រូវពាក់អាវក្រាស់។",
+    "audio_word": "/audio/words/0272.mp3",
+    "audio_example": "/audio/examples/0272.mp3"
   },
   {
     "id": 273,
@@ -3000,7 +3544,9 @@
     "category": "nature",
     "hsk": 1,
     "example_cn": "今天天很蓝。",
-    "example_km": "ថ្ងៃនេះមេឃខៀវណាស់។"
+    "example_km": "ថ្ងៃនេះមេឃខៀវណាស់។",
+    "audio_word": "/audio/words/0273.mp3",
+    "audio_example": "/audio/examples/0273.mp3"
   },
   {
     "id": 274,
@@ -3011,7 +3557,9 @@
     "category": "nature",
     "hsk": 2,
     "example_cn": "地上有很多落叶。",
-    "example_km": "នៅលើដីមានស្លឹកឈើជ្រុះច្រើន។"
+    "example_km": "នៅលើដីមានស្លឹកឈើជ្រុះច្រើន។",
+    "audio_word": "/audio/words/0274.mp3",
+    "audio_example": "/audio/examples/0274.mp3"
   },
   {
     "id": 275,
@@ -3022,7 +3570,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "你能帮我吗？",
-    "example_km": "អ្នកអាចជួយខ្ញុំបានទេ?"
+    "example_km": "អ្នកអាចជួយខ្ញុំបានទេ?",
+    "audio_word": "/audio/words/0275.mp3",
+    "audio_example": "/audio/examples/0275.mp3"
   },
   {
     "id": 276,
@@ -3033,7 +3583,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "我会说中文。",
-    "example_km": "ខ្ញុំចេះនិយាយភាសាចិន។"
+    "example_km": "ខ្ញុំចេះនិយាយភាសាចិន។",
+    "audio_word": "/audio/words/0276.mp3",
+    "audio_example": "/audio/examples/0276.mp3"
   },
   {
     "id": 277,
@@ -3044,7 +3596,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "可以进来吗？",
-    "example_km": "អាចចូលមកបានទេ?"
+    "example_km": "អាចចូលមកបានទេ?",
+    "audio_word": "/audio/words/0277.mp3",
+    "audio_example": "/audio/examples/0277.mp3"
   },
   {
     "id": 278,
@@ -3055,7 +3609,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "你好吗？",
-    "example_km": "អ្នកសុខសប្បាយទេ?"
+    "example_km": "អ្នកសុខសប្បាយទេ?",
+    "audio_word": "/audio/words/0278.mp3",
+    "audio_example": "/audio/examples/0278.mp3"
   },
   {
     "id": 279,
@@ -3066,7 +3622,9 @@
     "category": "greetings",
     "hsk": 1,
     "example_cn": "我吃饭了。",
-    "example_km": "ខ្ញុំញ៉ាំបាយហើយ។"
+    "example_km": "ខ្ញុំញ៉ាំបាយហើយ។",
+    "audio_word": "/audio/words/0279.mp3",
+    "audio_example": "/audio/examples/0279.mp3"
   },
   {
     "id": 280,
@@ -3077,7 +3635,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "今天很热。",
-    "example_km": "ថ្ងៃនេះក្ដៅណាស់។"
+    "example_km": "ថ្ងៃនេះក្ដៅណាស់។",
+    "audio_word": "/audio/words/0280.mp3",
+    "audio_example": "/audio/examples/0280.mp3"
   },
   {
     "id": 281,
@@ -3088,7 +3648,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“沙发”。",
-    "example_km": "ពាក្យនេះគឺ “សាឡុង”。"
+    "example_km": "ពាក្យនេះគឺ “សាឡុង”。",
+    "audio_word": "/audio/words/0281.mp3",
+    "audio_example": "/audio/examples/0281.mp3"
   },
   {
     "id": 282,
@@ -3099,7 +3661,9 @@
     "category": "home",
     "hsk": 1,
     "example_cn": "这个词是“房间”。",
-    "example_km": "ពាក្យនេះគឺ “បន្ទប់”。"
+    "example_km": "ពាក្យនេះគឺ “បន្ទប់”。",
+    "audio_word": "/audio/words/0282.mp3",
+    "audio_example": "/audio/examples/0282.mp3"
   },
   {
     "id": 283,
@@ -3110,7 +3674,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“厨房”。",
-    "example_km": "ពាក្យនេះគឺ “ផ្ទះបាយ”。"
+    "example_km": "ពាក្យនេះគឺ “ផ្ទះបាយ”。",
+    "audio_word": "/audio/words/0283.mp3",
+    "audio_example": "/audio/examples/0283.mp3"
   },
   {
     "id": 284,
@@ -3121,7 +3687,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“客厅”。",
-    "example_km": "ពាក្យនេះគឺ “បន្ទប់ទទួលភ្ញៀវ”。"
+    "example_km": "ពាក្យនេះគឺ “បន្ទប់ទទួលភ្ញៀវ”。",
+    "audio_word": "/audio/words/0284.mp3",
+    "audio_example": "/audio/examples/0284.mp3"
   },
   {
     "id": 285,
@@ -3132,7 +3700,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“浴室”。",
-    "example_km": "ពាក្យនេះគឺ “បន្ទប់ទឹក”。"
+    "example_km": "ពាក្យនេះគឺ “បន្ទប់ទឹក”。",
+    "audio_word": "/audio/words/0285.mp3",
+    "audio_example": "/audio/examples/0285.mp3"
   },
   {
     "id": 286,
@@ -3143,7 +3713,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“冰箱”。",
-    "example_km": "ពាក្យនេះគឺ “ទូរទឹកកក”。"
+    "example_km": "ពាក្យនេះគឺ “ទូរទឹកកក”。",
+    "audio_word": "/audio/words/0286.mp3",
+    "audio_example": "/audio/examples/0286.mp3"
   },
   {
     "id": 287,
@@ -3154,7 +3726,9 @@
     "category": "home",
     "hsk": 1,
     "example_cn": "这个词是“灯”。",
-    "example_km": "ពាក្យនេះគឺ “ចង្កៀង”。"
+    "example_km": "ពាក្យនេះគឺ “ចង្កៀង”。",
+    "audio_word": "/audio/words/0287.mp3",
+    "audio_example": "/audio/examples/0287.mp3"
   },
   {
     "id": 288,
@@ -3165,7 +3739,9 @@
     "category": "home",
     "hsk": 1,
     "example_cn": "这个词是“书包”。",
-    "example_km": "ពាក្យនេះគឺ “កាបូប”。"
+    "example_km": "ពាក្យនេះគឺ “កាបូប”。",
+    "audio_word": "/audio/words/0288.mp3",
+    "audio_example": "/audio/examples/0288.mp3"
   },
   {
     "id": 289,
@@ -3176,7 +3752,9 @@
     "category": "home",
     "hsk": 1,
     "example_cn": "这个词是“杯子”。",
-    "example_km": "ពាក្យនេះគឺ “ពែង”。"
+    "example_km": "ពាក្យនេះគឺ “ពែង”。",
+    "audio_word": "/audio/words/0289.mp3",
+    "audio_example": "/audio/examples/0289.mp3"
   },
   {
     "id": 290,
@@ -3187,7 +3765,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“盘子”。",
-    "example_km": "ពាក្យនេះគឺ “ចាន”。"
+    "example_km": "ពាក្យនេះគឺ “ចាន”。",
+    "audio_word": "/audio/words/0290.mp3",
+    "audio_example": "/audio/examples/0290.mp3"
   },
   {
     "id": 291,
@@ -3198,7 +3778,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“勺子”。",
-    "example_km": "ពាក្យនេះគឺ “ស្លាបព្រា”。"
+    "example_km": "ពាក្យនេះគឺ “ស្លាបព្រា”。",
+    "audio_word": "/audio/words/0291.mp3",
+    "audio_example": "/audio/examples/0291.mp3"
   },
   {
     "id": 292,
@@ -3209,7 +3791,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“叉子”。",
-    "example_km": "ពាក្យនេះគឺ “សម”。"
+    "example_km": "ពាក្យនេះគឺ “សម”。",
+    "audio_word": "/audio/words/0292.mp3",
+    "audio_example": "/audio/examples/0292.mp3"
   },
   {
     "id": 293,
@@ -3220,7 +3804,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“刀”。",
-    "example_km": "ពាក្យនេះគឺ “កាំបិត”。"
+    "example_km": "ពាក្យនេះគឺ “កាំបិត”。",
+    "audio_word": "/audio/words/0293.mp3",
+    "audio_example": "/audio/examples/0293.mp3"
   },
   {
     "id": 294,
@@ -3231,7 +3817,9 @@
     "category": "home",
     "hsk": 2,
     "example_cn": "这个词是“毛巾”。",
-    "example_km": "ពាក្យនេះគឺ “កន្សែង”。"
+    "example_km": "ពាក្យនេះគឺ “កន្សែង”。",
+    "audio_word": "/audio/words/0294.mp3",
+    "audio_example": "/audio/examples/0294.mp3"
   },
   {
     "id": 295,
@@ -3242,7 +3830,9 @@
     "category": "school",
     "hsk": 1,
     "example_cn": "这个词是“本子”。",
-    "example_km": "ពាក្យនេះគឺ “សៀវភៅ”。"
+    "example_km": "ពាក្យនេះគឺ “សៀវភៅ”。",
+    "audio_word": "/audio/words/0295.mp3",
+    "audio_example": "/audio/examples/0295.mp3"
   },
   {
     "id": 296,
@@ -3253,7 +3843,9 @@
     "category": "school",
     "hsk": 1,
     "example_cn": "这个词是“铅笔”。",
-    "example_km": "ពាក្យនេះគឺ “ខ្មៅដៃ”。"
+    "example_km": "ពាក្យនេះគឺ “ខ្មៅដៃ”。",
+    "audio_word": "/audio/words/0296.mp3",
+    "audio_example": "/audio/examples/0296.mp3"
   },
   {
     "id": 297,
@@ -3264,7 +3856,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "这个词是“橡皮”。",
-    "example_km": "ពាក្យនេះគឺ “ជ័រលុប”。"
+    "example_km": "ពាក្យនេះគឺ “ជ័រលុប”。",
+    "audio_word": "/audio/words/0297.mp3",
+    "audio_example": "/audio/examples/0297.mp3"
   },
   {
     "id": 298,
@@ -3275,7 +3869,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "这个词是“黑板”。",
-    "example_km": "ពាក្យនេះគឺ “ក្តារខៀន”。"
+    "example_km": "ពាក្យនេះគឺ “ក្តារខៀន”。",
+    "audio_word": "/audio/words/0298.mp3",
+    "audio_example": "/audio/examples/0298.mp3"
   },
   {
     "id": 299,
@@ -3286,7 +3882,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "这个词是“图书馆”。",
-    "example_km": "ពាក្យនេះគឺ “បណ្ណាល័យ”。"
+    "example_km": "ពាក្យនេះគឺ “បណ្ណាល័យ”。",
+    "audio_word": "/audio/words/0299.mp3",
+    "audio_example": "/audio/examples/0299.mp3"
   },
   {
     "id": 300,
@@ -3297,7 +3895,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "这个词是“课本”。",
-    "example_km": "ពាក្យនេះគឺ “សៀវភៅសិក្សា”。"
+    "example_km": "ពាក្យនេះគឺ “សៀវភៅសិក្សា”。",
+    "audio_word": "/audio/words/0300.mp3",
+    "audio_example": "/audio/examples/0300.mp3"
   },
   {
     "id": 301,
@@ -3308,7 +3908,9 @@
     "category": "school",
     "hsk": 3,
     "example_cn": "这个词是“成绩”。",
-    "example_km": "ពាក្យនេះគឺ “ពិន្ទុ”。"
+    "example_km": "ពាក្យនេះគឺ “ពិន្ទុ”。",
+    "audio_word": "/audio/words/0301.mp3",
+    "audio_example": "/audio/examples/0301.mp3"
   },
   {
     "id": 302,
@@ -3319,7 +3921,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "这个词是“答案”。",
-    "example_km": "ពាក្យនេះគឺ “ចម្លើយ”。"
+    "example_km": "ពាក្យនេះគឺ “ចម្លើយ”。",
+    "audio_word": "/audio/words/0302.mp3",
+    "audio_example": "/audio/examples/0302.mp3"
   },
   {
     "id": 303,
@@ -3330,7 +3934,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "这个词是“练习”。",
-    "example_km": "ពាក្យនេះគឺ “ការអនុវត្ត”。"
+    "example_km": "ពាក្យនេះគឺ “ការអនុវត្ត”。",
+    "audio_word": "/audio/words/0303.mp3",
+    "audio_example": "/audio/examples/0303.mp3"
   },
   {
     "id": 304,
@@ -3341,7 +3947,9 @@
     "category": "school",
     "hsk": 1,
     "example_cn": "这个词是“单词”。",
-    "example_km": "ពាក្យនេះគឺ “ពាក្យ”。"
+    "example_km": "ពាក្យនេះគឺ “ពាក្យ”。",
+    "audio_word": "/audio/words/0304.mp3",
+    "audio_example": "/audio/examples/0304.mp3"
   },
   {
     "id": 305,
@@ -3352,7 +3960,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "这个词是“句子”。",
-    "example_km": "ពាក្យនេះគឺ “ប្រយោគ”。"
+    "example_km": "ពាក្យនេះគឺ “ប្រយោគ”。",
+    "audio_word": "/audio/words/0305.mp3",
+    "audio_example": "/audio/examples/0305.mp3"
   },
   {
     "id": 306,
@@ -3363,7 +3973,9 @@
     "category": "school",
     "hsk": 2,
     "example_cn": "这个词是“汉字”。",
-    "example_km": "ពាក្យនេះគឺ “តួអក្សរចិន”。"
+    "example_km": "ពាក្យនេះគឺ “តួអក្សរចិន”。",
+    "audio_word": "/audio/words/0306.mp3",
+    "audio_example": "/audio/examples/0306.mp3"
   },
   {
     "id": 307,
@@ -3374,7 +3986,9 @@
     "category": "school",
     "hsk": 3,
     "example_cn": "这个词是“语法”。",
-    "example_km": "ពាក្យនេះគឺ “វេយ្យាករណ៍”。"
+    "example_km": "ពាក្យនេះគឺ “វេយ្យាករណ៍”。",
+    "audio_word": "/audio/words/0307.mp3",
+    "audio_example": "/audio/examples/0307.mp3"
   },
   {
     "id": 308,
@@ -3385,7 +3999,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“同事”。",
-    "example_km": "ពាក្យនេះគឺ “មិត្តរួមការងារ”。"
+    "example_km": "ពាក្យនេះគឺ “មិត្តរួមការងារ”。",
+    "audio_word": "/audio/words/0308.mp3",
+    "audio_example": "/audio/examples/0308.mp3"
   },
   {
     "id": 309,
@@ -3396,7 +4012,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“老板”。",
-    "example_km": "ពាក្យនេះគឺ “ថៅកែ”。"
+    "example_km": "ពាក្យនេះគឺ “ថៅកែ”。",
+    "audio_word": "/audio/words/0309.mp3",
+    "audio_example": "/audio/examples/0309.mp3"
   },
   {
     "id": 310,
@@ -3407,7 +4025,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“会议”。",
-    "example_km": "ពាក្យនេះគឺ “ការប្រជុំ”。"
+    "example_km": "ពាក្យនេះគឺ “ការប្រជុំ”。",
+    "audio_word": "/audio/words/0310.mp3",
+    "audio_example": "/audio/examples/0310.mp3"
   },
   {
     "id": 311,
@@ -3418,7 +4038,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“文件”。",
-    "example_km": "ពាក្យនេះគឺ “ឯកសារ”。"
+    "example_km": "ពាក្យនេះគឺ “ឯកសារ”。",
+    "audio_word": "/audio/words/0311.mp3",
+    "audio_example": "/audio/examples/0311.mp3"
   },
   {
     "id": 312,
@@ -3429,7 +4051,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“邮件”。",
-    "example_km": "ពាក្យនេះគឺ “សំបុត្រ”。"
+    "example_km": "ពាក្យនេះគឺ “សំបុត្រ”。",
+    "audio_word": "/audio/words/0312.mp3",
+    "audio_example": "/audio/examples/0312.mp3"
   },
   {
     "id": 313,
@@ -3440,7 +4064,9 @@
     "category": "work",
     "hsk": 3,
     "example_cn": "这个词是“客户”。",
-    "example_km": "ពាក្យនេះគឺ “អតិថិជន”。"
+    "example_km": "ពាក្យនេះគឺ “អតិថិជន”。",
+    "audio_word": "/audio/words/0313.mp3",
+    "audio_example": "/audio/examples/0313.mp3"
   },
   {
     "id": 314,
@@ -3451,7 +4077,9 @@
     "category": "work",
     "hsk": 3,
     "example_cn": "这个词是“经理”。",
-    "example_km": "ពាក្យនេះគឺ “អ្នកគ្រប់គ្រង”。"
+    "example_km": "ពាក្យនេះគឺ “អ្នកគ្រប់គ្រង”。",
+    "audio_word": "/audio/words/0314.mp3",
+    "audio_example": "/audio/examples/0314.mp3"
   },
   {
     "id": 315,
@@ -3462,7 +4090,9 @@
     "category": "work",
     "hsk": 3,
     "example_cn": "这个词是“工资”。",
-    "example_km": "ពាក្យនេះគឺ “ប្រាក់ខែ”。"
+    "example_km": "ពាក្យនេះគឺ “ប្រាក់ខែ”。",
+    "audio_word": "/audio/words/0315.mp3",
+    "audio_example": "/audio/examples/0315.mp3"
   },
   {
     "id": 316,
@@ -3473,7 +4103,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“任务”。",
-    "example_km": "ពាក្យនេះគឺ “កិច្ចការ”。"
+    "example_km": "ពាក្យនេះគឺ “កិច្ចការ”。",
+    "audio_word": "/audio/words/0316.mp3",
+    "audio_example": "/audio/examples/0316.mp3"
   },
   {
     "id": 317,
@@ -3484,7 +4116,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“计划”。",
-    "example_km": "ពាក្យនេះគឺ “ផែនការ”。"
+    "example_km": "ពាក្យនេះគឺ “ផែនការ”。",
+    "audio_word": "/audio/words/0317.mp3",
+    "audio_example": "/audio/examples/0317.mp3"
   },
   {
     "id": 318,
@@ -3495,7 +4129,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“假期”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃឈប់សម្រាក”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃឈប់សម្រាក”。",
+    "audio_word": "/audio/words/0318.mp3",
+    "audio_example": "/audio/examples/0318.mp3"
   },
   {
     "id": 319,
@@ -3506,7 +4142,9 @@
     "category": "work",
     "hsk": 2,
     "example_cn": "这个词是“办公室”。",
-    "example_km": "ពាក្យនេះគឺ “ការិយាល័យ”。"
+    "example_km": "ពាក្យនេះគឺ “ការិយាល័យ”。",
+    "audio_word": "/audio/words/0319.mp3",
+    "audio_example": "/audio/examples/0319.mp3"
   },
   {
     "id": 320,
@@ -3517,7 +4155,9 @@
     "category": "work",
     "hsk": 3,
     "example_cn": "这个词是“名片”。",
-    "example_km": "ពាក្យនេះគឺ “នាមប័ណ្ណ”。"
+    "example_km": "ពាក្យនេះគឺ “នាមប័ណ្ណ”。",
+    "audio_word": "/audio/words/0320.mp3",
+    "audio_example": "/audio/examples/0320.mp3"
   },
   {
     "id": 321,
@@ -3528,7 +4168,9 @@
     "category": "work",
     "hsk": 4,
     "example_cn": "这个词是“合同”。",
-    "example_km": "ពាក្យនេះគឺ “កិច្ចសន្យា”。"
+    "example_km": "ពាក្យនេះគឺ “កិច្ចសន្យា”。",
+    "audio_word": "/audio/words/0321.mp3",
+    "audio_example": "/audio/examples/0321.mp3"
   },
   {
     "id": 322,
@@ -3539,7 +4181,9 @@
     "category": "work",
     "hsk": 3,
     "example_cn": "这个词是“报告”。",
-    "example_km": "ពាក្យនេះគឺ “រាយការណ៍”。"
+    "example_km": "ពាក្យនេះគឺ “រាយការណ៍”。",
+    "audio_word": "/audio/words/0322.mp3",
+    "audio_example": "/audio/examples/0322.mp3"
   },
   {
     "id": 323,
@@ -3550,7 +4194,9 @@
     "category": "work",
     "hsk": 4,
     "example_cn": "这个词是“经验”。",
-    "example_km": "ពាក្យនេះគឺ “បទពិសោធន៍”。"
+    "example_km": "ពាក្យនេះគឺ “បទពិសោធន៍”。",
+    "audio_word": "/audio/words/0323.mp3",
+    "audio_example": "/audio/examples/0323.mp3"
   },
   {
     "id": 324,
@@ -3561,7 +4207,9 @@
     "category": "work",
     "hsk": 4,
     "example_cn": "这个词是“职位”。",
-    "example_km": "ពាក្យនេះគឺ “មុខតំណែង”。"
+    "example_km": "ពាក្យនេះគឺ “មុខតំណែង”。",
+    "audio_word": "/audio/words/0324.mp3",
+    "audio_example": "/audio/examples/0324.mp3"
   },
   {
     "id": 325,
@@ -3572,7 +4220,9 @@
     "category": "work",
     "hsk": 3,
     "example_cn": "这个词是“生意”。",
-    "example_km": "ពាក្យនេះគឺ “អាជីវកម្ម”。"
+    "example_km": "ពាក្យនេះគឺ “អាជីវកម្ម”。",
+    "audio_word": "/audio/words/0325.mp3",
+    "audio_example": "/audio/examples/0325.mp3"
   },
   {
     "id": 326,
@@ -3583,7 +4233,9 @@
     "category": "work",
     "hsk": 3,
     "example_cn": "这个词是“培训”。",
-    "example_km": "ពាក្យនេះគឺ “ការបណ្តុះបណ្តាល”。"
+    "example_km": "ពាក្យនេះគឺ “ការបណ្តុះបណ្តាល”。",
+    "audio_word": "/audio/words/0326.mp3",
+    "audio_example": "/audio/examples/0326.mp3"
   },
   {
     "id": 327,
@@ -3594,7 +4246,9 @@
     "category": "shopping",
     "hsk": 2,
     "example_cn": "这个词是“钱包”。",
-    "example_km": "ពាក្យនេះគឺ “កាបូប”。"
+    "example_km": "ពាក្យនេះគឺ “កាបូប”。",
+    "audio_word": "/audio/words/0327.mp3",
+    "audio_example": "/audio/examples/0327.mp3"
   },
   {
     "id": 328,
@@ -3605,7 +4259,9 @@
     "category": "shopping",
     "hsk": 2,
     "example_cn": "这个词是“现金”。",
-    "example_km": "ពាក្យនេះគឺ “សាច់ប្រាក់”。"
+    "example_km": "ពាក្យនេះគឺ “សាច់ប្រាក់”。",
+    "audio_word": "/audio/words/0328.mp3",
+    "audio_example": "/audio/examples/0328.mp3"
   },
   {
     "id": 329,
@@ -3616,7 +4272,9 @@
     "category": "shopping",
     "hsk": 3,
     "example_cn": "这个词是“收据”。",
-    "example_km": "ពាក្យនេះគឺ “បង្កាន់ដៃ”。"
+    "example_km": "ពាក្យនេះគឺ “បង្កាន់ដៃ”。",
+    "audio_word": "/audio/words/0329.mp3",
+    "audio_example": "/audio/examples/0329.mp3"
   },
   {
     "id": 330,
@@ -3627,7 +4285,9 @@
     "category": "shopping",
     "hsk": 3,
     "example_cn": "这个词是“尺寸”。",
-    "example_km": "ពាក្យនេះគឺ “ទំហំ”。"
+    "example_km": "ពាក្យនេះគឺ “ទំហំ”。",
+    "audio_word": "/audio/words/0330.mp3",
+    "audio_example": "/audio/examples/0330.mp3"
   },
   {
     "id": 331,
@@ -3638,7 +4298,9 @@
     "category": "shopping",
     "hsk": 2,
     "example_cn": "这个词是“裙子”。",
-    "example_km": "ពាក្យនេះគឺ “សំពត់”。"
+    "example_km": "ពាក្យនេះគឺ “សំពត់”。",
+    "audio_word": "/audio/words/0331.mp3",
+    "audio_example": "/audio/examples/0331.mp3"
   },
   {
     "id": 332,
@@ -3649,7 +4311,9 @@
     "category": "shopping",
     "hsk": 2,
     "example_cn": "这个词是“手表”。",
-    "example_km": "ពាក្យនេះគឺ “មើល”。"
+    "example_km": "ពាក្យនេះគឺ “មើល”。",
+    "audio_word": "/audio/words/0332.mp3",
+    "audio_example": "/audio/examples/0332.mp3"
   },
   {
     "id": 333,
@@ -3660,7 +4324,9 @@
     "category": "shopping",
     "hsk": 3,
     "example_cn": "这个词是“折扣”。",
-    "example_km": "ពាក្យនេះគឺ “បញ្ចុះតម្លៃ”。"
+    "example_km": "ពាក្យនេះគឺ “បញ្ចុះតម្លៃ”。",
+    "audio_word": "/audio/words/0333.mp3",
+    "audio_example": "/audio/examples/0333.mp3"
   },
   {
     "id": 334,
@@ -3671,7 +4337,9 @@
     "category": "shopping",
     "hsk": 3,
     "example_cn": "这个词是“付款”。",
-    "example_km": "ពាក្យនេះគឺ “ការទូទាត់”。"
+    "example_km": "ពាក្យនេះគឺ “ការទូទាត់”。",
+    "audio_word": "/audio/words/0334.mp3",
+    "audio_example": "/audio/examples/0334.mp3"
   },
   {
     "id": 335,
@@ -3682,7 +4350,9 @@
     "category": "shopping",
     "hsk": 4,
     "example_cn": "这个词是“退货”。",
-    "example_km": "ពាក្យនេះគឺ “ប្រគល់ទំនិញមកវិញ”。"
+    "example_km": "ពាក្យនេះគឺ “ប្រគល់ទំនិញមកវិញ”。",
+    "audio_word": "/audio/words/0335.mp3",
+    "audio_example": "/audio/examples/0335.mp3"
   },
   {
     "id": 336,
@@ -3693,7 +4363,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“酒店”。",
-    "example_km": "ពាក្យនេះគឺ “សណ្ឋាគារ”。"
+    "example_km": "ពាក្យនេះគឺ “សណ្ឋាគារ”。",
+    "audio_word": "/audio/words/0336.mp3",
+    "audio_example": "/audio/examples/0336.mp3"
   },
   {
     "id": 337,
@@ -3704,7 +4376,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“车站”。",
-    "example_km": "ពាក្យនេះគឺ “ស្ថានីយ៍”。"
+    "example_km": "ពាក្យនេះគឺ “ស្ថានីយ៍”。",
+    "audio_word": "/audio/words/0337.mp3",
+    "audio_example": "/audio/examples/0337.mp3"
   },
   {
     "id": 338,
@@ -3715,7 +4389,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“地铁”。",
-    "example_km": "ពាក្យនេះគឺ “រថភ្លើងក្រោមដី”。"
+    "example_km": "ពាក្យនេះគឺ “រថភ្លើងក្រោមដី”。",
+    "audio_word": "/audio/words/0338.mp3",
+    "audio_example": "/audio/examples/0338.mp3"
   },
   {
     "id": 339,
@@ -3726,7 +4402,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“地图”。",
-    "example_km": "ពាក្យនេះគឺ “ផែនទី”。"
+    "example_km": "ពាក្យនេះគឺ “ផែនទី”。",
+    "audio_word": "/audio/words/0339.mp3",
+    "audio_example": "/audio/examples/0339.mp3"
   },
   {
     "id": 340,
@@ -3737,7 +4415,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“行李”。",
-    "example_km": "ពាក្យនេះគឺ “អីវ៉ាន់”。"
+    "example_km": "ពាក្យនេះគឺ “អីវ៉ាន់”。",
+    "audio_word": "/audio/words/0340.mp3",
+    "audio_example": "/audio/examples/0340.mp3"
   },
   {
     "id": 341,
@@ -3748,7 +4428,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“旅游”。",
-    "example_km": "ពាក្យនេះគឺ “ការធ្វើដំណើរ”。"
+    "example_km": "ពាក្យនេះគឺ “ការធ្វើដំណើរ”。",
+    "audio_word": "/audio/words/0341.mp3",
+    "audio_example": "/audio/examples/0341.mp3"
   },
   {
     "id": 342,
@@ -3759,7 +4441,9 @@
     "category": "travel",
     "hsk": 4,
     "example_cn": "这个词是“导游”。",
-    "example_km": "ពាក្យនេះគឺ “មគ្គុទ្ទេសក៍ទេសចរណ៍”。"
+    "example_km": "ពាក្យនេះគឺ “មគ្គុទ្ទេសក៍ទេសចរណ៍”。",
+    "audio_word": "/audio/words/0342.mp3",
+    "audio_example": "/audio/examples/0342.mp3"
   },
   {
     "id": 343,
@@ -3770,7 +4454,9 @@
     "category": "travel",
     "hsk": 3,
     "example_cn": "这个词是“预约”。",
-    "example_km": "ពាក្យនេះគឺ “បម្រុង”。"
+    "example_km": "ពាក្យនេះគឺ “បម្រុង”。",
+    "audio_word": "/audio/words/0343.mp3",
+    "audio_example": "/audio/examples/0343.mp3"
   },
   {
     "id": 344,
@@ -3781,7 +4467,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“地址”。",
-    "example_km": "ពាក្យនេះគឺ “អាសយដ្ឋាន”。"
+    "example_km": "ពាក្យនេះគឺ “អាសយដ្ឋាន”。",
+    "audio_word": "/audio/words/0344.mp3",
+    "audio_example": "/audio/examples/0344.mp3"
   },
   {
     "id": 345,
@@ -3792,7 +4480,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“楼”。",
-    "example_km": "ពាក្យនេះគឺ “អគារ”。"
+    "example_km": "ពាក្យនេះគឺ “អគារ”。",
+    "audio_word": "/audio/words/0345.mp3",
+    "audio_example": "/audio/examples/0345.mp3"
   },
   {
     "id": 346,
@@ -3803,7 +4493,9 @@
     "category": "travel",
     "hsk": 3,
     "example_cn": "这个词是“电梯”。",
-    "example_km": "ពាក្យនេះគឺ “ជណ្តើរយន្ត”。"
+    "example_km": "ពាក្យនេះគឺ “ជណ្តើរយន្ត”。",
+    "audio_word": "/audio/words/0346.mp3",
+    "audio_example": "/audio/examples/0346.mp3"
   },
   {
     "id": 347,
@@ -3814,7 +4506,9 @@
     "category": "travel",
     "hsk": 2,
     "example_cn": "这个词是“楼梯”。",
-    "example_km": "ពាក្យនេះគឺ “ជណ្តើរ”。"
+    "example_km": "ពាក្យនេះគឺ “ជណ្តើរ”。",
+    "audio_word": "/audio/words/0347.mp3",
+    "audio_example": "/audio/examples/0347.mp3"
   },
   {
     "id": 348,
@@ -3825,7 +4519,9 @@
     "category": "travel",
     "hsk": 3,
     "example_cn": "这个词是“邮局”。",
-    "example_km": "ពាក្យនេះគឺ “ការិយាល័យប្រៃសណីយ៍”。"
+    "example_km": "ពាក្យនេះគឺ “ការិយាល័យប្រៃសណីយ៍”。",
+    "audio_word": "/audio/words/0348.mp3",
+    "audio_example": "/audio/examples/0348.mp3"
   },
   {
     "id": 349,
@@ -3836,7 +4532,9 @@
     "category": "travel",
     "hsk": 3,
     "example_cn": "这个词是“药店”。",
-    "example_km": "ពាក្យនេះគឺ “ឱសថស្ថាន”。"
+    "example_km": "ពាក្យនេះគឺ “ឱសថស្ថាន”。",
+    "audio_word": "/audio/words/0349.mp3",
+    "audio_example": "/audio/examples/0349.mp3"
   },
   {
     "id": 350,
@@ -3847,7 +4545,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“中午”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃត្រង់”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃត្រង់”。",
+    "audio_word": "/audio/words/0350.mp3",
+    "audio_example": "/audio/examples/0350.mp3"
   },
   {
     "id": 351,
@@ -3858,7 +4558,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“下午”。",
-    "example_km": "ពាក្យនេះគឺ “រសៀល”。"
+    "example_km": "ពាក្យនេះគឺ “រសៀល”。",
+    "audio_word": "/audio/words/0351.mp3",
+    "audio_example": "/audio/examples/0351.mp3"
   },
   {
     "id": 352,
@@ -3869,7 +4571,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“周末”。",
-    "example_km": "ពាក្យនេះគឺ “ចុងសប្តាហ៍”。"
+    "example_km": "ពាក្យនេះគឺ “ចុងសប្តាហ៍”。",
+    "audio_word": "/audio/words/0352.mp3",
+    "audio_example": "/audio/examples/0352.mp3"
   },
   {
     "id": 353,
@@ -3880,7 +4584,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“星期一”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃច័ន្ទ”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃច័ន្ទ”。",
+    "audio_word": "/audio/words/0353.mp3",
+    "audio_example": "/audio/examples/0353.mp3"
   },
   {
     "id": 354,
@@ -3891,7 +4597,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“星期二”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃអង្គារ”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃអង្គារ”。",
+    "audio_word": "/audio/words/0354.mp3",
+    "audio_example": "/audio/examples/0354.mp3"
   },
   {
     "id": 355,
@@ -3902,7 +4610,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“星期三”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃពុធ”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃពុធ”。",
+    "audio_word": "/audio/words/0355.mp3",
+    "audio_example": "/audio/examples/0355.mp3"
   },
   {
     "id": 356,
@@ -3913,7 +4623,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“星期四”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃព្រហស្បតិ៍”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃព្រហស្បតិ៍”。",
+    "audio_word": "/audio/words/0356.mp3",
+    "audio_example": "/audio/examples/0356.mp3"
   },
   {
     "id": 357,
@@ -3924,7 +4636,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“星期五”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃសុក្រ”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃសុក្រ”。",
+    "audio_word": "/audio/words/0357.mp3",
+    "audio_example": "/audio/examples/0357.mp3"
   },
   {
     "id": 358,
@@ -3935,7 +4649,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“星期六”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃសៅរ៍”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃសៅរ៍”。",
+    "audio_word": "/audio/words/0358.mp3",
+    "audio_example": "/audio/examples/0358.mp3"
   },
   {
     "id": 359,
@@ -3946,7 +4662,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“星期天”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ងៃអាទិត្យ”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ងៃអាទិត្យ”。",
+    "audio_word": "/audio/words/0359.mp3",
+    "audio_example": "/audio/examples/0359.mp3"
   },
   {
     "id": 360,
@@ -3957,7 +4675,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“一月”。",
-    "example_km": "ពាក្យនេះគឺ “មករា”。"
+    "example_km": "ពាក្យនេះគឺ “មករា”。",
+    "audio_word": "/audio/words/0360.mp3",
+    "audio_example": "/audio/examples/0360.mp3"
   },
   {
     "id": 361,
@@ -3968,7 +4688,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“二月”。",
-    "example_km": "ពាក្យនេះគឺ “ខែកុម្ភៈ”。"
+    "example_km": "ពាក្យនេះគឺ “ខែកុម្ភៈ”。",
+    "audio_word": "/audio/words/0361.mp3",
+    "audio_example": "/audio/examples/0361.mp3"
   },
   {
     "id": 362,
@@ -3979,7 +4701,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“三月”。",
-    "example_km": "ពាក្យនេះគឺ “ខែមីនា”。"
+    "example_km": "ពាក្យនេះគឺ “ខែមីនា”。",
+    "audio_word": "/audio/words/0362.mp3",
+    "audio_example": "/audio/examples/0362.mp3"
   },
   {
     "id": 363,
@@ -3990,7 +4714,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“四月”。",
-    "example_km": "ពាក្យនេះគឺ “មេសា”。"
+    "example_km": "ពាក្យនេះគឺ “មេសា”。",
+    "audio_word": "/audio/words/0363.mp3",
+    "audio_example": "/audio/examples/0363.mp3"
   },
   {
     "id": 364,
@@ -4001,7 +4727,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“五月”。",
-    "example_km": "ពាក្យនេះគឺ “ឧសភា”。"
+    "example_km": "ពាក្យនេះគឺ “ឧសភា”。",
+    "audio_word": "/audio/words/0364.mp3",
+    "audio_example": "/audio/examples/0364.mp3"
   },
   {
     "id": 365,
@@ -4012,7 +4740,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“六月”。",
-    "example_km": "ពាក្យនេះគឺ “ខែមិថុនា”。"
+    "example_km": "ពាក្យនេះគឺ “ខែមិថុនា”。",
+    "audio_word": "/audio/words/0365.mp3",
+    "audio_example": "/audio/examples/0365.mp3"
   },
   {
     "id": 366,
@@ -4023,7 +4753,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“七月”。",
-    "example_km": "ពាក្យនេះគឺ “ខែកក្កដា”。"
+    "example_km": "ពាក្យនេះគឺ “ខែកក្កដា”。",
+    "audio_word": "/audio/words/0366.mp3",
+    "audio_example": "/audio/examples/0366.mp3"
   },
   {
     "id": 367,
@@ -4034,7 +4766,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“八月”。",
-    "example_km": "ពាក្យនេះគឺ “សីហា”。"
+    "example_km": "ពាក្យនេះគឺ “សីហា”。",
+    "audio_word": "/audio/words/0367.mp3",
+    "audio_example": "/audio/examples/0367.mp3"
   },
   {
     "id": 368,
@@ -4045,7 +4779,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“九月”。",
-    "example_km": "ពាក្យនេះគឺ “ខែកញ្ញា”。"
+    "example_km": "ពាក្យនេះគឺ “ខែកញ្ញា”。",
+    "audio_word": "/audio/words/0368.mp3",
+    "audio_example": "/audio/examples/0368.mp3"
   },
   {
     "id": 369,
@@ -4056,7 +4792,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“十月”。",
-    "example_km": "ពាក្យនេះគឺ “តុលា”。"
+    "example_km": "ពាក្យនេះគឺ “តុលា”。",
+    "audio_word": "/audio/words/0369.mp3",
+    "audio_example": "/audio/examples/0369.mp3"
   },
   {
     "id": 370,
@@ -4067,7 +4805,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“十一月”。",
-    "example_km": "ពាក្យនេះគឺ “ខែវិច្ឆិកា”。"
+    "example_km": "ពាក្យនេះគឺ “ខែវិច្ឆិកា”。",
+    "audio_word": "/audio/words/0370.mp3",
+    "audio_example": "/audio/examples/0370.mp3"
   },
   {
     "id": 371,
@@ -4078,7 +4818,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“十二月”。",
-    "example_km": "ពាក្យនេះគឺ “ខែធ្នូ”。"
+    "example_km": "ពាក្យនេះគឺ “ខែធ្នូ”。",
+    "audio_word": "/audio/words/0371.mp3",
+    "audio_example": "/audio/examples/0371.mp3"
   },
   {
     "id": 372,
@@ -4089,7 +4831,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“分钟”。",
-    "example_km": "ពាក្យនេះគឺ “នាទី”。"
+    "example_km": "ពាក្យនេះគឺ “នាទី”。",
+    "audio_word": "/audio/words/0372.mp3",
+    "audio_example": "/audio/examples/0372.mp3"
   },
   {
     "id": 373,
@@ -4100,7 +4844,9 @@
     "category": "time",
     "hsk": 3,
     "example_cn": "这个词是“秒”。",
-    "example_km": "ពាក្យនេះគឺ “ទីពីរ”。"
+    "example_km": "ពាក្យនេះគឺ “ទីពីរ”。",
+    "audio_word": "/audio/words/0373.mp3",
+    "audio_example": "/audio/examples/0373.mp3"
   },
   {
     "id": 374,
@@ -4111,7 +4857,9 @@
     "category": "time",
     "hsk": 1,
     "example_cn": "这个词是“小时”。",
-    "example_km": "ពាក្យនេះគឺ “ម៉ោង”。"
+    "example_km": "ពាក្យនេះគឺ “ម៉ោង”。",
+    "audio_word": "/audio/words/0374.mp3",
+    "audio_example": "/audio/examples/0374.mp3"
   },
   {
     "id": 375,
@@ -4122,7 +4870,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“年份”。",
-    "example_km": "ពាក្យនេះគឺ “ឆ្នាំ”。"
+    "example_km": "ពាក្យនេះគឺ “ឆ្នាំ”。",
+    "audio_word": "/audio/words/0375.mp3",
+    "audio_example": "/audio/examples/0375.mp3"
   },
   {
     "id": 376,
@@ -4133,7 +4883,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“以前”。",
-    "example_km": "ពាក្យនេះគឺ “មុន”。"
+    "example_km": "ពាក្យនេះគឺ “មុន”。",
+    "audio_word": "/audio/words/0376.mp3",
+    "audio_example": "/audio/examples/0376.mp3"
   },
   {
     "id": 377,
@@ -4144,7 +4896,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“以后”。",
-    "example_km": "ពាក្យនេះគឺ “បន្ទាប់ពី”。"
+    "example_km": "ពាក្យនេះគឺ “បន្ទាប់ពី”。",
+    "audio_word": "/audio/words/0377.mp3",
+    "audio_example": "/audio/examples/0377.mp3"
   },
   {
     "id": 378,
@@ -4155,7 +4909,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“最近”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្មីៗ”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្មីៗ”。",
+    "audio_word": "/audio/words/0378.mp3",
+    "audio_example": "/audio/examples/0378.mp3"
   },
   {
     "id": 379,
@@ -4166,7 +4922,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“马上”。",
-    "example_km": "ពាក្យនេះគឺ “ភ្លាមៗ”。"
+    "example_km": "ពាក្យនេះគឺ “ភ្លាមៗ”。",
+    "audio_word": "/audio/words/0379.mp3",
+    "audio_example": "/audio/examples/0379.mp3"
   },
   {
     "id": 380,
@@ -4177,7 +4935,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“常常”。",
-    "example_km": "ពាក្យនេះគឺ “ញឹកញាប់”。"
+    "example_km": "ពាក្យនេះគឺ “ញឹកញាប់”。",
+    "audio_word": "/audio/words/0380.mp3",
+    "audio_example": "/audio/examples/0380.mp3"
   },
   {
     "id": 381,
@@ -4188,7 +4948,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“已经”。",
-    "example_km": "ពាក្យនេះគឺ “រួចហើយ”。"
+    "example_km": "ពាក្យនេះគឺ “រួចហើយ”。",
+    "audio_word": "/audio/words/0381.mp3",
+    "audio_example": "/audio/examples/0381.mp3"
   },
   {
     "id": 382,
@@ -4199,7 +4961,9 @@
     "category": "time",
     "hsk": 2,
     "example_cn": "这个词是“刚才”。",
-    "example_km": "ពាក្យនេះគឺ “ឥឡូវនេះ”。"
+    "example_km": "ពាក្យនេះគឺ “ឥឡូវនេះ”。",
+    "audio_word": "/audio/words/0382.mp3",
+    "audio_example": "/audio/examples/0382.mp3"
   },
   {
     "id": 383,
@@ -4210,7 +4974,9 @@
     "category": "time",
     "hsk": 3,
     "example_cn": "这个词是“未来”。",
-    "example_km": "ពាក្យនេះគឺ “អនាគត”。"
+    "example_km": "ពាក្យនេះគឺ “អនាគត”。",
+    "audio_word": "/audio/words/0383.mp3",
+    "audio_example": "/audio/examples/0383.mp3"
   },
   {
     "id": 384,
@@ -4221,7 +4987,9 @@
     "category": "weather",
     "hsk": 1,
     "example_cn": "这个词是“天空”。",
-    "example_km": "ពាក្យនេះគឺ “មេឃ”。"
+    "example_km": "ពាក្យនេះគឺ “មេឃ”。",
+    "audio_word": "/audio/words/0384.mp3",
+    "audio_example": "/audio/examples/0384.mp3"
   },
   {
     "id": 385,
@@ -4232,7 +5000,9 @@
     "category": "weather",
     "hsk": 3,
     "example_cn": "这个词是“湖”。",
-    "example_km": "ពាក្យនេះគឺ “បឹង”。"
+    "example_km": "ពាក្យនេះគឺ “បឹង”。",
+    "audio_word": "/audio/words/0385.mp3",
+    "audio_example": "/audio/examples/0385.mp3"
   },
   {
     "id": 386,
@@ -4243,7 +5013,9 @@
     "category": "weather",
     "hsk": 1,
     "example_cn": "这个词是“草”。",
-    "example_km": "ពាក្យនេះគឺ “ស្មៅ”。"
+    "example_km": "ពាក្យនេះគឺ “ស្មៅ”。",
+    "audio_word": "/audio/words/0386.mp3",
+    "audio_example": "/audio/examples/0386.mp3"
   },
   {
     "id": 387,
@@ -4254,7 +5026,9 @@
     "category": "weather",
     "hsk": 2,
     "example_cn": "这个词是“森林”。",
-    "example_km": "ពាក្យនេះគឺ “ព្រៃ”。"
+    "example_km": "ពាក្យនេះគឺ “ព្រៃ”。",
+    "audio_word": "/audio/words/0387.mp3",
+    "audio_example": "/audio/examples/0387.mp3"
   },
   {
     "id": 388,
@@ -4265,7 +5039,9 @@
     "category": "weather",
     "hsk": 2,
     "example_cn": "这个词是“石头”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្ម”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្ម”。",
+    "audio_word": "/audio/words/0388.mp3",
+    "audio_example": "/audio/examples/0388.mp3"
   },
   {
     "id": 389,
@@ -4276,7 +5052,9 @@
     "category": "weather",
     "hsk": 2,
     "example_cn": "这个词是“叶子”。",
-    "example_km": "ពាក្យនេះគឺ “ស្លឹក”。"
+    "example_km": "ពាក្យនេះគឺ “ស្លឹក”。",
+    "audio_word": "/audio/words/0389.mp3",
+    "audio_example": "/audio/examples/0389.mp3"
   },
   {
     "id": 390,
@@ -4287,7 +5065,9 @@
     "category": "weather",
     "hsk": 2,
     "example_cn": "这个词是“阳光”。",
-    "example_km": "ពាក្យនេះគឺ “ពន្លឺព្រះអាទិត្យ”。"
+    "example_km": "ពាក្យនេះគឺ “ពន្លឺព្រះអាទិត្យ”。",
+    "audio_word": "/audio/words/0390.mp3",
+    "audio_example": "/audio/examples/0390.mp3"
   },
   {
     "id": 391,
@@ -4298,7 +5078,9 @@
     "category": "weather",
     "hsk": 2,
     "example_cn": "这个词是“空气”。",
-    "example_km": "ពាក្យនេះគឺ “ខ្យល់”。"
+    "example_km": "ពាក្យនេះគឺ “ខ្យល់”。",
+    "audio_word": "/audio/words/0391.mp3",
+    "audio_example": "/audio/examples/0391.mp3"
   },
   {
     "id": 392,
@@ -4309,7 +5091,9 @@
     "category": "weather",
     "hsk": 3,
     "example_cn": "这个词是“温度”。",
-    "example_km": "ពាក្យនេះគឺ “សីតុណ្ហភាព”。"
+    "example_km": "ពាក្យនេះគឺ “សីតុណ្ហភាព”。",
+    "audio_word": "/audio/words/0392.mp3",
+    "audio_example": "/audio/examples/0392.mp3"
   },
   {
     "id": 393,
@@ -4320,7 +5104,9 @@
     "category": "emotions",
     "hsk": 1,
     "example_cn": "这个词是“累”。",
-    "example_km": "ពាក្យនេះគឺ “អស់កម្លាំង”。"
+    "example_km": "ពាក្យនេះគឺ “អស់កម្លាំង”。",
+    "audio_word": "/audio/words/0393.mp3",
+    "audio_example": "/audio/examples/0393.mp3"
   },
   {
     "id": 394,
@@ -4331,7 +5117,9 @@
     "category": "emotions",
     "hsk": 2,
     "example_cn": "这个词是“紧张”。",
-    "example_km": "ពាក្យនេះគឺ “ភ័យ”。"
+    "example_km": "ពាក្យនេះគឺ “ភ័យ”。",
+    "audio_word": "/audio/words/0394.mp3",
+    "audio_example": "/audio/examples/0394.mp3"
   },
   {
     "id": 395,
@@ -4342,7 +5130,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "这个词是“放松”。",
-    "example_km": "ពាក្យនេះគឺ “សម្រាក”。"
+    "example_km": "ពាក្យនេះគឺ “សម្រាក”。",
+    "audio_word": "/audio/words/0395.mp3",
+    "audio_example": "/audio/examples/0395.mp3"
   },
   {
     "id": 396,
@@ -4353,7 +5143,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "这个词是“满意”。",
-    "example_km": "ពាក្យនេះគឺ “ពេញចិត្ត”。"
+    "example_km": "ពាក្យនេះគឺ “ពេញចិត្ត”。",
+    "audio_word": "/audio/words/0396.mp3",
+    "audio_example": "/audio/examples/0396.mp3"
   },
   {
     "id": 397,
@@ -4364,7 +5156,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "这个词是“失望”。",
-    "example_km": "ពាក្យនេះគឺ “ការខកចិត្ត”。"
+    "example_km": "ពាក្យនេះគឺ “ការខកចិត្ត”。",
+    "audio_word": "/audio/words/0397.mp3",
+    "audio_example": "/audio/examples/0397.mp3"
   },
   {
     "id": 398,
@@ -4375,7 +5169,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "这个词是“惊讶”。",
-    "example_km": "ពាក្យនេះគឺ “ភ្ញាក់ផ្អើល”。"
+    "example_km": "ពាក្យនេះគឺ “ភ្ញាក់ផ្អើល”。",
+    "audio_word": "/audio/words/0398.mp3",
+    "audio_example": "/audio/examples/0398.mp3"
   },
   {
     "id": 399,
@@ -4386,7 +5182,9 @@
     "category": "emotions",
     "hsk": 2,
     "example_cn": "这个词是“担心”。",
-    "example_km": "ពាក្យនេះគឺ “បារម្ភ”。"
+    "example_km": "ពាក្យនេះគឺ “បារម្ភ”。",
+    "audio_word": "/audio/words/0399.mp3",
+    "audio_example": "/audio/examples/0399.mp3"
   },
   {
     "id": 400,
@@ -4397,7 +5195,9 @@
     "category": "emotions",
     "hsk": 2,
     "example_cn": "这个词是“希望”。",
-    "example_km": "ពាក្យនេះគឺ “ក្តីសង្ឃឹម”。"
+    "example_km": "ពាក្យនេះគឺ “ក្តីសង្ឃឹម”。",
+    "audio_word": "/audio/words/0400.mp3",
+    "audio_example": "/audio/examples/0400.mp3"
   },
   {
     "id": 401,
@@ -4408,7 +5208,9 @@
     "category": "emotions",
     "hsk": 2,
     "example_cn": "这个词是“讨厌”。",
-    "example_km": "ពាក្យនេះគឺ “ស្អប់”。"
+    "example_km": "ពាក្យនេះគឺ “ស្អប់”。",
+    "audio_word": "/audio/words/0401.mp3",
+    "audio_example": "/audio/examples/0401.mp3"
   },
   {
     "id": 402,
@@ -4419,7 +5221,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "这个词是“想念”。",
-    "example_km": "ពាក្យនេះគឺ “នឹក”。"
+    "example_km": "ពាក្យនេះគឺ “នឹក”。",
+    "audio_word": "/audio/words/0402.mp3",
+    "audio_example": "/audio/examples/0402.mp3"
   },
   {
     "id": 403,
@@ -4430,7 +5234,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "这个词是“兴奋”。",
-    "example_km": "ពាក្យនេះគឺ “រំភើប”。"
+    "example_km": "ពាក្យនេះគឺ “រំភើប”。",
+    "audio_word": "/audio/words/0403.mp3",
+    "audio_example": "/audio/examples/0403.mp3"
   },
   {
     "id": 404,
@@ -4441,7 +5247,9 @@
     "category": "emotions",
     "hsk": 2,
     "example_cn": "这个词是“安静”。",
-    "example_km": "ពាក្យនេះគឺ “ស្ងាត់”。"
+    "example_km": "ពាក្យនេះគឺ “ស្ងាត់”。",
+    "audio_word": "/audio/words/0404.mp3",
+    "audio_example": "/audio/examples/0404.mp3"
   },
   {
     "id": 405,
@@ -4452,7 +5260,9 @@
     "category": "emotions",
     "hsk": 3,
     "example_cn": "这个词是“勇敢”。",
-    "example_km": "ពាក្យនេះគឺ “ក្លាហាន”。"
+    "example_km": "ពាក្យនេះគឺ “ក្លាហាន”。",
+    "audio_word": "/audio/words/0405.mp3",
+    "audio_example": "/audio/examples/0405.mp3"
   },
   {
     "id": 406,
@@ -4463,7 +5273,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“跳”。",
-    "example_km": "ពាក្យនេះគឺ “លោត”。"
+    "example_km": "ពាក្យនេះគឺ “លោត”。",
+    "audio_word": "/audio/words/0406.mp3",
+    "audio_example": "/audio/examples/0406.mp3"
   },
   {
     "id": 407,
@@ -4474,7 +5286,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“坐”。",
-    "example_km": "ពាក្យនេះគឺ “អង្គុយ”。"
+    "example_km": "ពាក្យនេះគឺ “អង្គុយ”。",
+    "audio_word": "/audio/words/0407.mp3",
+    "audio_example": "/audio/examples/0407.mp3"
   },
   {
     "id": 408,
@@ -4485,7 +5299,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“站”。",
-    "example_km": "ពាក្យនេះគឺ “ឈរ”。"
+    "example_km": "ពាក្យនេះគឺ “ឈរ”。",
+    "audio_word": "/audio/words/0408.mp3",
+    "audio_example": "/audio/examples/0408.mp3"
   },
   {
     "id": 409,
@@ -4496,7 +5312,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“洗澡”。",
-    "example_km": "ពាក្យនេះគឺ “ងូតទឹក”。"
+    "example_km": "ពាក្យនេះគឺ “ងូតទឹក”。",
+    "audio_word": "/audio/words/0409.mp3",
+    "audio_example": "/audio/examples/0409.mp3"
   },
   {
     "id": 410,
@@ -4507,7 +5325,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“洗脸”。",
-    "example_km": "ពាក្យនេះគឺ “លាងមុខ”。"
+    "example_km": "ពាក្យនេះគឺ “លាងមុខ”。",
+    "audio_word": "/audio/words/0410.mp3",
+    "audio_example": "/audio/examples/0410.mp3"
   },
   {
     "id": 411,
@@ -4518,7 +5338,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“刷牙”。",
-    "example_km": "ពាក្យនេះគឺ “ដុសធ្មេញ”。"
+    "example_km": "ពាក្យនេះគឺ “ដុសធ្មេញ”。",
+    "audio_word": "/audio/words/0411.mp3",
+    "audio_example": "/audio/examples/0411.mp3"
   },
   {
     "id": 412,
@@ -4529,7 +5351,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“开门”。",
-    "example_km": "ពាក្យនេះគឺ “បើកទ្វារ”。"
+    "example_km": "ពាក្យនេះគឺ “បើកទ្វារ”。",
+    "audio_word": "/audio/words/0412.mp3",
+    "audio_example": "/audio/examples/0412.mp3"
   },
   {
     "id": 413,
@@ -4540,7 +5364,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“关门”。",
-    "example_km": "ពាក្យនេះគឺ “បិទទ្វារ”。"
+    "example_km": "ពាក្យនេះគឺ “បិទទ្វារ”。",
+    "audio_word": "/audio/words/0413.mp3",
+    "audio_example": "/audio/examples/0413.mp3"
   },
   {
     "id": 414,
@@ -4551,7 +5377,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“打开”。",
-    "example_km": "ពាក្យនេះគឺ “បើក”。"
+    "example_km": "ពាក្យនេះគឺ “បើក”。",
+    "audio_word": "/audio/words/0414.mp3",
+    "audio_example": "/audio/examples/0414.mp3"
   },
   {
     "id": 415,
@@ -4562,7 +5390,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“关闭”。",
-    "example_km": "ពាក្យនេះគឺ “ការបិទ”。"
+    "example_km": "ពាក្យនេះគឺ “ការបិទ”。",
+    "audio_word": "/audio/words/0415.mp3",
+    "audio_example": "/audio/examples/0415.mp3"
   },
   {
     "id": 416,
@@ -4573,7 +5403,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“休息”。",
-    "example_km": "ពាក្យនេះគឺ “សម្រាក”。"
+    "example_km": "ពាក្យនេះគឺ “សម្រាក”。",
+    "audio_word": "/audio/words/0416.mp3",
+    "audio_example": "/audio/examples/0416.mp3"
   },
   {
     "id": 417,
@@ -4584,7 +5416,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“问”。",
-    "example_km": "ពាក្យនេះគឺ “សួរ”。"
+    "example_km": "ពាក្យនេះគឺ “សួរ”。",
+    "audio_word": "/audio/words/0417.mp3",
+    "audio_example": "/audio/examples/0417.mp3"
   },
   {
     "id": 418,
@@ -4595,7 +5429,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“回答”。",
-    "example_km": "ពាក្យនេះគឺ “ចម្លើយ”。"
+    "example_km": "ពាក្យនេះគឺ “ចម្លើយ”。",
+    "audio_word": "/audio/words/0418.mp3",
+    "audio_example": "/audio/examples/0418.mp3"
   },
   {
     "id": 419,
@@ -4606,7 +5442,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“开始”。",
-    "example_km": "ពាក្យនេះគឺ “ចាប់ផ្តើម”。"
+    "example_km": "ពាក្យនេះគឺ “ចាប់ផ្តើម”。",
+    "audio_word": "/audio/words/0419.mp3",
+    "audio_example": "/audio/examples/0419.mp3"
   },
   {
     "id": 420,
@@ -4617,7 +5455,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“结束”。",
-    "example_km": "ពាក្យនេះគឺ “បញ្ចប់”。"
+    "example_km": "ពាក្យនេះគឺ “បញ្ចប់”。",
+    "audio_word": "/audio/words/0420.mp3",
+    "audio_example": "/audio/examples/0420.mp3"
   },
   {
     "id": 421,
@@ -4628,7 +5468,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“记住”。",
-    "example_km": "ពាក្យនេះគឺ “ចងចាំ”。"
+    "example_km": "ពាក្យនេះគឺ “ចងចាំ”。",
+    "audio_word": "/audio/words/0421.mp3",
+    "audio_example": "/audio/examples/0421.mp3"
   },
   {
     "id": 422,
@@ -4639,7 +5481,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“忘记”。",
-    "example_km": "ពាក្យនេះគឺ “ភ្លេច”。"
+    "example_km": "ពាក្យនេះគឺ “ភ្លេច”。",
+    "audio_word": "/audio/words/0422.mp3",
+    "audio_example": "/audio/examples/0422.mp3"
   },
   {
     "id": 423,
@@ -4650,7 +5494,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“准备”。",
-    "example_km": "ពាក្យនេះគឺ “រៀបចំ”。"
+    "example_km": "ពាក្យនេះគឺ “រៀបចំ”。",
+    "audio_word": "/audio/words/0423.mp3",
+    "audio_example": "/audio/examples/0423.mp3"
   },
   {
     "id": 424,
@@ -4661,7 +5507,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“选择”。",
-    "example_km": "ពាក្យនេះគឺ “ជ្រើសរើស”。"
+    "example_km": "ពាក្យនេះគឺ “ជ្រើសរើស”。",
+    "audio_word": "/audio/words/0424.mp3",
+    "audio_example": "/audio/examples/0424.mp3"
   },
   {
     "id": 425,
@@ -4672,7 +5520,9 @@
     "category": "actions",
     "hsk": 3,
     "example_cn": "这个词是“决定”。",
-    "example_km": "ពាក្យនេះគឺ “សម្រេចចិត្ត”。"
+    "example_km": "ពាក្យនេះគឺ “សម្រេចចិត្ត”。",
+    "audio_word": "/audio/words/0425.mp3",
+    "audio_example": "/audio/examples/0425.mp3"
   },
   {
     "id": 426,
@@ -4683,7 +5533,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“使用”。",
-    "example_km": "ពាក្យនេះគឺ “ប្រើ”。"
+    "example_km": "ពាក្យនេះគឺ “ប្រើ”。",
+    "audio_word": "/audio/words/0426.mp3",
+    "audio_example": "/audio/examples/0426.mp3"
   },
   {
     "id": 427,
@@ -4694,7 +5546,9 @@
     "category": "actions",
     "hsk": 2,
     "example_cn": "这个词是“带”。",
-    "example_km": "ពាក្យនេះគឺ “នាំមក”。"
+    "example_km": "ពាក្យនេះគឺ “នាំមក”。",
+    "audio_word": "/audio/words/0427.mp3",
+    "audio_example": "/audio/examples/0427.mp3"
   },
   {
     "id": 428,
@@ -4705,7 +5559,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“拿”。",
-    "example_km": "ពាក្យនេះគឺ “យក”。"
+    "example_km": "ពាក្យនេះគឺ “យក”。",
+    "audio_word": "/audio/words/0428.mp3",
+    "audio_example": "/audio/examples/0428.mp3"
   },
   {
     "id": 429,
@@ -4716,7 +5572,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“放”。",
-    "example_km": "ពាក្យនេះគឺ “ដាក់”。"
+    "example_km": "ពាក្យនេះគឺ “ដាក់”。",
+    "audio_word": "/audio/words/0429.mp3",
+    "audio_example": "/audio/examples/0429.mp3"
   },
   {
     "id": 430,
@@ -4727,7 +5585,9 @@
     "category": "actions",
     "hsk": 1,
     "example_cn": "这个词是“回来”。",
-    "example_km": "ពាក្យនេះគឺ “ត្រឡប់មកវិញ”。"
+    "example_km": "ពាក្យនេះគឺ “ត្រឡប់មកវិញ”。",
+    "audio_word": "/audio/words/0430.mp3",
+    "audio_example": "/audio/examples/0430.mp3"
   },
   {
     "id": 431,
@@ -4738,7 +5598,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "这个词是“早”。",
-    "example_km": "ពាក្យនេះគឺ “ព្រឹក”。"
+    "example_km": "ពាក្យនេះគឺ “ព្រឹក”。",
+    "audio_word": "/audio/words/0431.mp3",
+    "audio_example": "/audio/examples/0431.mp3"
   },
   {
     "id": 432,
@@ -4749,7 +5611,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "这个词是“晚”。",
-    "example_km": "ពាក្យនេះគឺ “យប់”。"
+    "example_km": "ពាក្យនេះគឺ “យប់”。",
+    "audio_word": "/audio/words/0432.mp3",
+    "audio_example": "/audio/examples/0432.mp3"
   },
   {
     "id": 433,
@@ -4760,7 +5624,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "这个词是“对”。",
-    "example_km": "ពាក្យនេះគឺ “ត្រឹមត្រូវ។”。"
+    "example_km": "ពាក្យនេះគឺ “ត្រឹមត្រូវ។”。",
+    "audio_word": "/audio/words/0433.mp3",
+    "audio_example": "/audio/examples/0433.mp3"
   },
   {
     "id": 434,
@@ -4771,7 +5637,9 @@
     "category": "adjectives",
     "hsk": 1,
     "example_cn": "这个词是“错”。",
-    "example_km": "ពាក្យនេះគឺ “ខុស”。"
+    "example_km": "ពាក្យនេះគឺ “ខុស”。",
+    "audio_word": "/audio/words/0434.mp3",
+    "audio_example": "/audio/examples/0434.mp3"
   },
   {
     "id": 435,
@@ -4782,7 +5650,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个词是“空”。",
-    "example_km": "ពាក្យនេះគឺ “មោឃៈ”。"
+    "example_km": "ពាក្យនេះគឺ “មោឃៈ”。",
+    "audio_word": "/audio/words/0435.mp3",
+    "audio_example": "/audio/examples/0435.mp3"
   },
   {
     "id": 436,
@@ -4793,7 +5663,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个词是“方便”。",
-    "example_km": "ពាក្យនេះគឺ “ងាយស្រួល”。"
+    "example_km": "ពាក្យនេះគឺ “ងាយស្រួល”。",
+    "audio_word": "/audio/words/0436.mp3",
+    "audio_example": "/audio/examples/0436.mp3"
   },
   {
     "id": 437,
@@ -4804,7 +5676,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个词是“简单”。",
-    "example_km": "ពាក្យនេះគឺ “សាមញ្ញ”。"
+    "example_km": "ពាក្យនេះគឺ “សាមញ្ញ”。",
+    "audio_word": "/audio/words/0437.mp3",
+    "audio_example": "/audio/examples/0437.mp3"
   },
   {
     "id": 438,
@@ -4815,7 +5689,9 @@
     "category": "adjectives",
     "hsk": 3,
     "example_cn": "这个词是“复杂”。",
-    "example_km": "ពាក្យនេះគឺ “ស្មុគស្មាញ”。"
+    "example_km": "ពាក្យនេះគឺ “ស្មុគស្មាញ”。",
+    "audio_word": "/audio/words/0438.mp3",
+    "audio_example": "/audio/examples/0438.mp3"
   },
   {
     "id": 439,
@@ -4826,7 +5702,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个词是“脏”。",
-    "example_km": "ពាក្យនេះគឺ “កខ្វក់”。"
+    "example_km": "ពាក្យនេះគឺ “កខ្វក់”。",
+    "audio_word": "/audio/words/0439.mp3",
+    "audio_example": "/audio/examples/0439.mp3"
   },
   {
     "id": 440,
@@ -4837,7 +5715,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个词是“安全”。",
-    "example_km": "ពាក្យនេះគឺ “សុវត្ថិភាព”。"
+    "example_km": "ពាក្យនេះគឺ “សុវត្ថិភាព”。",
+    "audio_word": "/audio/words/0440.mp3",
+    "audio_example": "/audio/examples/0440.mp3"
   },
   {
     "id": 441,
@@ -4848,7 +5728,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个词是“危险”。",
-    "example_km": "ពាក្យនេះគឺ “គ្រោះថ្នាក់”。"
+    "example_km": "ពាក្យនេះគឺ “គ្រោះថ្នាក់”。",
+    "audio_word": "/audio/words/0441.mp3",
+    "audio_example": "/audio/examples/0441.mp3"
   },
   {
     "id": 442,
@@ -4859,7 +5741,9 @@
     "category": "adjectives",
     "hsk": 2,
     "example_cn": "这个词是“特别”。",
-    "example_km": "ពាក្យនេះគឺ “ពិសេស”。"
+    "example_km": "ពាក្យនេះគឺ “ពិសេស”。",
+    "audio_word": "/audio/words/0442.mp3",
+    "audio_example": "/audio/examples/0442.mp3"
   },
   {
     "id": 443,
@@ -4870,7 +5754,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“键盘”。",
-    "example_km": "ពាក្យនេះគឺ “ក្តារចុច”。"
+    "example_km": "ពាក្យនេះគឺ “ក្តារចុច”。",
+    "audio_word": "/audio/words/0443.mp3",
+    "audio_example": "/audio/examples/0443.mp3"
   },
   {
     "id": 444,
@@ -4881,7 +5767,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“鼠标”。",
-    "example_km": "ពាក្យនេះគឺ “កណ្ដុរ”。"
+    "example_km": "ពាក្យនេះគឺ “កណ្ដុរ”。",
+    "audio_word": "/audio/words/0444.mp3",
+    "audio_example": "/audio/examples/0444.mp3"
   },
   {
     "id": 445,
@@ -4892,7 +5780,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“充电器”。",
-    "example_km": "ពាក្យនេះគឺ “ឆ្នាំងសាក”。"
+    "example_km": "ពាក្យនេះគឺ “ឆ្នាំងសាក”。",
+    "audio_word": "/audio/words/0445.mp3",
+    "audio_example": "/audio/examples/0445.mp3"
   },
   {
     "id": 446,
@@ -4903,7 +5793,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“网站”。",
-    "example_km": "ពាក្យនេះគឺ “គេហទំព័រ”。"
+    "example_km": "ពាក្យនេះគឺ “គេហទំព័រ”。",
+    "audio_word": "/audio/words/0446.mp3",
+    "audio_example": "/audio/examples/0446.mp3"
   },
   {
     "id": 447,
@@ -4914,7 +5806,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“密码”。",
-    "example_km": "ពាក្យនេះគឺ “ពាក្យសម្ងាត់”。"
+    "example_km": "ពាក្យនេះគឺ “ពាក្យសម្ងាត់”。",
+    "audio_word": "/audio/words/0447.mp3",
+    "audio_example": "/audio/examples/0447.mp3"
   },
   {
     "id": 448,
@@ -4925,7 +5819,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“账号”。",
-    "example_km": "ពាក្យនេះគឺ “គណនី”。"
+    "example_km": "ពាក្យនេះគឺ “គណនី”。",
+    "audio_word": "/audio/words/0448.mp3",
+    "audio_example": "/audio/examples/0448.mp3"
   },
   {
     "id": 449,
@@ -4936,7 +5832,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“视频”。",
-    "example_km": "ពាក្យនេះគឺ “វីដេអូ”。"
+    "example_km": "ពាក្យនេះគឺ “វីដេអូ”。",
+    "audio_word": "/audio/words/0449.mp3",
+    "audio_example": "/audio/examples/0449.mp3"
   },
   {
     "id": 450,
@@ -4947,7 +5845,9 @@
     "category": "technology",
     "hsk": 1,
     "example_cn": "这个词是“游戏”。",
-    "example_km": "ពាក្យនេះគឺ “ហ្គេម”。"
+    "example_km": "ពាក្យនេះគឺ “ហ្គេម”。",
+    "audio_word": "/audio/words/0450.mp3",
+    "audio_example": "/audio/examples/0450.mp3"
   },
   {
     "id": 451,
@@ -4958,7 +5858,9 @@
     "category": "technology",
     "hsk": 1,
     "example_cn": "这个词是“消息”。",
-    "example_km": "ពាក្យនេះគឺ “ព័ត៌មាន”。"
+    "example_km": "ពាក្យនេះគឺ “ព័ត៌មាន”。",
+    "audio_word": "/audio/words/0451.mp3",
+    "audio_example": "/audio/examples/0451.mp3"
   },
   {
     "id": 452,
@@ -4969,7 +5871,9 @@
     "category": "technology",
     "hsk": 3,
     "example_cn": "这个词是“软件”。",
-    "example_km": "ពាក្យនេះគឺ “កម្មវិធី”。"
+    "example_km": "ពាក្យនេះគឺ “កម្មវិធី”。",
+    "audio_word": "/audio/words/0452.mp3",
+    "audio_example": "/audio/examples/0452.mp3"
   },
   {
     "id": 453,
@@ -4980,7 +5884,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“应用”。",
-    "example_km": "ពាក្យនេះគឺ “កម្មវិធី”。"
+    "example_km": "ពាក្យនេះគឺ “កម្មវិធី”。",
+    "audio_word": "/audio/words/0453.mp3",
+    "audio_example": "/audio/examples/0453.mp3"
   },
   {
     "id": 454,
@@ -4991,7 +5897,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“下载”。",
-    "example_km": "ពាក្យនេះគឺ “ទាញយក”。"
+    "example_km": "ពាក្យនេះគឺ “ទាញយក”。",
+    "audio_word": "/audio/words/0454.mp3",
+    "audio_example": "/audio/examples/0454.mp3"
   },
   {
     "id": 455,
@@ -5002,7 +5910,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“上传”。",
-    "example_km": "ពាក្យនេះគឺ “ផ្ទុកឡើង”。"
+    "example_km": "ពាក្យនេះគឺ “ផ្ទុកឡើង”。",
+    "audio_word": "/audio/words/0455.mp3",
+    "audio_example": "/audio/examples/0455.mp3"
   },
   {
     "id": 456,
@@ -5013,7 +5923,9 @@
     "category": "technology",
     "hsk": 2,
     "example_cn": "这个词是“登录”。",
-    "example_km": "ពាក្យនេះគឺ “ចូល”。"
+    "example_km": "ពាក្យនេះគឺ “ចូល”。",
+    "audio_word": "/audio/words/0456.mp3",
+    "audio_example": "/audio/examples/0456.mp3"
   },
   {
     "id": 457,
@@ -5024,7 +5936,9 @@
     "category": "body",
     "hsk": 1,
     "example_cn": "这个词是“嘴巴”。",
-    "example_km": "ពាក្យនេះគឺ “មាត់”。"
+    "example_km": "ពាក្យនេះគឺ “មាត់”。",
+    "audio_word": "/audio/words/0457.mp3",
+    "audio_example": "/audio/examples/0457.mp3"
   },
   {
     "id": 458,
@@ -5035,7 +5949,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“肚子”。",
-    "example_km": "ពាក្យនេះគឺ “ពោះ”。"
+    "example_km": "ពាក្យនេះគឺ “ពោះ”。",
+    "audio_word": "/audio/words/0458.mp3",
+    "audio_example": "/audio/examples/0458.mp3"
   },
   {
     "id": 459,
@@ -5046,7 +5962,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“背”。",
-    "example_km": "ពាក្យនេះគឺ “ត្រឡប់មកវិញ”。"
+    "example_km": "ពាក្យនេះគឺ “ត្រឡប់មកវិញ”。",
+    "audio_word": "/audio/words/0459.mp3",
+    "audio_example": "/audio/examples/0459.mp3"
   },
   {
     "id": 460,
@@ -5057,7 +5975,9 @@
     "category": "body",
     "hsk": 3,
     "example_cn": "这个词是“肩膀”。",
-    "example_km": "ពាក្យនេះគឺ “ស្មា”。"
+    "example_km": "ពាក្យនេះគឺ “ស្មា”。",
+    "audio_word": "/audio/words/0460.mp3",
+    "audio_example": "/audio/examples/0460.mp3"
   },
   {
     "id": 461,
@@ -5068,7 +5988,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“牙齿”。",
-    "example_km": "ពាក្យនេះគឺ “ធ្មេញ”。"
+    "example_km": "ពាក្យនេះគឺ “ធ្មេញ”。",
+    "audio_word": "/audio/words/0461.mp3",
+    "audio_example": "/audio/examples/0461.mp3"
   },
   {
     "id": 462,
@@ -5079,7 +6001,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“头发”。",
-    "example_km": "ពាក្យនេះគឺ “សក់”。"
+    "example_km": "ពាក្យនេះគឺ “សក់”。",
+    "audio_word": "/audio/words/0462.mp3",
+    "audio_example": "/audio/examples/0462.mp3"
   },
   {
     "id": 463,
@@ -5090,7 +6014,9 @@
     "category": "body",
     "hsk": 1,
     "example_cn": "这个词是“脸”。",
-    "example_km": "ពាក្យនេះគឺ “មុខ”。"
+    "example_km": "ពាក្យនេះគឺ “មុខ”。",
+    "audio_word": "/audio/words/0463.mp3",
+    "audio_example": "/audio/examples/0463.mp3"
   },
   {
     "id": 464,
@@ -5101,7 +6027,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“手指”。",
-    "example_km": "ពាក្យនេះគឺ “ម្រាមដៃ”。"
+    "example_km": "ពាក្យនេះគឺ “ម្រាមដៃ”。",
+    "audio_word": "/audio/words/0464.mp3",
+    "audio_example": "/audio/examples/0464.mp3"
   },
   {
     "id": 465,
@@ -5112,7 +6040,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“身体”。",
-    "example_km": "ពាក្យនេះគឺ “រាងកាយ”。"
+    "example_km": "ពាក្យនេះគឺ “រាងកាយ”。",
+    "audio_word": "/audio/words/0465.mp3",
+    "audio_example": "/audio/examples/0465.mp3"
   },
   {
     "id": 466,
@@ -5123,7 +6053,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“发烧”。",
-    "example_km": "ពាក្យនេះគឺ “គ្រុន”。"
+    "example_km": "ពាក្យនេះគឺ “គ្រុន”。",
+    "audio_word": "/audio/words/0466.mp3",
+    "audio_example": "/audio/examples/0466.mp3"
   },
   {
     "id": 467,
@@ -5134,7 +6066,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“咳嗽”。",
-    "example_km": "ពាក្យនេះគឺ “ក្អក”。"
+    "example_km": "ពាក្យនេះគឺ “ក្អក”。",
+    "audio_word": "/audio/words/0467.mp3",
+    "audio_example": "/audio/examples/0467.mp3"
   },
   {
     "id": 468,
@@ -5145,7 +6079,9 @@
     "category": "body",
     "hsk": 2,
     "example_cn": "这个词是“疼”。",
-    "example_km": "ពាក្យនេះគឺ “ការឈឺចាប់”。"
+    "example_km": "ពាក្យនេះគឺ “ការឈឺចាប់”。",
+    "audio_word": "/audio/words/0468.mp3",
+    "audio_example": "/audio/examples/0468.mp3"
   },
   {
     "id": 469,
@@ -5156,7 +6092,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "这个词是“饼干”。",
-    "example_km": "ពាក្យនេះគឺ “នំប៊ីសស្ទីន”。"
+    "example_km": "ពាក្យនេះគឺ “នំប៊ីសស្ទីន”。",
+    "audio_word": "/audio/words/0469.mp3",
+    "audio_example": "/audio/examples/0469.mp3"
   },
   {
     "id": 470,
@@ -5167,7 +6105,9 @@
     "category": "food",
     "hsk": 3,
     "example_cn": "这个词是“巧克力”。",
-    "example_km": "ពាក្យនេះគឺ “សូកូឡា”。"
+    "example_km": "ពាក្យនេះគឺ “សូកូឡា”。",
+    "audio_word": "/audio/words/0470.mp3",
+    "audio_example": "/audio/examples/0470.mp3"
   },
   {
     "id": 471,
@@ -5178,7 +6118,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "这个词是“汤”。",
-    "example_km": "ពាក្យនេះគឺ “ស៊ុប”。"
+    "example_km": "ពាក្យនេះគឺ “ស៊ុប”。",
+    "audio_word": "/audio/words/0471.mp3",
+    "audio_example": "/audio/examples/0471.mp3"
   },
   {
     "id": 472,
@@ -5189,7 +6131,9 @@
     "category": "food",
     "hsk": 2,
     "example_cn": "这个词是“蛋糕”。",
-    "example_km": "ពាក្យនេះគឺ “នំខេក”。"
+    "example_km": "ពាក្យនេះគឺ “នំខេក”。",
+    "audio_word": "/audio/words/0472.mp3",
+    "audio_example": "/audio/examples/0472.mp3"
   },
   {
     "id": 473,
@@ -5200,7 +6144,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "这个词是“早餐”。",
-    "example_km": "ពាក្យនេះគឺ “អាហារពេលព្រឹក”。"
+    "example_km": "ពាក្យនេះគឺ “អាហារពេលព្រឹក”。",
+    "audio_word": "/audio/words/0473.mp3",
+    "audio_example": "/audio/examples/0473.mp3"
   },
   {
     "id": 474,
@@ -5211,7 +6157,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "这个词是“午餐”。",
-    "example_km": "ពាក្យនេះគឺ “អាហារថ្ងៃត្រង់”。"
+    "example_km": "ពាក្យនេះគឺ “អាហារថ្ងៃត្រង់”。",
+    "audio_word": "/audio/words/0474.mp3",
+    "audio_example": "/audio/examples/0474.mp3"
   },
   {
     "id": 475,
@@ -5222,7 +6170,9 @@
     "category": "food",
     "hsk": 1,
     "example_cn": "这个词是“晚餐”。",
-    "example_km": "ពាក្យនេះគឺ “អាហារពេលល្ងាច”。"
+    "example_km": "ពាក្យនេះគឺ “អាហារពេលល្ងាច”。",
+    "audio_word": "/audio/words/0475.mp3",
+    "audio_example": "/audio/examples/0475.mp3"
   },
   {
     "id": 476,
@@ -5233,7 +6183,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "这个词是“灰色”。",
-    "example_km": "ពាក្យនេះគឺ “ប្រផេះ”。"
+    "example_km": "ពាក្យនេះគឺ “ប្រផេះ”。",
+    "audio_word": "/audio/words/0476.mp3",
+    "audio_example": "/audio/examples/0476.mp3"
   },
   {
     "id": 477,
@@ -5244,7 +6196,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "这个词是“紫色”。",
-    "example_km": "ពាក្យនេះគឺ “ពណ៌ស្វាយ”。"
+    "example_km": "ពាក្យនេះគឺ “ពណ៌ស្វាយ”。",
+    "audio_word": "/audio/words/0477.mp3",
+    "audio_example": "/audio/examples/0477.mp3"
   },
   {
     "id": 478,
@@ -5255,7 +6209,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "这个词是“粉色”。",
-    "example_km": "ពាក្យនេះគឺ “ពណ៌ផ្កាឈូក”。"
+    "example_km": "ពាក្យនេះគឺ “ពណ៌ផ្កាឈូក”。",
+    "audio_word": "/audio/words/0478.mp3",
+    "audio_example": "/audio/examples/0478.mp3"
   },
   {
     "id": 479,
@@ -5266,7 +6222,9 @@
     "category": "colors",
     "hsk": 2,
     "example_cn": "这个词是“橙色”。",
-    "example_km": "ពាក្យនេះគឺ “ពណ៌ទឹកក្រូច”。"
+    "example_km": "ពាក្យនេះគឺ “ពណ៌ទឹកក្រូច”。",
+    "audio_word": "/audio/words/0479.mp3",
+    "audio_example": "/audio/examples/0479.mp3"
   },
   {
     "id": 480,
@@ -5277,7 +6235,9 @@
     "category": "colors",
     "hsk": 3,
     "example_cn": "这个词是“金色”。",
-    "example_km": "ពាក្យនេះគឺ “មាស”。"
+    "example_km": "ពាក្យនេះគឺ “មាស”。",
+    "audio_word": "/audio/words/0480.mp3",
+    "audio_example": "/audio/examples/0480.mp3"
   },
   {
     "id": 481,
@@ -5288,7 +6248,9 @@
     "category": "colors",
     "hsk": 3,
     "example_cn": "这个词是“银色”。",
-    "example_km": "ពាក្យនេះគឺ “ប្រាក់”。"
+    "example_km": "ពាក្យនេះគឺ “ប្រាក់”。",
+    "audio_word": "/audio/words/0481.mp3",
+    "audio_example": "/audio/examples/0481.mp3"
   },
   {
     "id": 482,
@@ -5299,7 +6261,9 @@
     "category": "colors",
     "hsk": 3,
     "example_cn": "这个词是“透明”。",
-    "example_km": "ពាក្យនេះគឺ “ថ្លា”。"
+    "example_km": "ពាក្យនេះគឺ “ថ្លា”。",
+    "audio_word": "/audio/words/0482.mp3",
+    "audio_example": "/audio/examples/0482.mp3"
   },
   {
     "id": 483,
@@ -5310,7 +6274,9 @@
     "category": "colors",
     "hsk": 3,
     "example_cn": "这个词是“深色”。",
-    "example_km": "ពាក្យនេះគឺ “ងងឹត”。"
+    "example_km": "ពាក្យនេះគឺ “ងងឹត”。",
+    "audio_word": "/audio/words/0483.mp3",
+    "audio_example": "/audio/examples/0483.mp3"
   },
   {
     "id": 484,
@@ -5321,7 +6287,9 @@
     "category": "colors",
     "hsk": 3,
     "example_cn": "这个词是“浅色”。",
-    "example_km": "ពាក្យនេះគឺ “ពណ៌ស្រាល”。"
+    "example_km": "ពាក្យនេះគឺ “ពណ៌ស្រាល”。",
+    "audio_word": "/audio/words/0484.mp3",
+    "audio_example": "/audio/examples/0484.mp3"
   },
   {
     "id": 485,
@@ -5332,7 +6300,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“排球”。",
-    "example_km": "ពាក្យនេះគឺ “បាល់ទះ”。"
+    "example_km": "ពាក្យនេះគឺ “បាល់ទះ”。",
+    "audio_word": "/audio/words/0485.mp3",
+    "audio_example": "/audio/examples/0485.mp3"
   },
   {
     "id": 486,
@@ -5343,7 +6313,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“羽毛球”。",
-    "example_km": "ពាក្យនេះគឺ “កីឡាវាយសី”。"
+    "example_km": "ពាក្យនេះគឺ “កីឡាវាយសី”。",
+    "audio_word": "/audio/words/0486.mp3",
+    "audio_example": "/audio/examples/0486.mp3"
   },
   {
     "id": 487,
@@ -5354,7 +6326,9 @@
     "category": "hobbies",
     "hsk": 2,
     "example_cn": "这个词是“跑步”。",
-    "example_km": "ពាក្យនេះគឺ “កំពុងរត់”。"
+    "example_km": "ពាក្យនេះគឺ “កំពុងរត់”。",
+    "audio_word": "/audio/words/0487.mp3",
+    "audio_example": "/audio/examples/0487.mp3"
   },
   {
     "id": 488,
@@ -5365,7 +6339,9 @@
     "category": "hobbies",
     "hsk": 2,
     "example_cn": "这个词是“画画”。",
-    "example_km": "ពាក្យនេះគឺ “គូរ”。"
+    "example_km": "ពាក្យនេះគឺ “គូរ”。",
+    "audio_word": "/audio/words/0488.mp3",
+    "audio_example": "/audio/examples/0488.mp3"
   },
   {
     "id": 489,
@@ -5376,7 +6352,9 @@
     "category": "hobbies",
     "hsk": 2,
     "example_cn": "这个词是“阅读”。",
-    "example_km": "ពាក្យនេះគឺ “អាន”。"
+    "example_km": "ពាក្យនេះគឺ “អាន”。",
+    "audio_word": "/audio/words/0489.mp3",
+    "audio_example": "/audio/examples/0489.mp3"
   },
   {
     "id": 490,
@@ -5387,7 +6365,9 @@
     "category": "hobbies",
     "hsk": 2,
     "example_cn": "这个词是“拍照”。",
-    "example_km": "ពាក្យនេះគឺ “រូបថត”。"
+    "example_km": "ពាក្យនេះគឺ “រូបថត”。",
+    "audio_word": "/audio/words/0490.mp3",
+    "audio_example": "/audio/examples/0490.mp3"
   },
   {
     "id": 491,
@@ -5398,7 +6378,9 @@
     "category": "hobbies",
     "hsk": 2,
     "example_cn": "这个词是“做饭”。",
-    "example_km": "ពាក្យនេះគឺ “ចម្អិន”。"
+    "example_km": "ពាក្យនេះគឺ “ចម្អិន”。",
+    "audio_word": "/audio/words/0491.mp3",
+    "audio_example": "/audio/examples/0491.mp3"
   },
   {
     "id": 492,
@@ -5409,7 +6391,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“钓鱼”。",
-    "example_km": "ពាក្យនេះគឺ “ការនេសាទ”。"
+    "example_km": "ពាក្យនេះគឺ “ការនេសាទ”。",
+    "audio_word": "/audio/words/0492.mp3",
+    "audio_example": "/audio/examples/0492.mp3"
   },
   {
     "id": 493,
@@ -5420,7 +6404,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“露营”。",
-    "example_km": "ពាក្យនេះគឺ “ការបោះជំរុំ”。"
+    "example_km": "ពាក្យនេះគឺ “ការបោះជំរុំ”。",
+    "audio_word": "/audio/words/0493.mp3",
+    "audio_example": "/audio/examples/0493.mp3"
   },
   {
     "id": 494,
@@ -5431,7 +6417,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“爬山”。",
-    "example_km": "ពាក្យនេះគឺ “ឡើងភ្នំ”。"
+    "example_km": "ពាក្យនេះគឺ “ឡើងភ្នំ”。",
+    "audio_word": "/audio/words/0494.mp3",
+    "audio_example": "/audio/examples/0494.mp3"
   },
   {
     "id": 495,
@@ -5442,7 +6430,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“吉他”。",
-    "example_km": "ពាក្យនេះគឺ “ហ្គីតា”。"
+    "example_km": "ពាក្យនេះគឺ “ហ្គីតា”。",
+    "audio_word": "/audio/words/0495.mp3",
+    "audio_example": "/audio/examples/0495.mp3"
   },
   {
     "id": 496,
@@ -5453,7 +6443,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“钢琴”。",
-    "example_km": "ពាក្យនេះគឺ “ព្យាណូ”。"
+    "example_km": "ពាក្យនេះគឺ “ព្យាណូ”。",
+    "audio_word": "/audio/words/0496.mp3",
+    "audio_example": "/audio/examples/0496.mp3"
   },
   {
     "id": 497,
@@ -5464,7 +6456,9 @@
     "category": "hobbies",
     "hsk": 4,
     "example_cn": "这个词是“书法”。",
-    "example_km": "ពាក្យនេះគឺ “អក្សរផ្ចង់”。"
+    "example_km": "ពាក្យនេះគឺ “អក្សរផ្ចង់”。",
+    "audio_word": "/audio/words/0497.mp3",
+    "audio_example": "/audio/examples/0497.mp3"
   },
   {
     "id": 498,
@@ -5475,7 +6469,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“电影票”。",
-    "example_km": "ពាក្យនេះគឺ “សំបុត្រកុន”。"
+    "example_km": "ពាក្យនេះគឺ “សំបុត្រកុន”。",
+    "audio_word": "/audio/words/0498.mp3",
+    "audio_example": "/audio/examples/0498.mp3"
   },
   {
     "id": 499,
@@ -5486,7 +6482,9 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“咖啡馆”。",
-    "example_km": "ពាក្យនេះគឺ “ហាងកាហ្វេ”。"
+    "example_km": "ពាក្យនេះគឺ “ហាងកាហ្វេ”。",
+    "audio_word": "/audio/words/0499.mp3",
+    "audio_example": "/audio/examples/0499.mp3"
   },
   {
     "id": 500,
@@ -5497,6 +6495,8 @@
     "category": "hobbies",
     "hsk": 3,
     "example_cn": "这个词是“博物馆”。",
-    "example_km": "ពាក្យនេះគឺ “សារមន្ទីរ”。"
+    "example_km": "ពាក្យនេះគឺ “សារមន្ទីរ”。",
+    "audio_word": "/audio/words/0500.mp3",
+    "audio_example": "/audio/examples/0500.mp3"
   }
 ]

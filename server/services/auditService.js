@@ -1,6 +1,6 @@
-import db from '../db.js';
+import { query } from '../db.js';
 
-export function writeAuditLog({
+export async function writeAuditLog({
   actorType = 'admin',
   actorSessionId = null,
   action,
@@ -8,8 +8,11 @@ export function writeAuditLog({
   targetId = null,
   details = null,
 }) {
-  db.prepare(`
-    INSERT INTO audit_logs (actor_type, actor_session_id, action, target_type, target_id, details)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(actorType, actorSessionId, action, targetType, targetId, details ? JSON.stringify(details) : null);
+  await query(
+    `
+      INSERT INTO audit_logs (actor_type, actor_session_id, action, target_type, target_id, details)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `,
+    [actorType, actorSessionId, action, targetType, targetId, details ? JSON.stringify(details) : null]
+  );
 }

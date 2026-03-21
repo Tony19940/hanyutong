@@ -1,7 +1,7 @@
 {
   "name": "hanyutong",
   "version": "1.0.0",
-  "description": "汉语通 - Telegram Mini App for Khmer speakers to learn Chinese",
+  "description": "姹夎閫?- Telegram Mini App for Khmer speakers to learn Chinese",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
@@ -10,6 +10,7 @@
     "build": "vite build",
     "start": "node server/index.js",
     "generate-vocab": "node scripts/generate-vocab.js",
+    "generate-audio": "node scripts/generate-audio.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -17,12 +18,13 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "better-sqlite3": "^11.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "grammy": "^1.35.0",
     "html2canvas": "^1.4.1",
+    "pg": "^8.20.0",
+    "pg-mem": "^3.0.14",
     "pinyin-pro": "^3.28.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

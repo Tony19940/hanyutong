@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import db from '../db.js';
+import { query, withTransaction } from '../db.js';
 import { config } from '../config.js';
 import { badRequest, forbidden, notFound } from '../errors.js';
 import { requireUserAuth } from '../middleware/auth.js';
@@ -18,70 +18,80 @@ router.post('/login', loginRateLimit, asyncHandler(async (req, res) => {
   const { keyCode, telegramId, name, avatarUrl } = req.body;
 
   if (!keyCode) {
-    throw badRequest('សូមបញ្ចូលលេខសម្ងាត់', 'KEY_REQUIRED');
+    throw badRequest('Key code is required', 'KEY_REQUIRED');
   }
 
-  const key = db.prepare('SELECT * FROM keys WHERE key_code = ?').get(String(keyCode).trim());
+  const keyResult = await query('SELECT * FROM keys WHERE key_code = $1', [String(keyCode).trim()]);
+  const key = keyResult.rows[0];
   if (!key) {
-    throw notFound('លេខសម្ងាត់មិនត្រឹមត្រូវ', 'KEY_NOT_FOUND');
+    throw notFound('Key not found', 'KEY_NOT_FOUND');
   }
 
   if (key.status === 'expired') {
-    throw forbidden('លេខសម្ងាត់ផុតកំណត់', 'KEY_EXPIRED');
+    throw forbidden('Key has expired', 'KEY_EXPIRED');
   }
 
   const telegramIdValue = telegramId ? String(telegramId) : null;
-  const createOrActivateUser = db.transaction(() => {
+  const user = await withTransaction(async (client) => {
     if (key.status === 'activated' && key.user_id) {
-      const existingUser = db.prepare('SELECT * FROM users WHERE id = ?').get(key.user_id);
+      const existingUserResult = await client.query('SELECT * FROM users WHERE id = $1', [key.user_id]);
+      const existingUser = existingUserResult.rows[0];
       if (!existingUser) {
         throw notFound('User not found for activated key', 'USER_NOT_FOUND');
       }
 
       if (telegramIdValue && existingUser.telegram_id && existingUser.telegram_id !== telegramIdValue) {
-        throw forbidden('លេខសម្ងាត់នេះត្រូវបានប្រើរួចហើយ', 'KEY_ALREADY_USED');
+        throw forbidden('Key already belongs to another user', 'KEY_ALREADY_USED');
       }
 
       return existingUser;
     }
 
-    let user = telegramIdValue
-      ? db.prepare('SELECT * FROM users WHERE telegram_id = ?').get(telegramIdValue)
-      : null;
-
-    if (!user) {
-      const result = db.prepare(`
-        INSERT INTO users (telegram_id, name, avatar_url, key_id)
-        VALUES (?, ?, ?, ?)
-      `).run(
-        telegramIdValue || `local_${Date.now()}`,
-        name || 'User',
-        avatarUrl || null,
-        key.id
-      );
-      user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
-    } else if (name || avatarUrl) {
-      db.prepare(`
-        UPDATE users
-        SET name = COALESCE(?, name),
-            avatar_url = COALESCE(?, avatar_url),
-            key_id = COALESCE(key_id, ?)
-        WHERE id = ?
-      `).run(name || null, avatarUrl || null, key.id, user.id);
-      user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
+    let userRow = null;
+    if (telegramIdValue) {
+      const userResult = await client.query('SELECT * FROM users WHERE telegram_id = $1', [telegramIdValue]);
+      userRow = userResult.rows[0] || null;
     }
 
-    db.prepare(`
-      UPDATE keys
-      SET status = ?, activated_at = CURRENT_TIMESTAMP, user_id = ?, expired_at = NULL
-      WHERE id = ?
-    `).run('activated', user.id, key.id);
+    if (!userRow) {
+      const localTelegramId = telegramIdValue || `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const insertResult = await client.query(
+        `
+          INSERT INTO users (telegram_id, name, avatar_url, key_id)
+          VALUES ($1, $2, $3, $4)
+          RETURNING *
+        `,
+        [localTelegramId, name || 'User', avatarUrl || null, key.id]
+      );
+      userRow = insertResult.rows[0];
+    } else if (name || avatarUrl) {
+      const updateResult = await client.query(
+        `
+          UPDATE users
+          SET name = COALESCE($1, name),
+              avatar_url = COALESCE($2, avatar_url),
+              key_id = COALESCE(key_id, $3)
+          WHERE id = $4
+          RETURNING *
+        `,
+        [name || null, avatarUrl || null, key.id, userRow.id]
+      );
+      userRow = updateResult.rows[0];
+    }
 
-    return user;
+    await client.query(
+      `
+        UPDATE keys
+        SET status = $1, activated_at = CURRENT_TIMESTAMP, user_id = $2, expired_at = NULL
+        WHERE id = $3
+      `,
+      ['activated', userRow.id, key.id]
+    );
+
+    return userRow;
   });
 
-  const user = createOrActivateUser();
-  const token = createUserSession(user.id);
+  const token = await createUserSession(user.id);
 
   res.json({
     user,
@@ -101,7 +111,7 @@ router.post('/verify', requireUserAuth, asyncHandler(async (req, res) => {
 }));
 
 router.post('/logout', requireUserAuth, asyncHandler(async (req, res) => {
-  revokeUserSession(req.authToken);
+  await revokeUserSession(req.authToken);
   res.json({ success: true });
 }));
 

@@ -2,17 +2,17 @@
 
 ## Current recommendation
 
-This project can run on Render as a Node web service, but Render free web services use an ephemeral filesystem. That means the local SQLite database is reset whenever the service restarts, redeploys, or spins down.
+This project is configured for Render Web Service + Render Postgres.
 
-If you need stable production data, move to one of these options:
-
-1. Render paid web service with a persistent disk
-2. Render Postgres and migrate off SQLite
+The app now reads `DATABASE_URL` and no longer depends on a local SQLite file for runtime data. That means generated keys, users, sessions, and study progress survive service restarts and redeploys as long as the Render Postgres database remains attached.
 
 ## Render blueprint
 
-The repository now includes `render.yaml` for a Node web service:
+The repository includes `render.yaml` with:
 
+- a `hanyutong-db` Render Postgres database
+- a `hanyutong` Node web service
+- `DATABASE_URL` injected from the attached database
 - `buildCommand`: `npm install && npm run build`
 - `startCommand`: `npm start`
 - `healthCheckPath`: `/api/health`
@@ -25,24 +25,26 @@ Set these in the Render dashboard:
 - `WEBAPP_URL`
 - `ADMIN_PASSWORD`
 
-Optional:
+The blueprint supplies:
 
-- `DB_PATH`
-
-If you attach a persistent disk on a paid plan, set:
-
-- `DB_PATH=/var/data/hanyutong.db`
-
-or use Render's mounted disk path and point `DB_PATH` into it.
+- `DATABASE_URL`
+- session TTL values
+- rate-limit values
 
 ## GitHub to Render flow
 
 1. Push this repository to GitHub.
-2. In Render, create a new Blueprint or Web Service from that GitHub repo.
-3. Confirm the build and start commands from `render.yaml`.
+2. In Render, create or sync the Blueprint from that repo.
+3. Confirm the database `hanyutong-db` is created and linked.
 4. Add the required environment variables.
 5. Deploy.
 6. After deploy, update your Telegram bot's `WEBAPP_URL` to the Render app URL if needed.
+
+## Data migration note
+
+Existing SQLite data is not copied automatically into Render Postgres.
+
+If you have important keys or user records in a local SQLite file, export and import them before switching production traffic.
 
 ## Health check
 

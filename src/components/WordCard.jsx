@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useTTS } from '../hooks/useTTS.js';
+import { usePronunciation } from '../hooks/usePronunciation.js';
+import { shouldAutoplayPronunciation } from '../utils/audio.js';
 
 const SWIPE_THRESHOLD = 80;
-const TAP_THRESHOLD = 10; // Max movement to consider as a tap (not a swipe)
+const TAP_THRESHOLD = 10;
 
 export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight, mode = 'home' }) {
   const [overlayDir, setOverlayDir] = useState(null);
@@ -13,34 +14,48 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
   const startXRef = useRef(0);
   const startYRef = useRef(0);
   const isDragging = useRef(false);
-  const hasMoved = useRef(false); // Track if user actually swiped
-  const { speak } = useTTS();
+  const hasMoved = useRef(false);
+  const clearSpeakingTimerRef = useRef(null);
+  const { play, stop } = usePronunciation();
 
-  // Animate entrance
   useEffect(() => {
+    stop();
+    setSpeakingTarget(null);
     setShowContent(false);
     const timer = setTimeout(() => setShowContent(true), 80);
-    return () => clearTimeout(timer);
-  }, [word?.id]);
 
-  // Auto-speak on card appear
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(clearSpeakingTimerRef.current);
+      stop();
+    };
+  }, [stop, word?.id]);
+
   useEffect(() => {
-    if (showContent && word?.chinese) {
-      const timer = setTimeout(() => speak(word.chinese), 500);
+    if (showContent && word?.chinese && shouldAutoplayPronunciation()) {
+      const timer = setTimeout(() => {
+        play({
+          text: word.chinese,
+          audioSrc: word.audio_word,
+        });
+      }, 500);
       return () => clearTimeout(timer);
     }
-  }, [showContent, word?.chinese, speak]);
+  }, [play, showContent, word?.audio_word, word?.chinese]);
 
-  const handleSpeak = useCallback((text, target, e) => {
-    // Stop event from bubbling to swipe handler
+  const handleSpeak = useCallback(async ({ text, audioSrc, target, e }) => {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
     }
+
+    if (!text && !audioSrc) return;
+
+    clearTimeout(clearSpeakingTimerRef.current);
     setSpeakingTarget(target);
-    speak(text);
-    setTimeout(() => setSpeakingTarget(null), 1200);
-  }, [speak]);
+    await play({ text, audioSrc });
+    clearSpeakingTimerRef.current = setTimeout(() => setSpeakingTarget(null), 1200);
+  }, [play]);
 
   const handleStart = useCallback((clientX, clientY) => {
     if (animating) return;
@@ -55,7 +70,6 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
     if (!isDragging.current || animating) return;
     const dx = clientX - startXRef.current;
 
-    // Mark as moved if beyond tap threshold
     if (Math.abs(dx) > TAP_THRESHOLD) {
       hasMoved.current = true;
     }
@@ -74,7 +88,6 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
     if (!isDragging.current) return;
     isDragging.current = false;
 
-    // If user didn't actually swipe, just reset
     if (!hasMoved.current) {
       setOverlayDir(null);
       return;
@@ -116,8 +129,8 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
 
   if (!word) return null;
 
-  const leftLabel = mode === 'collection' ? 'ចេះហើយ · ដកចេញ' : 'ចេះហើយ';
-  const rightLabel = mode === 'collection' ? 'ទុករៀនទៀត' : 'ចង់រៀនទៀត';
+  const leftLabel = mode === 'collection' ? '釣呩焷釤囜灎釣踞灆 路 釣娽瀫釣呩焷釣?' : '釣呩焷釤囜灎釣踞灆';
+  const rightLabel = mode === 'collection' ? '釣戓灮釣€釣氠焵釣撫瀾釤€釣?' : '釣呩瀯釤嬦灇釤€釣撫瀾釤€釣?';
 
   return (
     <div className="word-card-container">
@@ -132,46 +145,49 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
         onMouseUp={(e) => handleEnd(e.clientX)}
         onMouseLeave={(e) => { if (isDragging.current) handleEnd(e.clientX); }}
       >
-        {/* Left overlay - Learned */}
         <div className={`swipe-overlay left-ov ${overlayDir === 'left' ? 'visible' : ''}`}>
           <div className="ov-icon-wrap ov-green">
             <i className="fas fa-check-circle" style={{ fontSize: 36 }}></i>
           </div>
-          <span className="ov-label">ចេះហើយ!</span>
-          <span className="ov-label-cn">已学会 ✓</span>
+          <span className="ov-label">釣呩焷釤囜灎釣踞灆!</span>
+          <span className="ov-label-cn">宸插浼?鉁?</span>
         </div>
 
-        {/* Right overlay - Bookmarked */}
         <div className={`swipe-overlay right-ov ${overlayDir === 'right' ? 'visible' : ''}`}>
           <div className="ov-icon-wrap ov-gold">
             <i className="fas fa-bookmark" style={{ fontSize: 32 }}></i>
           </div>
-          <span className="ov-label">ដាក់ក្នុងបញ្ជី!</span>
-          <span className="ov-label-cn">已收藏 ★</span>
+          <span className="ov-label">釣娽灦釣€釤嬦瀫釤掅灀釣会瀯釣斸瀴釤掅瀲釣?</span>
+          <span className="ov-label-cn">宸叉敹钘?鈽?</span>
         </div>
 
-        {/* Counter */}
         {total > 0 && (
           <div className="card-counter">{index + 1} / {total}</div>
         )}
 
-        {/* Emoji Icon — separate touch zone to prevent swipe */}
         <div className={`icon-zone ${showContent ? 'animate-pop-in' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
           <div
             className={`word-emoji ${speakingTarget === 'emoji' ? 'speaking' : ''}`}
             onTouchStart={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => { e.stopPropagation(); handleSpeak(word.chinese, 'emoji', e); }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              handleSpeak({
+                text: word.chinese,
+                audioSrc: word.audio_word,
+                target: 'emoji',
+                e,
+              });
+            }}
             onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => handleSpeak(word.chinese, 'emoji', e)}
+            onClick={(e) => handleSpeak({ text: word.chinese, audioSrc: word.audio_word, target: 'emoji', e })}
           >
-            {word.emoji || '📝'}
+            {word.emoji || '馃摑'}
           </div>
           <div className="spk-badge">
             <i className="fas fa-volume-up"></i>
           </div>
         </div>
 
-        {/* Word Info */}
         <div className={`word-info ${showContent ? 'animate-fade-in-up stagger-1' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
           <div className="wrd-cn">{word.chinese}</div>
           <div className="wrd-py">{word.pinyin}</div>
@@ -180,15 +196,22 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
 
         <div className="hr"></div>
 
-        {/* Example */}
         <div className={`ex-zone ${showContent ? 'animate-fade-in-up stagger-2' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
-          <div className="ex-lbl">ឧទាហរណ៍ · 例句</div>
+          <div className="ex-lbl">釣п瀾釣夺灎釣氠瀻釤?路 渚嬪彞</div>
           <div
             className={`ex-cn ${speakingTarget === 'example' ? 'speaking-text' : ''}`}
             onTouchStart={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => { e.stopPropagation(); handleSpeak(word.example_cn, 'example', e); }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              handleSpeak({
+                text: word.example_cn,
+                audioSrc: word.audio_example,
+                target: 'example',
+                e,
+              });
+            }}
             onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => handleSpeak(word.example_cn, 'example', e)}
+            onClick={(e) => handleSpeak({ text: word.example_cn, audioSrc: word.audio_example, target: 'example', e })}
           >
             {word.example_cn}
             <i className="fas fa-volume-up ex-speaker"></i>
@@ -196,7 +219,6 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           <div className="ex-km">{word.example_km}</div>
         </div>
 
-        {/* Swipe guide */}
         <div className={`swipe-guide ${showContent ? 'animate-fade-in stagger-3' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
           <div className="sg lft">
             <i className="fas fa-arrow-left"></i>
@@ -328,9 +350,9 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           pointer-events: none;
         }
 
-        .word-info { 
-          text-align: center; margin-bottom: 10px; 
-          transition: opacity 0.3s; 
+        .word-info {
+          text-align: center; margin-bottom: 10px;
+          transition: opacity 0.3s;
           position: relative; z-index: 5;
         }
         .wrd-cn {
@@ -339,21 +361,21 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
           letter-spacing: 6px; margin-bottom: 5px;
           text-shadow: 0 2px 12px rgba(0,0,0,0.3);
         }
-        .wrd-py { 
-          font-size: 15px; color: #a78bfa; margin-bottom: 7px; 
+        .wrd-py {
+          font-size: 15px; color: #a78bfa; margin-bottom: 7px;
           letter-spacing: 1px;
         }
         .wrd-km {
           font-size: 17px; color: rgba(255,255,255,0.7);
           font-family: 'Noto Sans Khmer', sans-serif;
         }
-        .hr { 
+        .hr {
           height: 1px; margin: 10px 0;
           background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
         }
 
-        .ex-zone { 
-          position: relative; transition: opacity 0.3s; 
+        .ex-zone {
+          position: relative; transition: opacity 0.3s;
           z-index: 15;
         }
         .ex-lbl {
@@ -374,7 +396,7 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
         }
         .ex-cn:active { color: #a78bfa; }
         .ex-speaker {
-          font-size: 10px; color: #a78bfa; 
+          font-size: 10px; color: #a78bfa;
           opacity: 0.5;
           transition: opacity var(--transition-fast), transform 0.3s;
         }
