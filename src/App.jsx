@@ -2,16 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import LoginPage from './components/LoginPage.jsx';
 import HomePage from './components/HomePage.jsx';
+import QuizPage from './components/QuizPage.jsx';
 import CollectionPage from './components/CollectionPage.jsx';
 import ProfilePage from './components/ProfilePage.jsx';
+import AIPracticePage from './components/AIPracticePage.jsx';
 import AdminPage from './components/AdminPage.jsx';
 import TabBar from './components/TabBar.jsx';
 import { api, storage } from './utils/api.js';
-import { initTelegramApp } from './utils/telegram.js';
+import { getTelegramUser, initTelegramApp } from './utils/telegram.js';
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
+  const [profileView, setProfileView] = useState('profile');
   const [vocabulary, setVocabulary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -29,6 +32,18 @@ export default function App() {
     initTelegramApp();
   }, []);
 
+  const mergeTelegramUser = useCallback((incomingUser) => {
+    const tgUser = getTelegramUser();
+    if (!incomingUser) return incomingUser;
+    return {
+      ...incomingUser,
+      username: tgUser?.username || incomingUser.username || '',
+      avatar_url: tgUser?.avatarUrl || incomingUser.avatar_url || incomingUser.avatarUrl || null,
+      avatarUrl: tgUser?.avatarUrl || incomingUser.avatarUrl || incomingUser.avatar_url || null,
+      display_name: tgUser?.name || incomingUser.display_name || incomingUser.name,
+    };
+  }, []);
+
   useEffect(() => {
     document.title = isAdmin ? '\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793 Admin' : '\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793';
   }, [isAdmin]);
@@ -43,11 +58,12 @@ export default function App() {
     if (token && savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
-        setUser(parsed);
+        setUser(mergeTelegramUser(parsed));
         // Verify session in background
         api.verify().then((data) => {
-          setUser(data.user);
-          localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(data.user));
+          const mergedUser = mergeTelegramUser(data.user);
+          setUser(mergedUser);
+          localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(mergedUser));
         }).catch(() => {
           localStorage.removeItem(storage.USER_TOKEN_KEY);
           localStorage.removeItem(storage.USER_STORAGE_KEY);
@@ -59,7 +75,7 @@ export default function App() {
       }
     }
     setLoading(false);
-  }, [isAdmin]);
+  }, [isAdmin, mergeTelegramUser]);
 
   // Load vocabulary
   useEffect(() => {
@@ -78,7 +94,16 @@ export default function App() {
   }, [user]);
 
   const handleLogin = useCallback((userData) => {
-    setUser(userData);
+    const mergedUser = mergeTelegramUser(userData);
+    localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(mergedUser));
+    setUser(mergedUser);
+  }, [mergeTelegramUser]);
+
+  const handleTabChange = useCallback((tabId) => {
+    setActiveTab(tabId);
+    if (tabId !== 'profile') {
+      setProfileView('profile');
+    }
   }, []);
 
   if (loading) {
@@ -98,7 +123,7 @@ export default function App() {
         }}>
           <div style={{
             width: 56, height: 56,
-            background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+            background: 'linear-gradient(135deg, #f0cc7a, #1e5b43)',
             borderRadius: 16,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 28
@@ -106,7 +131,7 @@ export default function App() {
           <div style={{
             width: 30, height: 30,
             border: '3px solid rgba(255,255,255,0.1)',
-            borderTopColor: '#a78bfa', borderRadius: '50%',
+            borderTopColor: '#d8b45c', borderRadius: '50%',
             animation: 'spin 0.8s linear infinite'
           }}></div>
         </div>
@@ -144,11 +169,17 @@ export default function App() {
 
       <div className="page-content">
         {activeTab === 'home' && <HomePage user={user} />}
-        {activeTab === 'collection' && <CollectionPage user={user} vocabulary={vocabulary} />}
-        {activeTab === 'profile' && <ProfilePage user={user} />}
+        {activeTab === 'quiz' && <QuizPage user={user} />}
+        {activeTab === 'practice' && <AIPracticePage user={user} />}
+        {activeTab === 'profile' && profileView === 'profile' && (
+          <ProfilePage user={user} onOpenCollection={() => setProfileView('collection')} />
+        )}
+        {activeTab === 'profile' && profileView === 'collection' && (
+          <CollectionPage vocabulary={vocabulary} onBack={() => setProfileView('profile')} />
+        )}
       </div>
 
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 }

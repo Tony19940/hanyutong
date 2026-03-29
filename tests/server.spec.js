@@ -87,6 +87,31 @@ describe('auth and user permissions', () => {
     expect(response.body.user.id).toBe(alice.user.id);
     expect(response.body.user.id).not.toBe(bob.user.id);
   });
+
+  it('returns dialogue scenarios and reports missing rtc configuration in test env', async () => {
+    const login = await loginWithKey('HYT-2026-AAAA-0001', 'dialogue-user');
+
+    const response = await request(app)
+      .get('/api/dialogue/scenarios')
+      .set('Authorization', `Bearer ${login.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.available).toBe(false);
+    expect(response.body.scenarios.length).toBeGreaterThan(0);
+    expect(response.body.missing).toContain('DOUBAO_DIALOG_APP_ID');
+  });
+
+  it('rejects starting dialogue session when rtc configuration is missing', async () => {
+    const login = await loginWithKey('HYT-2026-AAAA-0001', 'dialogue-start-user');
+
+    const response = await request(app)
+      .post('/api/dialogue/session/start')
+      .set('Authorization', `Bearer ${login.token}`)
+      .send({ scenarioId: 'greeting' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe('DIALOGUE_CONFIG_MISSING');
+  });
 });
 
 describe('learning progress idempotency', () => {

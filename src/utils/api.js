@@ -79,6 +79,17 @@ export const api = {
 
   getProfile: () => request('/user/profile'),
   getCollection: () => request('/user/collection'),
+  getDialogueScenarios: () => request('/dialogue/scenarios'),
+  startDialogueSession: (scenarioId) =>
+    request('/dialogue/session/start', {
+      method: 'POST',
+      body: { scenarioId },
+    }),
+  stopDialogueSession: (payload = {}) =>
+    request('/dialogue/session/stop', {
+      method: 'POST',
+      body: payload,
+    }),
   recordTime: (minutes) =>
     request('/user/time', {
       method: 'POST',

@@ -1,12 +1,18 @@
-﻿import { useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useTTS } from './useTTS.js';
 
 export function usePronunciation() {
   const audioRef = useRef(null);
+  const cleanupRef = useRef(null);
   const { speak, stop: stopTts } = useTTS();
 
   const stop = useCallback(() => {
     stopTts();
+
+    if (cleanupRef.current) {
+      cleanupRef.current();
+      cleanupRef.current = null;
+    }
 
     const audio = audioRef.current;
     if (!audio) return;
@@ -25,6 +31,19 @@ export function usePronunciation() {
         audio.preload = 'auto';
         audioRef.current = audio;
         await audio.play();
+        await new Promise((resolve) => {
+          const finalize = () => {
+            audio.removeEventListener('ended', handleDone);
+            audio.removeEventListener('error', handleDone);
+            if (cleanupRef.current === finalize) cleanupRef.current = null;
+            if (audioRef.current === audio) audioRef.current = null;
+            resolve();
+          };
+          const handleDone = () => finalize();
+          cleanupRef.current = finalize;
+          audio.addEventListener('ended', handleDone, { once: true });
+          audio.addEventListener('error', handleDone, { once: true });
+        });
         return { mode: 'audio' };
       } catch (error) {
         console.warn('Audio playback failed, falling back to TTS:', error);

@@ -1,21 +1,23 @@
 import React from 'react';
 
 const tabs = [
-  { id: 'home', icon: 'fas fa-home', label: 'ដើម' },
-  { id: 'collection', icon: 'fas fa-bookmark', label: 'បញ្ជី' },
-  { id: 'profile', icon: 'fas fa-user', label: 'ខ្ញុំ' },
+  { id: 'home', icon: 'fas fa-house', label: '学习' },
+  { id: 'quiz', icon: 'fas fa-gamepad', label: '测验' },
+  { id: 'practice', icon: 'fas fa-comments', label: '对话' },
+  { id: 'profile', icon: 'fas fa-user', label: '我的' },
 ];
 
 export default function TabBar({ activeTab, onTabChange }) {
   const activeIndex = tabs.findIndex(t => t.id === activeTab);
+  const tabWidth = 100 / tabs.length;
+  const offset = tabWidth / 2;
 
   return (
     <div className="tabbar">
-      {/* Active indicator — use CSS calc based on index */}
       <div
         className="tab-indicator"
         style={{
-          left: `calc(${activeIndex * 33.333}% + 16.666% - 12px)`,
+          left: `calc(${activeIndex * tabWidth}% + ${offset}% - 18px)`,
         }}
       ></div>
 
@@ -37,12 +39,12 @@ export default function TabBar({ activeTab, onTabChange }) {
       <style>{`
         .tab-indicator {
           position: absolute;
-          top: 0;
-          width: 24px; height: 3px;
-          background: linear-gradient(90deg, #7c3aed, #a78bfa);
-          border-radius: 0 0 4px 4px;
-          transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-          box-shadow: 0 2px 12px rgba(167,139,250,0.5);
+          top: 10px;
+          width: 40px; height: 5px;
+          background: linear-gradient(90deg, #f4da92, #d0a44d);
+          border-radius: 999px;
+          transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 4px 16px rgba(244,218,146,0.45);
           pointer-events: none;
         }
       `}</style>

@@ -7,11 +7,13 @@ import authRoutes from './routes/auth.js';
 import wordsRoutes from './routes/words.js';
 import userRoutes from './routes/user.js';
 import adminRoutes from './routes/admin.js';
+import dialogueRoutes from './routes/dialogue.js';
 import { setupBot } from './bot.js';
 import { config, validateConfig } from './config.js';
 import { initDb } from './db.js';
 import { errorHandler } from './errors.js';
 import { getVocabulary } from './services/vocabularyService.js';
+import { attachDialogueProxyServer } from './services/dialogueProxyServer.js';
 
 dotenv.config();
 
@@ -39,6 +41,7 @@ export async function createApp() {
   app.use('/api/words', wordsRoutes);
   app.use('/api/user', userRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/api/dialogue', dialogueRoutes);
 
   app.use('/api', (_req, res) => {
     res.status(404).json({
@@ -65,10 +68,12 @@ export async function createApp() {
 
 export async function startServer() {
   const app = await createApp();
-  return app.listen(config.port, () => {
+  const server = app.listen(config.port, () => {
     console.log(`Server running on port ${config.port}`);
     setupBot(config.botToken, config.webappUrl);
   });
+  attachDialogueProxyServer(server);
+  return server;
 }
 
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

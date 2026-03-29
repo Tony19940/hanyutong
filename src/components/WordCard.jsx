@@ -1,30 +1,45 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { usePronunciation } from '../hooks/usePronunciation.js';
-import { shouldAutoplayPronunciation } from '../utils/audio.js';
+import { getPrimaryExample, getWordExamples } from '../utils/vocabulary.js';
 
 const SWIPE_THRESHOLD = 80;
 const TAP_THRESHOLD = 10;
 
-export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight, mode = 'home' }) {
+export default function WordCard({
+  word,
+  index,
+  total,
+  onSwipeLeft,
+  onSwipeRight,
+  mode = 'home',
+  autoplaySequence = false,
+}) {
   const [overlayDir, setOverlayDir] = useState(null);
   const [animating, setAnimating] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [speakingTarget, setSpeakingTarget] = useState(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const cardRef = useRef(null);
   const startXRef = useRef(0);
-  const startYRef = useRef(0);
   const isDragging = useRef(false);
   const hasMoved = useRef(false);
   const clearSpeakingTimerRef = useRef(null);
+  const autoPlayCancelledRef = useRef(false);
   const { play, stop } = usePronunciation();
 
   useEffect(() => {
     stop();
+    autoPlayCancelledRef.current = true;
     setSpeakingTarget(null);
     setShowContent(false);
-    const timer = setTimeout(() => setShowContent(true), 80);
+    setIsAutoPlaying(false);
+    const timer = setTimeout(() => {
+      autoPlayCancelledRef.current = false;
+      setShowContent(true);
+    }, 80);
 
     return () => {
+      autoPlayCancelledRef.current = true;
       clearTimeout(timer);
       clearTimeout(clearSpeakingTimerRef.current);
       stop();
@@ -32,16 +47,46 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
   }, [stop, word?.id]);
 
   useEffect(() => {
-    if (showContent && word?.chinese && shouldAutoplayPronunciation()) {
-      const timer = setTimeout(() => {
-        play({
-          text: word.chinese,
-          audioSrc: word.audio_word,
-        });
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [play, showContent, word?.audio_word, word?.chinese]);
+    if (!showContent || !autoplaySequence || !word?.chinese) return undefined;
+
+    let mounted = true;
+    const examples = getWordExamples(word).slice(0, 2);
+
+    const runSequence = async () => {
+      setIsAutoPlaying(true);
+      const queue = [
+        { target: 'word', text: word.chinese, audioSrc: word.audio_word },
+        ...examples.map((example, position) => ({
+          target: position === 0 ? 'example' : example.id,
+          text: example.chinese,
+          audioSrc: example.audio,
+        })),
+      ].filter((item) => item.text || item.audioSrc);
+
+      for (const item of queue) {
+        if (!mounted || autoPlayCancelledRef.current) break;
+        setSpeakingTarget(item.target);
+        await play({ text: item.text, audioSrc: item.audioSrc });
+        if (!mounted || autoPlayCancelledRef.current) break;
+        await new Promise((resolve) => setTimeout(resolve, 220));
+      }
+
+      if (mounted) {
+        setSpeakingTarget(null);
+        setIsAutoPlaying(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if (!autoPlayCancelledRef.current) runSequence();
+    }, 320);
+
+    return () => {
+      mounted = false;
+      autoPlayCancelledRef.current = true;
+      clearTimeout(timer);
+    };
+  }, [autoplaySequence, play, showContent, word]);
 
   const handleSpeak = useCallback(async ({ text, audioSrc, target, e }) => {
     if (e) {
@@ -51,33 +96,35 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
 
     if (!text && !audioSrc) return;
 
+    autoPlayCancelledRef.current = true;
+    setIsAutoPlaying(false);
     clearTimeout(clearSpeakingTimerRef.current);
     setSpeakingTarget(target);
     await play({ text, audioSrc });
     clearSpeakingTimerRef.current = setTimeout(() => setSpeakingTarget(null), 1200);
   }, [play]);
 
-  const handleStart = useCallback((clientX, clientY) => {
+  const handleStart = useCallback((clientX) => {
     if (animating) return;
+    autoPlayCancelledRef.current = true;
+    setIsAutoPlaying(false);
+    stop();
     isDragging.current = true;
     hasMoved.current = false;
     startXRef.current = clientX;
-    startYRef.current = clientY || 0;
     if (cardRef.current) cardRef.current.style.transition = 'none';
-  }, [animating]);
+  }, [animating, stop]);
 
   const handleMove = useCallback((clientX) => {
     if (!isDragging.current || animating) return;
     const dx = clientX - startXRef.current;
 
-    if (Math.abs(dx) > TAP_THRESHOLD) {
-      hasMoved.current = true;
-    }
+    if (Math.abs(dx) > TAP_THRESHOLD) hasMoved.current = true;
 
     if (cardRef.current && hasMoved.current) {
-      const rotation = dx * 0.05;
-      const scale = 1 - Math.abs(dx) * 0.0003;
-      cardRef.current.style.transform = `translateX(${dx}px) rotate(${rotation}deg) scale(${Math.max(scale, 0.95)})`;
+      const rotation = dx * 0.045;
+      const scale = 1 - Math.abs(dx) * 0.00024;
+      cardRef.current.style.transform = `translateX(${dx}px) rotate(${rotation}deg) scale(${Math.max(scale, 0.96)})`;
     }
     if (dx < -30) setOverlayDir('left');
     else if (dx > 30) setOverlayDir('right');
@@ -95,19 +142,24 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
 
     const dx = (clientX || 0) - startXRef.current;
     const card = cardRef.current;
-
     if (card) {
-      card.style.transition = 'transform 0.4s cubic-bezier(.22,1,.36,1), opacity 0.4s';
+      card.style.transition = 'transform 0.34s cubic-bezier(.22,1,.36,1), opacity 0.34s';
     }
 
     if (dx < -SWIPE_THRESHOLD && onSwipeLeft) {
       setAnimating(true);
-      if (card) { card.style.transform = 'translateX(-140%) rotate(-12deg) scale(0.9)'; card.style.opacity = '0'; }
-      setTimeout(() => { onSwipeLeft(); resetCard(); }, 380);
+      if (card) {
+        card.style.transform = 'translateX(-140%) rotate(-12deg) scale(0.92)';
+        card.style.opacity = '0';
+      }
+      setTimeout(() => { onSwipeLeft(); resetCard(); }, 320);
     } else if (dx > SWIPE_THRESHOLD && onSwipeRight) {
       setAnimating(true);
-      if (card) { card.style.transform = 'translateX(140%) rotate(12deg) scale(0.9)'; card.style.opacity = '0'; }
-      setTimeout(() => { onSwipeRight(); resetCard(); }, 380);
+      if (card) {
+        card.style.transform = 'translateX(140%) rotate(12deg) scale(0.92)';
+        card.style.opacity = '0';
+      }
+      setTimeout(() => { onSwipeRight(); resetCard(); }, 320);
     } else {
       if (card) card.style.transform = '';
       setOverlayDir(null);
@@ -129,304 +181,350 @@ export default function WordCard({ word, index, total, onSwipeLeft, onSwipeRight
 
   if (!word) return null;
 
-  const leftLabel = mode === 'collection' ? '釣呩焷釤囜灎釣踞灆 路 釣娽瀫釣呩焷釣?' : '釣呩焷釤囜灎釣踞灆';
-  const rightLabel = mode === 'collection' ? '釣戓灮釣€釣氠焵釣撫瀾釤€釣?' : '釣呩瀯釤嬦灇釤€釣撫瀾釤€釣?';
-
+  const leftLabel = mode === 'collection' ? '左滑移出收藏' : '左滑学会';
+  const rightLabel = mode === 'collection' ? '右滑保留' : '右滑收藏';
+  const examples = getWordExamples(word);
+  const primaryExample = getPrimaryExample(word);
+  const exampleToSpeak = primaryExample?.chinese ?? word.example_cn;
+  const exampleAudio = primaryExample?.audio ?? word.audio_example;
   return (
     <div className="word-card-container">
       <div
         className="word-card"
         ref={cardRef}
-        onTouchStart={(e) => handleStart(e.touches[0].clientX, e.touches[0].clientY)}
+        onTouchStart={(e) => handleStart(e.touches[0].clientX)}
         onTouchMove={(e) => { lastClientX.current = e.touches[0].clientX; handleMove(e.touches[0].clientX); }}
         onTouchEnd={() => handleEnd(lastClientX.current)}
-        onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
+        onMouseDown={(e) => handleStart(e.clientX)}
         onMouseMove={(e) => { if (isDragging.current) handleMove(e.clientX); }}
         onMouseUp={(e) => handleEnd(e.clientX)}
         onMouseLeave={(e) => { if (isDragging.current) handleEnd(e.clientX); }}
       >
         <div className={`swipe-overlay left-ov ${overlayDir === 'left' ? 'visible' : ''}`}>
-          <div className="ov-icon-wrap ov-green">
-            <i className="fas fa-check-circle" style={{ fontSize: 36 }}></i>
-          </div>
-          <span className="ov-label">釣呩焷釤囜灎釣踞灆!</span>
-          <span className="ov-label-cn">宸插浼?鉁?</span>
+          <span className="ov-label">学会</span>
         </div>
-
         <div className={`swipe-overlay right-ov ${overlayDir === 'right' ? 'visible' : ''}`}>
-          <div className="ov-icon-wrap ov-gold">
-            <i className="fas fa-bookmark" style={{ fontSize: 32 }}></i>
-          </div>
-          <span className="ov-label">釣娽灦釣€釤嬦瀫釤掅灀釣会瀯釣斸瀴釤掅瀲釣?</span>
-          <span className="ov-label-cn">宸叉敹钘?鈽?</span>
+          <span className="ov-label">收藏</span>
         </div>
 
-        {total > 0 && (
-          <div className="card-counter">{index + 1} / {total}</div>
-        )}
-
-        <div className={`icon-zone ${showContent ? 'animate-pop-in' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
-          <div
-            className={`word-emoji ${speakingTarget === 'emoji' ? 'speaking' : ''}`}
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              handleSpeak({
-                text: word.chinese,
-                audioSrc: word.audio_word,
-                target: 'emoji',
-                e,
-              });
-            }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => handleSpeak({ text: word.chinese, audioSrc: word.audio_word, target: 'emoji', e })}
-          >
-            {word.emoji || '馃摑'}
+        <div className="card-topbar">
+          <div className={`auto-play-badge ${isAutoPlaying ? 'active' : ''}`}>
+            <i className="fas fa-wave-square"></i>
+            <span>{isAutoPlaying ? '朗读中' : '自动朗读'}</span>
           </div>
-          <div className="spk-badge">
-            <i className="fas fa-volume-up"></i>
-          </div>
+          {total > 0 && <div className="card-counter">{index + 1}/{total}</div>}
         </div>
 
-        <div className={`word-info ${showContent ? 'animate-fade-in-up stagger-1' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
-          <div className="wrd-cn">{word.chinese}</div>
-          <div className="wrd-py">{word.pinyin}</div>
-          <div className="wrd-km">{word.khmer}</div>
+        <div className={`word-stage ${showContent ? 'animate-fade-in-up stagger-1' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
+          <div className="word-stage-ring"></div>
+          <div className="word-info word-head">
+            <div className="wrd-cn">{word.chinese}</div>
+            <div className="wrd-py">{word.pinyin}</div>
+            <div className="wrd-km">{word.khmer}</div>
+            <button
+              type="button"
+              className={`word-speaker ${speakingTarget === 'word' ? 'speaking' : ''}`}
+              onTouchStart={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => handleSpeak({ text: word.chinese, audioSrc: word.audio_word, target: 'word', e })}
+            >
+              <i className="fas fa-volume-up"></i>
+              <span>朗读单词</span>
+            </button>
+          </div>
         </div>
 
         <div className="hr"></div>
 
         <div className={`ex-zone ${showContent ? 'animate-fade-in-up stagger-2' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
-          <div className="ex-lbl">釣п瀾釣夺灎釣氠瀻釤?路 渚嬪彞</div>
-          <div
-            className={`ex-cn ${speakingTarget === 'example' ? 'speaking-text' : ''}`}
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              handleSpeak({
-                text: word.example_cn,
-                audioSrc: word.audio_example,
-                target: 'example',
-                e,
-              });
-            }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => handleSpeak({ text: word.example_cn, audioSrc: word.audio_example, target: 'example', e })}
-          >
-            {word.example_cn}
-            <i className="fas fa-volume-up ex-speaker"></i>
+          <div className="ex-lbl">例句</div>
+          <div className="example-stack">
+            <button
+              type="button"
+              className={`example-item primary-card ${speakingTarget === 'example' ? 'speaking-item' : ''}`}
+              onTouchStart={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => handleSpeak({ text: exampleToSpeak, audioSrc: exampleAudio, target: 'example', e })}
+            >
+              <span className="example-badge">1</span>
+              <span className="example-item-cn">{exampleToSpeak}</span>
+              <span className="example-item-km">{primaryExample?.khmer ?? word.example_km}</span>
+              <i className="fas fa-volume-up example-item-speaker"></i>
+            </button>
+            {examples.slice(1).map((example, idx) => (
+              <button
+                type="button"
+                key={example.id}
+                className={`example-item ${speakingTarget === example.id ? 'speaking-item' : ''}`}
+                onClick={(e) => handleSpeak({ text: example.chinese, audioSrc: example.audio, target: example.id, e })}
+              >
+                <span className="example-badge">{idx + 2}</span>
+                <span className="example-item-cn">{example.chinese}</span>
+                <span className="example-item-km">{example.khmer}</span>
+                <i className="fas fa-volume-up example-item-speaker"></i>
+              </button>
+            ))}
           </div>
-          <div className="ex-km">{word.example_km}</div>
         </div>
 
         <div className={`swipe-guide ${showContent ? 'animate-fade-in stagger-3' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
-          <div className="sg lft">
-            <i className="fas fa-arrow-left"></i>
-            <span>{leftLabel}</span>
-          </div>
-          <div className="sg rgt">
-            <i className="fas fa-bookmark"></i>
-            <span>{rightLabel}</span>
-          </div>
+          <div className="sg lft"><i className="fas fa-arrow-left"></i><span>{leftLabel}</span></div>
+          <div className="sg rgt"><i className="fas fa-bookmark"></i><span>{rightLabel}</span></div>
         </div>
       </div>
 
       <style>{`
         .word-card-container {
-          padding: 0 18px;
+          padding: 0;
           flex: 1;
           display: flex;
           align-items: flex-start;
-          padding-top: 4px;
           min-height: 0;
         }
         .word-card {
           width: 100%;
-          border-radius: 28px;
-          padding: 20px 20px 16px;
-          position: relative; overflow: hidden;
-          background: rgba(255,255,255,0.07);
-          backdrop-filter: blur(32px) saturate(1.4);
-          -webkit-backdrop-filter: blur(32px) saturate(1.4);
-          border: 1px solid rgba(255,255,255,0.12);
-          box-shadow: 0 24px 60px rgba(0,0,0,0.4),
-                      0 0 0 1px rgba(255,255,255,0.05) inset;
-          cursor: grab; touch-action: pan-y;
+          border-radius: 32px;
+          padding: 18px 18px 16px;
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(180deg, rgba(18,43,125,0.96), rgba(20,47,135,0.9));
+          backdrop-filter: blur(28px) saturate(1.2);
+          -webkit-backdrop-filter: blur(28px) saturate(1.2);
+          border: 2px solid rgba(237,204,117,0.74);
+          box-shadow: 0 28px 60px rgba(8, 20, 70, 0.34);
+          cursor: grab;
+          touch-action: pan-y;
           will-change: transform;
         }
+        .word-card:active { cursor: grabbing; }
+        .word-card::before,
+        .word-card::after {
+          content: '';
+          position: absolute;
+          pointer-events: none;
+        }
         .word-card::before {
-          content: ''; position: absolute;
-          top: 0; left: 0; right: 0; height: 2px;
-          background: linear-gradient(90deg, #7c3aed, #2563eb, #10b981);
-          opacity: 0.8;
+          left: 18px;
+          right: 18px;
+          top: 136px;
+          height: 310px;
+          border-radius: 28px;
+          background: linear-gradient(180deg, rgba(252,245,226,0.78), rgba(240,228,192,0.68));
+          border: 1.5px solid rgba(237,204,117,0.54);
+          transform: rotate(-4deg) translateX(-8px);
+          box-shadow: 0 18px 28px rgba(8, 20, 70, 0.12);
+          opacity: 0.96;
+          z-index: 0;
         }
         .word-card::after {
-          content: ''; position: absolute;
-          top: 0; left: 0; right: 0; height: 45%;
-          background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
-          pointer-events: none;
-          border-radius: 28px 28px 0 0;
+          inset: 0;
+          background:
+            radial-gradient(circle at 12% 14%, rgba(245,216,143,0.12), transparent 22%),
+            linear-gradient(180deg, rgba(255,255,255,0.04), transparent 34%);
         }
-        .word-card:active { cursor: grabbing; }
-
-        .swipe-overlay {
-          position: absolute; inset: 0; border-radius: 28px;
-          display: flex; align-items: center; justify-content: center;
-          opacity: 0;
-          transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-          pointer-events: none;
-          flex-direction: column; gap: 8px;
-          font-family: 'Noto Sans Khmer', sans-serif;
-          z-index: 20;
-        }
-        .swipe-overlay.left-ov {
-          background: rgba(16,185,129,0.2);
-          backdrop-filter: blur(4px);
-          border: 2px solid rgba(16,185,129,0.5);
-        }
-        .swipe-overlay.right-ov {
-          background: rgba(251,191,36,0.15);
-          backdrop-filter: blur(4px);
-          border: 2px solid rgba(251,191,36,0.45);
-        }
-        .swipe-overlay.visible { opacity: 1; }
-        .ov-icon-wrap {
-          width: 64px; height: 64px; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .ov-green { background: rgba(16,185,129,0.2); color: #34d399; }
-        .ov-gold { background: rgba(251,191,36,0.2); color: #fbbf24; }
-        .ov-label { font-size: 16px; font-weight: 700; color: #fff; }
-        .ov-label-cn {
-          font-size: 12px; color: rgba(255,255,255,0.5);
-          font-family: 'Noto Sans SC', sans-serif;
-        }
-
-        .card-counter {
-          position: absolute; top: 18px; right: 20px;
-          font-size: 11px; color: var(--text-muted); font-weight: 500;
-          font-family: 'Noto Sans SC', sans-serif;
-          background: rgba(255,255,255,0.05);
-          padding: 2px 10px; border-radius: 10px;
-          z-index: 5;
-        }
-
-        .icon-zone {
-          display: flex; flex-direction: column;
-          align-items: center; margin-bottom: 8px; position: relative;
-          transition: opacity 0.3s;
-          z-index: 15;
-        }
-        .word-emoji {
-          font-size: 72px; line-height: 1.1;
-          filter: drop-shadow(0 12px 24px rgba(0,0,0,0.4));
-          cursor: pointer;
-          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-          user-select: none;
-          -webkit-user-select: none;
-          touch-action: manipulation;
+        .card-topbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
           position: relative;
-          z-index: 15;
-          padding: 8px;
+          z-index: 2;
         }
-        .word-emoji:active { transform: scale(0.88); }
-        .word-emoji.speaking {
-          animation: emojiPulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .auto-play-badge, .card-counter {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 11px;
+          background: rgba(255,244,214,0.08);
+          border: 1px solid rgba(245,216,143,0.18);
+          color: rgba(249,235,190,0.72);
         }
-        @keyframes emojiPulse {
-          0% { transform: scale(1); }
-          30% { transform: scale(1.15); }
-          100% { transform: scale(1); }
+        .auto-play-badge.active {
+          color: #fff8e3;
+          border-color: rgba(245,216,143,0.34);
+          background: rgba(245,216,143,0.14);
         }
-        .spk-badge {
-          position: absolute; top: 2px; right: calc(50% - 58px);
-          width: 28px; height: 28px;
-          background: linear-gradient(135deg, #7c3aed, #2563eb);
-          border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 11px; color: #fff;
-          box-shadow: 0 4px 12px rgba(124,58,237,0.45);
-          border: 2px solid rgba(255,255,255,0.1);
+        .swipe-overlay {
+          position: absolute;
+          inset: 0;
+          border-radius: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          pointer-events: none;
+          z-index: 3;
+        }
+        .swipe-overlay.left-ov { background: rgba(80, 215, 168, 0.16); }
+        .swipe-overlay.right-ov { background: rgba(246, 199, 104, 0.14); }
+        .swipe-overlay.visible { opacity: 1; }
+        .ov-label { font-size: 18px; font-weight: 700; color: #fff; }
+        .word-stage {
+          position: relative;
+          margin: 16px 12px 18px;
+          padding: 36px 18px 28px;
+          border-radius: 28px;
+          background:
+            linear-gradient(180deg, rgba(251,243,223,0.98), rgba(244,233,206,0.96));
+          border: 2px solid rgba(228, 189, 96, 0.92);
+          box-shadow: inset 0 -10px 0 rgba(224, 188, 110, 0.18);
+          overflow: hidden;
+          position: relative;
+          z-index: 2;
+        }
+        .word-stage-ring {
+          position: absolute;
+          inset: 12px;
+          border-radius: 24px;
+          border: 1px solid rgba(193, 153, 73, 0.24);
           pointer-events: none;
         }
-
+        .word-head {
+          margin-top: 0;
+          padding-top: 0;
+        }
+        .word-speaker {
+          position: absolute;
+          left: 50%;
+          bottom: -22px;
+          transform: translateX(-50%);
+          width: 52px;
+          height: 52px;
+          padding: 0;
+          border-radius: 999px;
+          border: 2px solid rgba(255,248,224,0.92);
+          background: linear-gradient(180deg, #efce7d, #c39235);
+          color: #fffdf1;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+          box-shadow: 0 12px 22px rgba(173, 123, 36, 0.32);
+        }
+        .word-speaker.speaking {
+          transform: translateX(-50%) translateY(-2px) scale(1.03);
+          background: linear-gradient(180deg, #f5da94, #d6a84b);
+          box-shadow: 0 18px 30px rgba(214,168,75,0.26);
+        }
+        .word-speaker span { display: none; }
         .word-info {
-          text-align: center; margin-bottom: 10px;
-          transition: opacity 0.3s;
-          position: relative; z-index: 5;
+          text-align: center;
+          position: relative;
+          z-index: 2;
         }
         .wrd-cn {
-          font-size: 34px; font-weight: 700; color: #fff;
-          font-family: 'Noto Serif SC', serif;
-          letter-spacing: 6px; margin-bottom: 5px;
-          text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+          font-size: 72px;
+          font-weight: 800;
+          color: #b68f43;
+          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+          letter-spacing: 1px;
+          line-height: 1.04;
         }
         .wrd-py {
-          font-size: 15px; color: #a78bfa; margin-bottom: 7px;
-          letter-spacing: 1px;
+          margin-top: 14px;
+          font-size: 22px;
+          color: #203b8f;
         }
         .wrd-km {
-          font-size: 17px; color: rgba(255,255,255,0.7);
-          font-family: 'Noto Sans Khmer', sans-serif;
+          margin-top: 12px;
+          font-size: 17px;
+          color: rgba(31, 43, 87, 0.86);
         }
         .hr {
-          height: 1px; margin: 10px 0;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+          display: none;
         }
-
         .ex-zone {
-          position: relative; transition: opacity 0.3s;
-          z-index: 15;
+          position: relative;
+          z-index: 2;
+          margin-top: 8px;
         }
         .ex-lbl {
-          font-size: 10px; color: var(--text-muted);
-          letter-spacing: 2px; margin-bottom: 7px;
-          font-family: 'Noto Sans SC', sans-serif;
-          text-transform: uppercase;
+          font-size: 12px;
+          color: rgba(245, 216, 143, 0.82);
+          margin-left: 4px;
         }
-        .ex-cn {
-          font-size: 14px; color: #fff; line-height: 1.8;
-          margin-bottom: 5px; cursor: pointer;
-          font-family: 'Noto Sans SC', sans-serif;
-          transition: color var(--transition-fast);
-          display: flex; align-items: center; gap: 4px;
-          flex-wrap: wrap;
-          touch-action: manipulation;
-          padding: 4px 0;
+        .example-stack {
+          margin-top: 14px;
+          display: grid;
+          gap: 18px;
         }
-        .ex-cn:active { color: #a78bfa; }
-        .ex-speaker {
-          font-size: 10px; color: #a78bfa;
-          opacity: 0.5;
-          transition: opacity var(--transition-fast), transform 0.3s;
+        .example-item {
+          width: 100%;
+          border: 1.5px solid rgba(237,204,117,0.76);
+          background: linear-gradient(180deg, rgba(251,243,223,0.98), rgba(244,233,206,0.96));
+          border-radius: 18px;
+          padding: 14px 20px 18px 50px;
+          text-align: left;
+          display: grid;
+          gap: 6px;
+          color: #fff;
+          position: relative;
+          transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+          box-shadow: 0 14px 24px rgba(8, 20, 70, 0.12);
         }
-        .ex-cn:active .ex-speaker { opacity: 1; }
-        .speaking-text .ex-speaker {
-          opacity: 1;
-          animation: speakPulse 0.5s ease;
+        .primary-card {
+          border-color: rgba(237,204,117,0.94);
+          background: linear-gradient(180deg, rgba(252,245,226,1), rgba(244,232,201,0.98));
         }
-        @keyframes speakPulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.3); }
+        .example-item.speaking-item {
+          border-color: rgba(237,204,117,0.94);
+          background: linear-gradient(180deg, rgba(255,248,233,1), rgba(247,237,212,0.98));
+          transform: translateY(-1px);
         }
-        .ex-km {
-          font-size: 13px; color: var(--text-sub); line-height: 1.8;
-          font-family: 'Noto Sans Khmer', sans-serif;
+        .example-badge {
+          position: absolute;
+          top: 15px;
+          left: 14px;
+          width: 20px;
+          height: 20px;
+          border-radius: 999px;
+          background: linear-gradient(180deg, #f1d285, #d2a44d);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          font-weight: 700;
         }
-
+        .example-item-cn { font-size: 18px; line-height: 1.5; font-weight: 650; color: #2d3f88; }
+        .example-item-km { font-size: 13px; line-height: 1.6; color: rgba(45, 63, 136, 0.74); }
+        .example-item-speaker {
+          position: absolute;
+          left: 50%;
+          bottom: -18px;
+          transform: translateX(-50%);
+          width: 38px;
+          height: 38px;
+          border-radius: 999px;
+          font-size: 13px;
+          color: #fffdf1;
+          background: linear-gradient(180deg, #efce7d, #c39235);
+          border: 2px solid rgba(255,248,224,0.92);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 10px 18px rgba(173, 123, 36, 0.28);
+        }
         .swipe-guide {
-          display: flex; justify-content: space-between;
-          margin-top: 12px; padding: 0 2px;
-          position: relative; z-index: 5;
+          display: flex;
+          justify-content: space-between;
+          margin-top: 16px;
+          padding: 0 4px;
+          position: relative;
+          z-index: 2;
         }
         .sg {
-          display: flex; align-items: center; gap: 6px;
-          font-size: 11px; font-family: 'Noto Sans Khmer', sans-serif;
-          opacity: 0.7;
-          transition: opacity var(--transition-fast);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          opacity: 0.78;
+          font-weight: 600;
         }
-        .sg.lft { color: #34d399; }
-        .sg.rgt { color: #fbbf24; }
+        .sg.lft { color: #d7f0d6; }
+        .sg.rgt { color: #f4dd9a; }
       `}</style>
     </div>
   );

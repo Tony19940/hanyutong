@@ -5,6 +5,11 @@ import { config } from '../config.js';
 let cachedVocabulary = null;
 
 function vocabularyPath() {
+  const importedPath = path.join(config.rootDir, 'data', 'vocabulary.imported.json');
+  if (fs.existsSync(importedPath)) {
+    return importedPath;
+  }
+
   return path.join(config.rootDir, 'data', 'vocabulary.json');
 }
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api, storage } from '../utils/api.js';
 import ShareModal from './ShareModal.jsx';
 
-export default function ProfilePage({ user }) {
+export default function ProfilePage({ user, onOpenCollection }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showShare, setShowShare] = useState(false);
@@ -26,14 +26,11 @@ export default function ProfilePage({ user }) {
       <div className="profile-loading">
         <div className="profile-loading-spinner"></div>
         <style>{`
-          .profile-loading {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            position: relative; z-index: 10;
-          }
+          .profile-loading { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; }
           .profile-loading-spinner {
             width: 36px; height: 36px;
             border: 3px solid rgba(255,255,255,0.06);
-            border-top-color: #a78bfa; border-radius: 50%;
+            border-top-color: #58d6ff; border-radius: 50%;
             animation: spin 0.8s linear infinite;
           }
         `}</style>
@@ -42,14 +39,9 @@ export default function ProfilePage({ user }) {
   }
 
   const { stats } = profile;
-  const hskLabels = {
-    1: 'អ្នករៀនថ្នាក់ដំបូង · HSK 1',
-    2: 'អ្នករៀនថ្នាក់ទី ២ · HSK 2',
-    3: 'អ្នករៀនមធ្យម · HSK 3',
-    4: 'អ្នករៀនកម្រិតខ្ពស់ · HSK 4',
-    5: 'អ្នកជំនាញ · HSK 5',
-    6: 'មាស្ទ័រ · HSK 6',
-  };
+  const hskLabels = { 1: 'HSK 1', 2: 'HSK 2', 3: 'HSK 3', 4: 'HSK 4', 5: 'HSK 5', 6: 'HSK 6' };
+  const avatarUrl = user.avatar_url || user.avatarUrl || null;
+  const username = user.username ? `@${user.username}` : '';
 
   const handleLogout = async () => {
     try {
@@ -66,73 +58,68 @@ export default function ProfilePage({ user }) {
   return (
     <div className="profile-page page-enter">
       <div className="profile-scroll">
-        {/* Hero */}
         <div className="prof-hero animate-fade-in-up">
+          <div className="hero-glow hero-glow-a"></div>
+          <div className="hero-glow hero-glow-b"></div>
+          <div className="hero-title">User Profile</div>
+          <div className="hero-line"></div>
           <div className="av-wrap">
-            <div className="av">{user.name?.charAt(0)?.toUpperCase() || 'U'}</div>
-            <div className="av-ring"></div>
-            <div className="av-glow"></div>
+            {avatarUrl ? (
+              <img className="av-img" src={avatarUrl} alt={user.name} referrerPolicy="no-referrer" />
+            ) : (
+              <div className="av-fallback">{user.name?.charAt(0)?.toUpperCase() || 'U'}</div>
+            )}
           </div>
-          <div className="prof-name">{user.name}</div>
-          <div className="prof-lv">⭐ {hskLabels[profile.user.hskLevel] || hskLabels[1]}</div>
+          <div className="prof-name-row">
+            <div className="prof-name">{user.name}</div>
+            <div className="prof-lv">{hskLabels[profile.user.hskLevel] || hskLabels[1]}</div>
+          </div>
+          {username && <div className="prof-handle">{username}</div>}
         </div>
 
-        {/* Stats Grid */}
         <div className="stats-grid">
-          <div className="sc animate-float-up stagger-1">
-            <div className="sc-icon">📚</div>
-            <div className="sc-num" style={{ color: '#a78bfa' }}>{stats.wordsLearned.toLocaleString()}</div>
-            <div className="sc-lbl">ពាក្យដែលបានរៀន</div>
+          <div className="sc animate-float-up stagger-1 tone-cyan">
+            <div className="sc-num">{stats.wordsLearned.toLocaleString()}</div>
+            <div className="sc-lbl">已学词数</div>
           </div>
-          <div className="sc animate-float-up stagger-2">
-            <div className="sc-icon">⏱️</div>
-            <div className="sc-num" style={{ color: '#60a5fa' }}>{stats.totalHours}h</div>
-            <div className="sc-lbl">ម៉ោងរៀន</div>
+          <div className="sc animate-float-up stagger-2 tone-pink">
+            <div className="sc-num">{stats.totalHours}h</div>
+            <div className="sc-lbl">学习时长</div>
           </div>
-          <div className="sc animate-float-up stagger-3">
-            <div className="sc-icon">🎯</div>
-            <div className="sc-num" style={{ color: '#34d399' }}>{stats.mastery}%</div>
-            <div className="sc-lbl">ចំណេះ</div>
+          <div className="sc animate-float-up stagger-3 tone-lime">
+            <div className="sc-num">{stats.mastery}%</div>
+            <div className="sc-lbl">掌握度</div>
           </div>
         </div>
 
-        {/* Streak Card */}
         <div className="ach-card animate-float-up stagger-4">
-          <div className="ach-glow"></div>
-          <div className="ach-lbl">🔥 <span>ការសិក្សាបន្ត</span></div>
+          <div className="ach-lbl">连续学习</div>
           <div className="streak-big">
+            <div className="streak-flame">🔥</div>
             <div className="streak-n">{stats.streak}</div>
-            <div className="streak-u">ថ្ងៃ · {stats.streak >= 7 ? '🏆' : '⭐'}</div>
+            <div className="streak-u">连续学习 {stats.streak} 天</div>
           </div>
           <div className="streak-dots">
             {stats.last7Days.map((day, i) => (
-              <div
-                key={i}
-                className={`sd ${day.learned > 0 ? 'done' : ''} ${day.isToday ? 'today' : ''}`}
-                style={{ animationDelay: `${i * 0.06}s` }}
-              >
-                {day.learned > 0 && !day.isToday ? (
-                  <i className="fas fa-check" style={{ fontSize: 8 }}></i>
-                ) : day.isToday ? (
-                  <span style={{ fontSize: 8, fontWeight: 600 }}>ថ្ងៃ</span>
-                ) : (
-                  <span style={{ fontSize: 8 }}>{day.dayName}</span>
-                )}
+              <div key={i} className={`sd ${day.learned > 0 ? 'done' : ''} ${day.isToday ? 'today' : ''}`}>
+                {day.learned > 0 ? '•' : ''}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Share Button */}
         <button className="share-main-btn animate-float-up stagger-5" onClick={() => setShowShare(true)}>
-          <i className="fas fa-share-alt"></i>
-          <span>ចែករំលែកសមិទ្ធផលរបស់ខ្ញុំ</span>
+          <i className="fas fa-sparkles"></i>
+          <span>分享成果</span>
         </button>
 
-        {/* Logout Button */}
+        <button className="collection-entry animate-float-up stagger-6" onClick={onOpenCollection}>
+          <span>收藏词库</span>
+        </button>
+
         <button className="logout-btn" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt"></i>
-          <span>ចាកចេញ</span>
+          <span>退出登录</span>
         </button>
       </div>
 
@@ -145,175 +132,171 @@ export default function ProfilePage({ user }) {
         />
       )}
 
-      <style>{`
-        .profile-page {
-          flex: 1; position: relative; z-index: 10;
-          overflow: hidden;
-        }
-        .profile-scroll {
-          padding: 0 22px;
-          height: 100%;
-          overflow-y: auto; padding-bottom: 100px;
-        }
+        <style>{`
+          .profile-page { flex: 1; position: relative; z-index: 10; overflow: hidden; }
+        .profile-scroll { padding: 8px 22px 100px; height: 100%; overflow-y: auto; max-width: 390px; margin: 0 auto; }
         .profile-scroll::-webkit-scrollbar { display: none; }
-
         .prof-hero {
-          display: flex; flex-direction: column;
-          align-items: center; padding: 8px 0 22px;
+          position: relative;
+          display: flex; flex-direction: column; align-items: center;
+          padding: 20px 18px 24px;
+          border-radius: 40px;
+          background:
+            radial-gradient(circle at 50% -10%, rgba(255,255,255,0.08), transparent 36%),
+            radial-gradient(circle at top, rgba(245,216,143,0.08), transparent 36%),
+            linear-gradient(180deg, rgba(7,61,43,0.98), rgba(5,49,34,0.96));
+          border: 2px solid rgba(245,216,143,0.46);
+          overflow: hidden;
+          margin-bottom: 14px;
+          box-shadow: 0 26px 44px rgba(3,20,12,0.22);
         }
-        .av-wrap { position: relative; margin-bottom: 14px; }
-        .av {
-          width: 86px; height: 86px; border-radius: 50%;
-          background: linear-gradient(135deg, #7c3aed, #2563eb);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 36px; font-weight: 700; color: #fff;
-          border: 3px solid rgba(255,255,255,0.15);
-          position: relative; z-index: 2;
-          box-shadow: 0 12px 32px rgba(124,58,237,0.35);
+        .prof-hero::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background:
+            radial-gradient(110% 80% at 0% 20%, rgba(255,255,255,0.08), transparent 30%),
+            radial-gradient(120% 90% at 100% 10%, rgba(255,255,255,0.06), transparent 34%),
+            radial-gradient(90% 70% at 50% 100%, rgba(0,0,0,0.08), transparent 42%);
+          pointer-events: none;
         }
-        .av-ring {
-          position: absolute; inset: -6px; border-radius: 50%;
-          border: 2px solid transparent;
-          background: linear-gradient(#07071a, #07071a) padding-box,
-                      linear-gradient(135deg, #7c3aed, #2563eb, #10b981) border-box;
-          animation: spin 12s linear infinite;
-          z-index: 1;
-        }
-        .av-glow {
-          position: absolute; inset: -16px;
-          background: radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%);
+        .hero-glow {
+          position: absolute;
           border-radius: 50%;
+          filter: blur(36px);
+          pointer-events: none;
+        }
+        .hero-glow-a { width: 160px; height: 160px; top: -40px; left: -30px; background: rgba(245,216,143,0.18); }
+        .hero-glow-b { width: 150px; height: 150px; right: -20px; bottom: -50px; background: rgba(12,96,62,0.22); }
+        .hero-title {
+          position: relative;
+          z-index: 1;
+          font-size: 16px;
+          font-weight: 800;
+          color: #f5d88f;
+          margin-bottom: 18px;
+        }
+        .hero-line {
+          position: absolute;
+          left: -8%;
+          right: -8%;
+          top: 104px;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, rgba(245,216,143,0.74) 12%, rgba(245,216,143,0.88) 50%, rgba(245,216,143,0.74) 88%, transparent);
           z-index: 0;
-          animation: breathe 3s ease-in-out infinite;
+          transform: perspective(400px) rotateX(22deg);
+        }
+        .av-wrap {
+          width: 112px; height: 112px;
+          border-radius: 56px;
+          overflow: hidden;
+          position: relative;
+          z-index: 1;
+          border: 5px solid rgba(245,216,143,0.82);
+          box-shadow: 0 24px 42px rgba(0,0,0,0.26);
+          background: rgba(255,255,255,0.08);
+          z-index: 2;
+        }
+        .av-img, .av-fallback {
+          width: 100%; height: 100%;
+          display: flex; align-items: center; justify-content: center;
+          object-fit: cover;
+          font-size: 34px; font-weight: 800; color: #fff;
+          background: linear-gradient(135deg, #284fae, #7c49a8);
         }
         .prof-name {
-          font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px;
-          font-family: 'Noto Sans Khmer', sans-serif;
+          font-size: 26px; font-weight: 800; color: #f7ebc4;
+          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+          position: relative; z-index: 1;
+        }
+        .prof-name-row {
+          margin-top: 18px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          position: relative;
+          z-index: 1;
+        }
+        .prof-handle {
+          margin-top: 4px;
+          font-size: 13px;
+          color: rgba(245, 241, 225, 0.8);
+          position: relative; z-index: 1;
         }
         .prof-lv {
-          display: inline-flex; align-items: center; gap: 5px;
-          background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(37,99,235,0.18));
-          border: 1px solid rgba(124,58,237,0.3);
-          border-radius: 20px; padding: 4px 16px;
-          font-size: 11px; color: #a78bfa; font-weight: 500;
-          font-family: 'Noto Sans Khmer', sans-serif;
+          position: relative; z-index: 1;
+          padding: 4px 10px;
+          border-radius: 999px;
+          border: 1px solid rgba(245,216,143,0.56);
+          background: rgba(245,216,143,0.08);
+          font-size: 12px;
+          color: rgba(247,236,207,0.94);
         }
-
-        .stats-grid {
-          display: grid; grid-template-columns: repeat(3, 1fr);
-          gap: 9px; margin-bottom: 14px;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
         .sc {
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.07);
           border-radius: 18px; padding: 16px 8px 14px; text-align: center;
-          position: relative; overflow: hidden;
-          transition: transform 0.15s ease, border-color var(--transition-fast);
+          border: 1.5px solid rgba(245,216,143,0.5);
+          background: linear-gradient(180deg, rgba(17,76,53,0.9), rgba(10,59,41,0.92));
+          box-shadow: 0 18px 36px rgba(0,0,0,0.12);
         }
-        .sc:active { transform: scale(0.96); }
-        .sc-icon { font-size: 20px; margin-bottom: 6px; }
-        .sc-num { font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-        .sc-lbl {
-          font-size: 10px; color: var(--text-muted);
-          font-family: 'Noto Sans Khmer', sans-serif;
-        }
-
+        .tone-cyan, .tone-pink, .tone-lime { background: linear-gradient(180deg, rgba(11,68,45,0.94), rgba(8,52,35,0.92)); }
+        .sc-num { font-size: 28px; font-weight: 800; color: #f6dc95; font-family: 'Manrope', 'Noto Sans SC', sans-serif; }
+        .sc-lbl { margin-top: 6px; font-size: 13px; color: rgba(247,236,207,0.78); }
         .ach-card {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 22px; padding: 20px;
-          margin-bottom: 14px; position: relative; overflow: hidden;
+          border-radius: 28px; padding: 18px 20px 20px;
+          background: transparent;
+          border: none;
+          margin-bottom: 14px;
         }
-        .ach-glow {
-          position: absolute;
-          top: -30px; right: -30px; width: 120px; height: 120px;
-          background: radial-gradient(circle, rgba(251,191,36,0.12) 0%, transparent 70%);
-          pointer-events: none;
-        }
-        .ach-lbl {
-          font-size: 11px; color: var(--text-muted);
-          margin-bottom: 10px; display: flex; align-items: center; gap: 5px;
-          font-family: 'Noto Sans Khmer', sans-serif;
-          position: relative; z-index: 1;
-        }
-        .streak-big {
-          display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px;
-          position: relative; z-index: 1;
-        }
+        .ach-lbl { display: none; }
+        .streak-big { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 2px; margin-bottom: 14px; }
+        .streak-flame { font-size: 42px; line-height: 1; filter: drop-shadow(0 8px 16px rgba(244,184,63,0.28)); }
         .streak-n {
-          font-size: 50px; font-weight: 700;
-          background: linear-gradient(135deg, #fbbf24, #f97316);
+          font-size: 62px; font-weight: 800;
+          background: linear-gradient(135deg, #f6dc95, #cfaa52);
           -webkit-background-clip: text; -webkit-text-fill-color: transparent;
           line-height: 1;
+          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
         }
-        .streak-u {
-          font-size: 14px; color: var(--text-sub);
-          font-family: 'Noto Sans Khmer', sans-serif;
-        }
-        .streak-dots { 
-          display: flex; gap: 6px; 
-          position: relative; z-index: 1;
-        }
+        .streak-u { font-size: 16px; color: rgba(247,236,207,0.86); font-weight: 700; }
+        .streak-dots { display: flex; gap: 10px; justify-content: center; }
         .sd {
-          flex: 1; height: 30px; border-radius: 10px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.08);
+          width: 12px; height: 12px; border-radius: 999px;
+          background: rgba(245,216,143,0.08); border: 1px solid rgba(245,216,143,0.12);
+          display: flex; align-items: center; justify-content: center; color: transparent;
+        }
+        .sd.done { color: #fff; background: rgba(245,216,143,0.22); border-color: rgba(245,216,143,0.42); box-shadow: 0 0 18px rgba(245,216,143,0.42); }
+        .sd.today { outline: 1px solid rgba(245,216,143,0.56); }
+        .collection-entry, .share-main-btn, .logout-btn {
+          width: 100%;
+          min-height: 56px;
+          border-radius: 18px;
           display: flex; align-items: center; justify-content: center;
-          font-size: 9px; color: var(--text-muted);
-          font-family: 'Noto Sans Khmer', sans-serif;
-          transition: all var(--transition-smooth);
-        }
-        .sd.done {
-          background: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(249,115,22,0.25));
-          border-color: rgba(249,115,22,0.35); color: #fff;
-        }
-        .sd.today {
-          background: rgba(251,191,36,0.12);
-          border-color: rgba(251,191,36,0.3); color: #fbbf24;
-          animation: breathe 2s ease-in-out infinite;
-        }
-
-        .share-main-btn {
-          width: 100%; padding: 15px;
-          background: linear-gradient(135deg, #7c3aed, #2563eb);
-          border: none; border-radius: 16px;
-          color: #fff; font-size: 14px; font-weight: 600;
-          cursor: pointer;
-          font-family: 'Noto Sans Khmer', sans-serif;
-          display: flex; align-items: center; justify-content: center; gap: 8px;
-          box-shadow: 0 8px 28px rgba(124,58,237,0.3),
-                      inset 0 1px 0 rgba(255,255,255,0.12);
+          padding: 15px 16px;
+          gap: 12px;
           margin-bottom: 12px;
-          position: relative; overflow: hidden;
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          color: #fff;
         }
-        .share-main-btn::before {
-          content: '';
-          position: absolute; top: 0; left: 0; right: 0; height: 50%;
-          background: linear-gradient(180deg, rgba(255,255,255,0.1), transparent);
-          pointer-events: none;
-          border-radius: 16px 16px 0 0;
+        .collection-entry {
+          border: 1.5px solid rgba(245,216,143,0.38);
+          background: transparent;
+          color: rgba(247,236,207,0.92);
+          font-weight: 700;
         }
-        .share-main-btn:active { 
-          transform: scale(0.97); 
-          box-shadow: 0 4px 16px rgba(124,58,237,0.25);
+        .share-main-btn {
+          justify-content: center;
+          border: 2px solid rgba(245,216,143,0.72);
+          background: linear-gradient(90deg, #2e59c9 0%, #6040b8 100%);
+          font-weight: 800;
+          box-shadow: 0 20px 34px rgba(12,34,92,0.28);
+          min-height: 62px;
+          font-size: 16px;
         }
-
         .logout-btn {
-          width: 100%; padding: 13px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 14px;
-          color: var(--text-muted); font-size: 13px;
-          cursor: pointer;
-          font-family: 'Noto Sans Khmer', sans-serif;
-          display: flex; align-items: center; justify-content: center; gap: 7px;
-          transition: background var(--transition-fast), color var(--transition-fast), transform 0.15s ease;
-        }
-        .logout-btn:active { 
-          background: rgba(239,68,68,0.1);
-          color: #ef4444;
-          transform: scale(0.97);
+          justify-content: center;
+          border: 1.5px solid rgba(245,216,143,0.42);
+          background: transparent;
+          color: rgba(247,236,207,0.88);
         }
       `}</style>
     </div>

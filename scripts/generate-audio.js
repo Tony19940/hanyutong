@@ -1,13 +1,33 @@
-﻿import fs from 'fs';
+import crypto from 'crypto';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
-const vocabularyPath = path.join(rootDir, 'data', 'vocabulary.json');
+const vocabularyPath = path.join(rootDir, 'data', 'vocabulary.imported.json');
 const publicDir = path.join(rootDir, 'public');
 const wordsDir = path.join(publicDir, 'audio', 'words');
 const examplesDir = path.join(publicDir, 'audio', 'examples');
+
+const {
+  DOUBAO_TTS_APP_ID,
+  DOUBAO_TTS_TOKEN,
+  DOUBAO_TTS_CLUSTER,
+  DOUBAO_TTS_VOICE_TYPE = 'BV001_streaming',
+  DOUBAO_TTS_ENCODING = 'mp3',
+  DOUBAO_TTS_RATE = '24000',
+  DOUBAO_TTS_SPEED_RATIO = '1.0',
+  DOUBAO_TTS_VOLUME_RATIO = '1.0',
+  DOUBAO_TTS_PITCH_RATIO = '1.0',
+  DOUBAO_TTS_EMOTION = '',
+  DOUBAO_TTS_LANGUAGE = 'cn',
+} = process.env;
+
+if (!DOUBAO_TTS_APP_ID || !DOUBAO_TTS_TOKEN || !DOUBAO_TTS_CLUSTER) {
+  console.error('Missing Doubao TTS env vars: DOUBAO_TTS_APP_ID / DOUBAO_TTS_TOKEN / DOUBAO_TTS_CLUSTER');
+  process.exit(1);
+}
 
 fs.mkdirSync(wordsDir, { recursive: true });
 fs.mkdirSync(examplesDir, { recursive: true });
@@ -21,25 +41,61 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function downloadTts(text, outputPath) {
-  const endpoint = new URL('https://translate.google.com/translate_tts');
-  endpoint.searchParams.set('ie', 'UTF-8');
-  endpoint.searchParams.set('tl', 'zh-CN');
-  endpoint.searchParams.set('client', 'tw-ob');
-  endpoint.searchParams.set('q', text);
+function buildPayload(text) {
+  const audio = {
+    voice_type: DOUBAO_TTS_VOICE_TYPE,
+    encoding: DOUBAO_TTS_ENCODING,
+    compression_rate: 1,
+    rate: Number.parseInt(DOUBAO_TTS_RATE, 10),
+    speed_ratio: Number.parseFloat(DOUBAO_TTS_SPEED_RATIO),
+    volume_ratio: Number.parseFloat(DOUBAO_TTS_VOLUME_RATIO),
+    pitch_ratio: Number.parseFloat(DOUBAO_TTS_PITCH_RATIO),
+    language: DOUBAO_TTS_LANGUAGE,
+  };
 
-  const response = await fetch(endpoint, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+  if (DOUBAO_TTS_EMOTION) {
+    audio.emotion = DOUBAO_TTS_EMOTION;
+  }
+
+  return {
+    app: {
+      appid: DOUBAO_TTS_APP_ID,
+      token: 'placeholder',
+      cluster: DOUBAO_TTS_CLUSTER,
     },
+    user: {
+      uid: 'hanyutong-batch',
+    },
+    audio,
+    request: {
+      reqid: crypto.randomUUID(),
+      text,
+      text_type: 'plain',
+      operation: 'query',
+    },
+  };
+}
+
+async function synthesizeToFile(text, outputPath) {
+  const response = await fetch('https://openspeech.bytedance.com/api/v1/tts', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer;${DOUBAO_TTS_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(buildPayload(text)),
   });
 
   if (!response.ok) {
-    throw new Error(`TTS request failed (${response.status}) for: ${text}`);
+    throw new Error(`Doubao HTTP TTS failed: ${response.status} ${await response.text()}`);
   }
 
-  const audioBuffer = Buffer.from(await response.arrayBuffer());
+  const payload = await response.json();
+  if (payload?.code !== 3000 || !payload?.data) {
+    throw new Error(`Doubao HTTP TTS returned error: ${JSON.stringify(payload)}`);
+  }
+
+  const audioBuffer = Buffer.from(payload.data, 'base64');
   fs.writeFileSync(outputPath, audioBuffer);
 }
 
@@ -49,30 +105,39 @@ let processed = 0;
 for (const entry of vocabulary) {
   if (processed >= limit) break;
 
-  const fileBaseName = String(entry.id).padStart(4, '0');
-  const wordRelativePath = `/audio/words/${fileBaseName}.mp3`;
-  const exampleRelativePath = `/audio/examples/${fileBaseName}.mp3`;
-  const wordOutputPath = path.join(wordsDir, `${fileBaseName}.mp3`);
-  const exampleOutputPath = path.join(examplesDir, `${fileBaseName}.mp3`);
+  const wordBaseName = String(entry.id).padStart(4, '0');
+  const wordRelativePath = `/audio/words/${wordBaseName}.${DOUBAO_TTS_ENCODING}`;
+  const wordOutputPath = path.join(wordsDir, `${wordBaseName}.${DOUBAO_TTS_ENCODING}`);
 
   const shouldDownloadWord = !onlyMissing || !fs.existsSync(wordOutputPath);
-  const shouldDownloadExample = !onlyMissing || !fs.existsSync(exampleOutputPath);
-
   if (shouldDownloadWord) {
-    await downloadTts(entry.chinese, wordOutputPath);
-    await sleep(250);
+    await synthesizeToFile(entry.chinese, wordOutputPath);
+    await sleep(180);
   }
-
-  if (entry.example_cn && shouldDownloadExample) {
-    await downloadTts(entry.example_cn, exampleOutputPath);
-    await sleep(250);
-  }
-
   entry.audio_word = wordRelativePath;
-  entry.audio_example = entry.example_cn ? exampleRelativePath : null;
+
+  const examples = Array.isArray(entry.examples) ? entry.examples : [];
+  for (const [index, example] of examples.entries()) {
+    if (!example?.chinese) continue;
+
+    const exampleFileName = `${wordBaseName}-${index + 1}.${DOUBAO_TTS_ENCODING}`;
+    const exampleRelativePath = `/audio/examples/${exampleFileName}`;
+    const exampleOutputPath = path.join(examplesDir, exampleFileName);
+    const shouldDownloadExample = !onlyMissing || !fs.existsSync(exampleOutputPath);
+
+    if (shouldDownloadExample) {
+      await synthesizeToFile(example.chinese, exampleOutputPath);
+      await sleep(180);
+    }
+
+    example.audio = exampleRelativePath;
+    if (index === 0) entry.audio_example = exampleRelativePath;
+    if (index === 1) entry.audio_example_2 = exampleRelativePath;
+  }
+
   processed += 1;
-  console.log(`Generated audio for word #${entry.id}`);
+  console.log(`Generated Doubao audio for word #${entry.id} ${entry.chinese}`);
 }
 
 fs.writeFileSync(vocabularyPath, JSON.stringify(vocabulary, null, 2) + '\n', 'utf8');
-console.log(`Audio generation complete. Updated ${processed} vocabulary entries.`);
+console.log(`Doubao audio generation complete. Updated ${processed} vocabulary entries.`);

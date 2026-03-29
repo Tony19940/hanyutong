@@ -30,6 +30,11 @@ export const config = {
   maxWordBatch: readInt(process.env.MAX_WORD_BATCH, 100),
   maxKeyGenerationCount: readInt(process.env.MAX_KEY_GENERATION_COUNT, 100),
   maxKeyCollisionRetries: readInt(process.env.MAX_KEY_COLLISION_RETRIES, 10),
+  doubaoDialogAppId: process.env.DOUBAO_DIALOG_APP_ID || '',
+  doubaoDialogAccessToken: process.env.DOUBAO_DIALOG_ACCESS_TOKEN || '',
+  doubaoDialogAppKey: process.env.DOUBAO_DIALOG_APP_KEY || '',
+  doubaoDialogResourceId: process.env.DOUBAO_DIALOG_RESOURCE_ID || 'volc.speech.dialog',
+  doubaoDialogWsUrl: process.env.DOUBAO_DIALOG_WS_URL || 'wss://openspeech.bytedance.com/api/v3/realtime/dialogue',
   hskThresholds: [
     { minLearned: 2500, level: 6 },
     { minLearned: 1200, level: 5 },
