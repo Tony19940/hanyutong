@@ -111,9 +111,50 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 68px);
+  height: calc(100dvh - 68px);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+/* Khmer temple silhouette decoration */
+.temple-deco {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.temple-deco::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -10px;
+  right: -10px;
+  height: 72px;
+  background-repeat: repeat-x;
+  background-size: 120px 72px;
+  background-position: center top;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='72' viewBox='0 0 120 72'%3E%3Cpath d='M60 4l4 14h8l2 10h4l2 8h6l4 12H30l4-12h6l2-8h4l2-10h8L60 4z' fill='rgba(245,216,143,0.7)'/%3E%3Cpath d='M20 48l2-8h4l2-10h3l2-8 3 8h3l2 10h4l2 8' fill='none' stroke='rgba(245,216,143,0.5)' stroke-width='1'/%3E%3Cpath d='M100 48l2-8h4l2-10h3l2-8 3 8h3l2 10h4l2 8' fill='none' stroke='rgba(245,216,143,0.5)' stroke-width='1'/%3E%3Cpath d='M0 70h120' stroke='rgba(245,216,143,0.3)' stroke-width='1.5'/%3E%3C/svg%3E");
+}
+.temple-deco::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-repeat: repeat-x;
+  background-size: 120px 60px;
+  background-position: center bottom;
+  opacity: 0.14;
+  transform: scaleY(-1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Cpath d='M60 4l4 12h8l2 8h4l2 6h6l4 10H30l4-10h6l2-6h4l2-8h8L60 4z' fill='rgba(245,216,143,0.5)'/%3E%3C/svg%3E");
 }
 
 .tabbar {
@@ -123,15 +164,15 @@ body {
   transform: translateX(-50%);
   width: 100%;
   max-width: 480px;
-  height: 88px;
-  background: linear-gradient(180deg, rgba(24,46,122,0.9), rgba(18,37,101,0.94));
+  height: 68px;
+  background: linear-gradient(180deg, rgba(14,30,88,0.96), rgba(10,24,72,0.98));
   backdrop-filter: blur(28px) saturate(1.35);
   -webkit-backdrop-filter: blur(28px) saturate(1.35);
-  border-top: 1px solid rgba(245,216,143,0.2);
+  border-top: 1.5px solid rgba(245,216,143,0.28);
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
-  padding: 18px 8px 0;
+  padding: 10px 8px 0;
   z-index: 50;
 }
 
@@ -139,21 +180,21 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   cursor: pointer;
-  width: 80px;
+  width: 72px;
   transition: transform var(--transition-fast);
 }
 .tab:active { transform: scale(0.92); }
 
 .tab-ic {
-  width: 48px; height: 40px;
+  width: 44px; height: 34px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
+  font-size: 16px;
   color: rgba(239,228,197,0.54);
   position: relative;
   transition: color var(--transition-smooth), transform var(--transition-fast);
-  border-radius: 16px;
+  border-radius: 14px;
 }
 .tab-ic.active {
   color: var(--text-primary);
@@ -165,11 +206,11 @@ body {
   inset: 0;
   background: linear-gradient(180deg, rgba(244,218,146,0.26), rgba(212,172,82,0.08));
   border: 1px solid rgba(245,216,143,0.28);
-  border-radius: 16px;
-  box-shadow: 0 12px 24px rgba(245,216,143,0.18);
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(245,216,143,0.18);
 }
 .tab-lbl {
-  font-size: 10px;
+  font-size: 9px;
   color: rgba(239,228,197,0.54);
   transition: color var(--transition-smooth);
   font-weight: 700;

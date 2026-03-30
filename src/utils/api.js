@@ -19,14 +19,18 @@ async function request(path, options = {}) {
     token = localStorage.getItem(ADMIN_TOKEN_KEY);
   }
 
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+  const isJsonBody = body && !isFormData;
+
   const res = await fetch(`${API_BASE}${path}`, {
     ...rest,
     headers: {
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...(isJsonBody ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...inputHeaders,
     },
-    ...(body ? { body: JSON.stringify(body) } : {}),
+    ...(isJsonBody ? { body: JSON.stringify(body) } : {}),
+    ...(isFormData ? { body } : {}),
   });
 
   const isJson = res.headers.get('content-type')?.includes('application/json');
@@ -85,6 +89,15 @@ export const api = {
       method: 'POST',
       body: { scenarioId },
     }),
+  sendDialogueMessage: (sessionId, audio) => {
+    const formData = new FormData();
+    formData.append('sessionId', sessionId);
+    formData.append('audio', audio, 'dialogue-message.wav');
+    return request('/dialogue/session/message', {
+      method: 'POST',
+      body: formData,
+    });
+  },
   stopDialogueSession: (payload = {}) =>
     request('/dialogue/session/stop', {
       method: 'POST',

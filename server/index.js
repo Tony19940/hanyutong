@@ -13,7 +13,6 @@ import { config, validateConfig } from './config.js';
 import { initDb } from './db.js';
 import { errorHandler } from './errors.js';
 import { getVocabulary } from './services/vocabularyService.js';
-import { attachDialogueProxyServer } from './services/dialogueProxyServer.js';
 
 dotenv.config();
 
@@ -72,7 +71,6 @@ export async function startServer() {
     console.log(`Server running on port ${config.port}`);
     setupBot(config.botToken, config.webappUrl);
   });
-  attachDialogueProxyServer(server);
   return server;
 }
 

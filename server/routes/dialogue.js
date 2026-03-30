@@ -1,15 +1,28 @@
+import multer from 'multer';
 import { Router } from 'express';
-import { badRequest } from '../errors.js';
+import { badRequest, notFound } from '../errors.js';
 import { requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import {
   buildDialogueSession,
+  buildDialogueState,
   getDialogueAvailability,
+  listDailyDialogueScenarios,
   listDialogueScenarios,
 } from '../services/dialogueScenarioService.js';
-import { saveDialogueSession } from '../services/dialogueSessionStore.js';
+import {
+  buildDialogueStartResponse,
+  buildDialogueTurnResponse,
+  materializeMessageSpecs,
+} from '../services/dialogueTeachingService.js';
+import { getDialogueSession, removeDialogueSession, saveDialogueSession } from '../services/dialogueSessionStore.js';
+import { transcribeDialogueAudio } from '../services/doubaoAsrService.js';
 
 const router = Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 router.use(requireUserAuth);
 
@@ -17,6 +30,7 @@ router.get('/scenarios', asyncHandler(async (_req, res) => {
   res.json({
     ...getDialogueAvailability(),
     scenarios: listDialogueScenarios(),
+    dailyScenarios: listDailyDialogueScenarios(),
   });
 }));
 
@@ -32,30 +46,89 @@ router.post('/session/start', asyncHandler(async (req, res) => {
   });
   saveDialogueSession(session);
 
+  const startResponse = await buildDialogueStartResponse(session);
   res.json({
     ok: true,
     session: {
       sessionId: session.sessionId,
-      scenario: session.scenario,
-      doubao: {
-        wsUrl: session.doubao.wsUrl,
-        resourceId: session.doubao.resourceId,
-        connectId: session.doubao.connectId,
-      },
-      startSession: {
-        dialog: {
-          bot_name: session.startSession.dialog.bot_name,
-        },
+      scenario: {
+        id: session.scenario.id,
+        title: session.scenario.title,
+        subtitle: session.scenario.subtitle,
+        dailyTopic: session.scenario.dailyTopic,
+        stages: session.scenario.stages,
       },
     },
-    notes: [
-      '当前版本已切换到豆包语音端到端参数体系。',
-      '浏览器通过后端代理连接豆包，避免在前端暴露鉴权头。',
-    ],
+    messages: startResponse.messages,
+    state: startResponse.state,
   });
 }));
 
-router.post('/session/stop', asyncHandler(async (_req, res) => {
+router.post(
+  '/session/message',
+  upload.single('audio'),
+  asyncHandler(async (req, res) => {
+    const sessionId = String(req.body?.sessionId || '').trim();
+    if (!sessionId) {
+      throw badRequest('sessionId is required', 'MISSING_SESSION_ID');
+    }
+
+    const session = getDialogueSession(sessionId);
+    if (!session) {
+      throw notFound('Dialogue session not found', 'DIALOGUE_SESSION_NOT_FOUND');
+    }
+
+    if (!req.file?.buffer?.length) {
+      throw badRequest('audio file is required', 'MISSING_AUDIO_FILE');
+    }
+
+    const audioFormat = String(req.file.mimetype || '').includes('wav') ? 'wav' : 'wav';
+    const transcriptResult = await transcribeDialogueAudio(req.file.buffer, audioFormat);
+    const transcript = transcriptResult.text.trim();
+
+    if (!transcript) {
+      const aiMessages = await materializeMessageSpecs([
+        {
+          role: 'assistant',
+          type: 'audio',
+          text: '我刚才没有听清，你再说一次。',
+        },
+      ]);
+
+      res.json({
+        ok: true,
+        userMessage: null,
+        aiMessages,
+        state: buildDialogueState(session),
+        evaluation: {
+          passed: false,
+          skipped: false,
+          retryCount: session.retryCount,
+          lessonIndex: session.lessonIndex,
+          isComplete: session.isComplete,
+        },
+      });
+      return;
+    }
+
+    const response = await buildDialogueTurnResponse({
+      session,
+      transcript,
+    });
+
+    res.json({
+      ok: true,
+      ...response,
+    });
+  })
+);
+
+router.post('/session/stop', asyncHandler(async (req, res) => {
+  const sessionId = String(req.body?.sessionId || '').trim();
+  if (sessionId) {
+    removeDialogueSession(sessionId);
+  }
+
   res.json({
     ok: true,
   });

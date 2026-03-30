@@ -1,9 +1,9 @@
 import React from 'react';
 
 const tabs = [
-  { id: 'home', icon: 'fas fa-house', label: '学习' },
-  { id: 'quiz', icon: 'fas fa-gamepad', label: '测验' },
-  { id: 'practice', icon: 'fas fa-comments', label: '对话' },
+  { id: 'home', icon: 'fas fa-book-open', label: '学习' },
+  { id: 'quiz', icon: 'fas fa-clipboard-check', label: '测验' },
+  { id: 'practice', icon: 'fas fa-comment-dots', label: '对话' },
   { id: 'profile', icon: 'fas fa-user', label: '我的' },
 ];
 
@@ -39,8 +39,8 @@ export default function TabBar({ activeTab, onTabChange }) {
       <style>{`
         .tab-indicator {
           position: absolute;
-          top: 10px;
-          width: 40px; height: 5px;
+          top: 6px;
+          width: 36px; height: 4px;
           background: linear-gradient(90deg, #f4da92, #d0a44d);
           border-radius: 999px;
           transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);

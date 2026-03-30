@@ -187,6 +187,7 @@ export default function WordCard({
   const primaryExample = getPrimaryExample(word);
   const exampleToSpeak = primaryExample?.chinese ?? word.example_cn;
   const exampleAudio = primaryExample?.audio ?? word.audio_example;
+
   return (
     <div className="word-card-container">
       <div
@@ -207,66 +208,61 @@ export default function WordCard({
           <span className="ov-label">收藏</span>
         </div>
 
-        <div className="card-topbar">
-          <div className={`auto-play-badge ${isAutoPlaying ? 'active' : ''}`}>
-            <i className="fas fa-wave-square"></i>
-            <span>{isAutoPlaying ? '朗读中' : '自动朗读'}</span>
-          </div>
-          {total > 0 && <div className="card-counter">{index + 1}/{total}</div>}
-        </div>
-
+        {/* Main word stage - cream card */}
         <div className={`word-stage ${showContent ? 'animate-fade-in-up stagger-1' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
-          <div className="word-stage-ring"></div>
           <div className="word-info word-head">
             <div className="wrd-cn">{word.chinese}</div>
             <div className="wrd-py">{word.pinyin}</div>
             <div className="wrd-km">{word.khmer}</div>
-            <button
-              type="button"
-              className={`word-speaker ${speakingTarget === 'word' ? 'speaking' : ''}`}
-              onTouchStart={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => handleSpeak({ text: word.chinese, audioSrc: word.audio_word, target: 'word', e })}
-            >
-              <i className="fas fa-volume-up"></i>
-              <span>朗读单词</span>
-            </button>
           </div>
+          <button
+            type="button"
+            className={`word-speaker ${speakingTarget === 'word' ? 'speaking' : ''}`}
+            onTouchStart={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => handleSpeak({ text: word.chinese, audioSrc: word.audio_word, target: 'word', e })}
+          >
+            <i className="fas fa-volume-up"></i>
+            <span className="sr-only">朗读单词</span>
+          </button>
         </div>
 
-        <div className="hr"></div>
-
+        {/* Example sentences */}
         <div className={`ex-zone ${showContent ? 'animate-fade-in-up stagger-2' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
-          <div className="ex-lbl">例句</div>
-          <div className="example-stack">
+          <button
+            type="button"
+            className={`example-item ${speakingTarget === 'example' ? 'speaking-item' : ''}`}
+            onTouchStart={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => handleSpeak({ text: exampleToSpeak, audioSrc: exampleAudio, target: 'example', e })}
+          >
+            <span className="example-badge">①</span>
+            <span className="example-item-cn">{exampleToSpeak}</span>
+            <span className="example-item-km">{primaryExample?.khmer ?? word.example_km}</span>
+            <div className="example-speaker-wrap">
+              <i className="fas fa-volume-up example-item-speaker"></i>
+            </div>
+          </button>
+          {examples.slice(1, 2).map((example, idx) => (
             <button
               type="button"
-              className={`example-item primary-card ${speakingTarget === 'example' ? 'speaking-item' : ''}`}
+              key={example.id}
+              className={`example-item ${speakingTarget === example.id ? 'speaking-item' : ''}`}
               onTouchStart={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => handleSpeak({ text: exampleToSpeak, audioSrc: exampleAudio, target: 'example', e })}
+              onClick={(e) => handleSpeak({ text: example.chinese, audioSrc: example.audio, target: example.id, e })}
             >
-              <span className="example-badge">1</span>
-              <span className="example-item-cn">{exampleToSpeak}</span>
-              <span className="example-item-km">{primaryExample?.khmer ?? word.example_km}</span>
-              <i className="fas fa-volume-up example-item-speaker"></i>
-            </button>
-            {examples.slice(1).map((example, idx) => (
-              <button
-                type="button"
-                key={example.id}
-                className={`example-item ${speakingTarget === example.id ? 'speaking-item' : ''}`}
-                onClick={(e) => handleSpeak({ text: example.chinese, audioSrc: example.audio, target: example.id, e })}
-              >
-                <span className="example-badge">{idx + 2}</span>
-                <span className="example-item-cn">{example.chinese}</span>
-                <span className="example-item-km">{example.khmer}</span>
+              <span className="example-badge">②</span>
+              <span className="example-item-cn">{example.chinese}</span>
+              <span className="example-item-km">{example.khmer}</span>
+              <div className="example-speaker-wrap">
                 <i className="fas fa-volume-up example-item-speaker"></i>
-              </button>
-            ))}
-          </div>
+              </div>
+            </button>
+          ))}
         </div>
 
+        {/* Swipe guide */}
         <div className={`swipe-guide ${showContent ? 'animate-fade-in stagger-3' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
           <div className="sg lft"><i className="fas fa-arrow-left"></i><span>{leftLabel}</span></div>
           <div className="sg rgt"><i className="fas fa-bookmark"></i><span>{rightLabel}</span></div>
@@ -275,81 +271,44 @@ export default function WordCard({
 
       <style>{`
         .word-card-container {
-          padding: 0;
           flex: 1;
           display: flex;
-          align-items: flex-start;
+          flex-direction: column;
           min-height: 0;
+          overflow: hidden;
         }
         .word-card {
-          width: 100%;
-          border-radius: 32px;
-          padding: 18px 18px 16px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          border-radius: clamp(20px, 4vw, 28px);
+          padding: clamp(10px, 1.5vh, 16px) clamp(12px, 2vw, 18px) clamp(8px, 1vh, 14px);
           position: relative;
           overflow: hidden;
-          background: linear-gradient(180deg, rgba(18,43,125,0.96), rgba(20,47,135,0.9));
-          backdrop-filter: blur(28px) saturate(1.2);
-          -webkit-backdrop-filter: blur(28px) saturate(1.2);
+          background: linear-gradient(180deg, rgba(16,38,110,0.96), rgba(18,42,120,0.92));
           border: 2px solid rgba(237,204,117,0.74);
-          box-shadow: 0 28px 60px rgba(8, 20, 70, 0.34);
+          box-shadow: 0 20px 48px rgba(8, 20, 70, 0.32);
           cursor: grab;
           touch-action: pan-y;
           will-change: transform;
+          min-height: 0;
         }
         .word-card:active { cursor: grabbing; }
-        .word-card::before,
         .word-card::after {
           content: '';
           position: absolute;
-          pointer-events: none;
-        }
-        .word-card::before {
-          left: 18px;
-          right: 18px;
-          top: 136px;
-          height: 310px;
-          border-radius: 28px;
-          background: linear-gradient(180deg, rgba(252,245,226,0.78), rgba(240,228,192,0.68));
-          border: 1.5px solid rgba(237,204,117,0.54);
-          transform: rotate(-4deg) translateX(-8px);
-          box-shadow: 0 18px 28px rgba(8, 20, 70, 0.12);
-          opacity: 0.96;
-          z-index: 0;
-        }
-        .word-card::after {
           inset: 0;
           background:
-            radial-gradient(circle at 12% 14%, rgba(245,216,143,0.12), transparent 22%),
-            linear-gradient(180deg, rgba(255,255,255,0.04), transparent 34%);
+            radial-gradient(circle at 12% 14%, rgba(245,216,143,0.10), transparent 22%),
+            linear-gradient(180deg, rgba(255,255,255,0.03), transparent 34%);
+          pointer-events: none;
         }
-        .card-topbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 8px;
-          position: relative;
-          z-index: 2;
-        }
-        .auto-play-badge, .card-counter {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 10px;
-          border-radius: 999px;
-          font-size: 11px;
-          background: rgba(255,244,214,0.08);
-          border: 1px solid rgba(245,216,143,0.18);
-          color: rgba(249,235,190,0.72);
-        }
-        .auto-play-badge.active {
-          color: #fff8e3;
-          border-color: rgba(245,216,143,0.34);
-          background: rgba(245,216,143,0.14);
-        }
+
+        /* Swipe overlays */
         .swipe-overlay {
           position: absolute;
           inset: 0;
-          border-radius: 32px;
+          border-radius: inherit;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -362,37 +321,56 @@ export default function WordCard({
         .swipe-overlay.right-ov { background: rgba(246, 199, 104, 0.14); }
         .swipe-overlay.visible { opacity: 1; }
         .ov-label { font-size: 18px; font-weight: 700; color: #fff; }
+
+        /* Word stage - cream card */
         .word-stage {
           position: relative;
-          margin: 16px 12px 18px;
-          padding: 36px 18px 28px;
-          border-radius: 28px;
-          background:
-            linear-gradient(180deg, rgba(251,243,223,0.98), rgba(244,233,206,0.96));
-          border: 2px solid rgba(228, 189, 96, 0.92);
-          box-shadow: inset 0 -10px 0 rgba(224, 188, 110, 0.18);
-          overflow: hidden;
+          margin: 0 clamp(4px, 1vw, 10px);
+          padding: clamp(16px, 3vh, 32px) clamp(12px, 2vw, 18px) clamp(20px, 3.5vh, 36px);
+          border-radius: clamp(18px, 3vw, 24px);
+          background: linear-gradient(180deg, rgba(251,243,223,0.98), rgba(244,233,206,0.96));
+          border: 2px solid rgba(228, 189, 96, 0.88);
+          box-shadow: inset 0 -6px 0 rgba(224, 188, 110, 0.15);
+          overflow: visible;
+          z-index: 2;
+          flex-shrink: 0;
+        }
+
+        /* Word info */
+        .word-info {
+          text-align: center;
           position: relative;
           z-index: 2;
         }
-        .word-stage-ring {
-          position: absolute;
-          inset: 12px;
-          border-radius: 24px;
-          border: 1px solid rgba(193, 153, 73, 0.24);
-          pointer-events: none;
+        .wrd-cn {
+          font-size: clamp(48px, 12vw, 78px);
+          font-weight: 800;
+          color: #5a4520;
+          font-family: 'Manrope', 'Noto Sans SC', serif;
+          letter-spacing: 1px;
+          line-height: 1.05;
         }
-        .word-head {
-          margin-top: 0;
-          padding-top: 0;
+        .wrd-py {
+          margin-top: clamp(4px, 0.8vh, 10px);
+          font-size: clamp(16px, 3vw, 22px);
+          color: #203b8f;
+          font-weight: 500;
         }
+        .wrd-km {
+          margin-top: clamp(4px, 0.6vh, 8px);
+          font-size: clamp(13px, 2.2vw, 17px);
+          color: rgba(31, 43, 87, 0.82);
+          line-height: 1.5;
+        }
+
+        /* Speaker button - centered at bottom of card */
         .word-speaker {
           position: absolute;
           left: 50%;
-          bottom: -22px;
+          bottom: -20px;
           transform: translateX(-50%);
-          width: 52px;
-          height: 52px;
+          width: 44px;
+          height: 44px;
           padding: 0;
           border-radius: 999px;
           border: 2px solid rgba(255,248,224,0.92);
@@ -401,73 +379,49 @@ export default function WordCard({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-          box-shadow: 0 12px 22px rgba(173, 123, 36, 0.32);
+          font-size: 16px;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          box-shadow: 0 8px 18px rgba(173, 123, 36, 0.30);
+          z-index: 5;
         }
         .word-speaker.speaking {
-          transform: translateX(-50%) translateY(-2px) scale(1.03);
-          background: linear-gradient(180deg, #f5da94, #d6a84b);
-          box-shadow: 0 18px 30px rgba(214,168,75,0.26);
+          transform: translateX(-50%) translateY(-2px) scale(1.04);
+          box-shadow: 0 14px 26px rgba(214,168,75,0.26);
         }
-        .word-speaker span { display: none; }
-        .word-info {
-          text-align: center;
-          position: relative;
-          z-index: 2;
+        .word-speaker .sr-only {
+          position: absolute;
+          width: 1px; height: 1px;
+          overflow: hidden;
+          clip: rect(0,0,0,0);
         }
-        .wrd-cn {
-          font-size: 72px;
-          font-weight: 800;
-          color: #b68f43;
-          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
-          letter-spacing: 1px;
-          line-height: 1.04;
-        }
-        .wrd-py {
-          margin-top: 14px;
-          font-size: 22px;
-          color: #203b8f;
-        }
-        .wrd-km {
-          margin-top: 12px;
-          font-size: 17px;
-          color: rgba(31, 43, 87, 0.86);
-        }
-        .hr {
-          display: none;
-        }
+
+        /* Examples zone */
         .ex-zone {
           position: relative;
           z-index: 2;
-          margin-top: 8px;
-        }
-        .ex-lbl {
-          font-size: 12px;
-          color: rgba(245, 216, 143, 0.82);
-          margin-left: 4px;
-        }
-        .example-stack {
-          margin-top: 14px;
-          display: grid;
-          gap: 18px;
+          margin-top: clamp(14px, 2.5vh, 22px);
+          display: flex;
+          flex-direction: column;
+          gap: clamp(10px, 1.8vh, 16px);
+          flex: 1;
+          min-height: 0;
         }
         .example-item {
           width: 100%;
           border: 1.5px solid rgba(237,204,117,0.76);
           background: linear-gradient(180deg, rgba(251,243,223,0.98), rgba(244,233,206,0.96));
-          border-radius: 18px;
-          padding: 14px 20px 18px 50px;
+          border-radius: clamp(14px, 2.5vw, 18px);
+          padding: clamp(10px, 1.5vh, 14px) 16px clamp(14px, 2vh, 20px) 44px;
           text-align: left;
           display: grid;
-          gap: 6px;
+          gap: 3px;
           color: #fff;
           position: relative;
-          transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-          box-shadow: 0 14px 24px rgba(8, 20, 70, 0.12);
-        }
-        .primary-card {
-          border-color: rgba(237,204,117,0.94);
-          background: linear-gradient(180deg, rgba(252,245,226,1), rgba(244,232,201,0.98));
+          transition: transform 0.18s ease, border-color 0.18s ease;
+          box-shadow: 0 10px 20px rgba(8, 20, 70, 0.10);
+          overflow: visible;
+          flex-shrink: 1;
+          min-height: 0;
         }
         .example-item.speaking-item {
           border-color: rgba(237,204,117,0.94);
@@ -476,51 +430,60 @@ export default function WordCard({
         }
         .example-badge {
           position: absolute;
-          top: 15px;
-          left: 14px;
-          width: 20px;
-          height: 20px;
-          border-radius: 999px;
-          background: linear-gradient(180deg, #f1d285, #d2a44d);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 11px;
+          top: clamp(10px, 1.5vh, 14px);
+          left: 12px;
+          font-size: 14px;
           font-weight: 700;
+          color: #b68f43;
         }
-        .example-item-cn { font-size: 18px; line-height: 1.5; font-weight: 650; color: #2d3f88; }
-        .example-item-km { font-size: 13px; line-height: 1.6; color: rgba(45, 63, 136, 0.74); }
-        .example-item-speaker {
+        .example-item-cn {
+          font-size: clamp(14px, 2.2vw, 17px);
+          line-height: 1.45;
+          font-weight: 650;
+          color: #2d3f88;
+        }
+        .example-item-km {
+          font-size: clamp(12px, 1.8vw, 14px);
+          line-height: 1.5;
+          color: rgba(45, 63, 136, 0.70);
+        }
+        .example-speaker-wrap {
           position: absolute;
           left: 50%;
-          bottom: -18px;
+          bottom: -14px;
           transform: translateX(-50%);
-          width: 38px;
-          height: 38px;
+          z-index: 5;
+        }
+        .example-item-speaker {
+          width: 32px;
+          height: 32px;
           border-radius: 999px;
-          font-size: 13px;
+          font-size: 12px;
           color: #fffdf1;
           background: linear-gradient(180deg, #efce7d, #c39235);
           border: 2px solid rgba(255,248,224,0.92);
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 10px 18px rgba(173, 123, 36, 0.28);
+          box-shadow: 0 6px 14px rgba(173, 123, 36, 0.26);
         }
+
+        /* Swipe guide */
         .swipe-guide {
           display: flex;
           justify-content: space-between;
-          margin-top: 16px;
+          margin-top: clamp(8px, 1.2vh, 14px);
           padding: 0 4px;
           position: relative;
           z-index: 2;
+          flex-shrink: 0;
         }
         .sg {
           display: flex;
           align-items: center;
-          gap: 6px;
-          font-size: 12px;
-          opacity: 0.78;
+          gap: 5px;
+          font-size: 11px;
+          opacity: 0.72;
           font-weight: 600;
         }
         .sg.lft { color: #d7f0d6; }

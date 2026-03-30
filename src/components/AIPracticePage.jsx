@@ -1,33 +1,28 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { usePronunciation } from '../hooks/usePronunciation.js';
-import { api, storage } from '../utils/api.js';
+import { api } from '../utils/api.js';
 
 const INPUT_SAMPLE_RATE = 16000;
-const INPUT_CHUNK_MS = 20;
-const INPUT_SAMPLES_PER_CHUNK = (INPUT_SAMPLE_RATE * INPUT_CHUNK_MS) / 1000;
+const CHUNK_SIZE = 4096;
+const TEACHER_AVATAR = '/bunson-teacher.jpg';
 
 function downsampleTo16k(input, sourceRate) {
-  if (sourceRate === INPUT_SAMPLE_RATE) {
-    return input;
-  }
-
+  if (sourceRate === INPUT_SAMPLE_RATE) return input;
   const ratio = sourceRate / INPUT_SAMPLE_RATE;
-  const newLength = Math.round(input.length / ratio);
-  const output = new Float32Array(newLength);
+  const length = Math.round(input.length / ratio);
+  const output = new Float32Array(length);
   let offsetResult = 0;
   let offsetBuffer = 0;
 
   while (offsetResult < output.length) {
     const nextOffsetBuffer = Math.round((offsetResult + 1) * ratio);
-    let accum = 0;
+    let sum = 0;
     let count = 0;
-
-    for (let i = offsetBuffer; i < nextOffsetBuffer && i < input.length; i += 1) {
-      accum += input[i];
+    for (let index = offsetBuffer; index < nextOffsetBuffer && index < input.length; index += 1) {
+      sum += input[index];
       count += 1;
     }
-
-    output[offsetResult] = count > 0 ? accum / count : 0;
+    output[offsetResult] = count ? sum / count : 0;
     offsetResult += 1;
     offsetBuffer = nextOffsetBuffer;
   }
@@ -36,100 +31,210 @@ function downsampleTo16k(input, sourceRate) {
 }
 
 function mergeFloat32Chunks(chunks) {
-  const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
-  const merged = new Float32Array(totalLength);
+  const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const merged = new Float32Array(total);
   let offset = 0;
-
   chunks.forEach((chunk) => {
     merged.set(chunk, offset);
     offset += chunk.length;
   });
-
   return merged;
 }
 
-function floatTo16BitPCMBase64(float32Array) {
-  const buffer = new ArrayBuffer(float32Array.length * 2);
-  const view = new DataView(buffer);
-
-  for (let i = 0; i < float32Array.length; i += 1) {
-    const sample = Math.max(-1, Math.min(1, float32Array[i]));
-    view.setInt16(i * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+function float32ToWavBlob(float32Array, sampleRate = INPUT_SAMPLE_RATE) {
+  const pcmBuffer = new ArrayBuffer(float32Array.length * 2);
+  const pcmView = new DataView(pcmBuffer);
+  for (let index = 0; index < float32Array.length; index += 1) {
+    const sample = Math.max(-1, Math.min(1, float32Array[index]));
+    pcmView.setInt16(index * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
   }
 
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i += 1) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
+  const wavBuffer = new ArrayBuffer(44 + pcmBuffer.byteLength);
+  const wavView = new DataView(wavBuffer);
+  const writeString = (offset, value) => {
+    for (let index = 0; index < value.length; index += 1) {
+      wavView.setUint8(offset + index, value.charCodeAt(index));
+    }
+  };
+
+  writeString(0, 'RIFF');
+  wavView.setUint32(4, 36 + pcmBuffer.byteLength, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  wavView.setUint32(16, 16, true);
+  wavView.setUint16(20, 1, true);
+  wavView.setUint16(22, 1, true);
+  wavView.setUint32(24, sampleRate, true);
+  wavView.setUint32(28, sampleRate * 2, true);
+  wavView.setUint16(32, 2, true);
+  wavView.setUint16(34, 16, true);
+  writeString(36, 'data');
+  wavView.setUint32(40, pcmBuffer.byteLength, true);
+  new Uint8Array(wavBuffer, 44).set(new Uint8Array(pcmBuffer));
+
+  return new Blob([wavBuffer], { type: 'audio/wav' });
+}
+
+function formatTimer(seconds) {
+  return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+function formatClock(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
 function statusCopy(status) {
-  switch (status) {
-    case 'loading':
-      return '读取配置中';
-    case 'unsupported':
-      return '当前环境不支持';
-    case 'connecting':
-      return '正在连线';
-    case 'active':
-      return '实时对话中';
-    case 'error':
-      return '连接失败';
-    default:
-      return '准备开始';
+  return {
+    loading: '连接中',
+    idle: '待开始',
+    starting: '准备中',
+    active: '在线',
+    sending: '发送中',
+    complete: '已完成',
+    error: '异常',
+  }[status] || '待开始';
+}
+
+function mapAudio(message, audioUrlsRef) {
+  const createdAt = message?.createdAt || new Date().toISOString();
+  if (!message?.audio?.base64) {
+    return {
+      ...message,
+      createdAt,
+    };
   }
+
+  const bytes = Uint8Array.from(atob(message.audio.base64), (char) => char.charCodeAt(0));
+  const blob = new Blob([bytes], { type: message.audio.mimeType || 'audio/mpeg' });
+  const audioUrl = URL.createObjectURL(blob);
+  audioUrlsRef.current.add(audioUrl);
+  return {
+    ...message,
+    createdAt,
+    audioUrl,
+  };
+}
+
+function buildUserDisplay(user) {
+  const displayName = user?.display_name || user?.name || user?.username || '你';
+  const username = user?.username ? `@${user.username}` : '今天在线';
+  const avatarUrl = user?.avatarUrl || user?.avatar_url || null;
+  return {
+    displayName,
+    username,
+    avatarUrl,
+    initial: displayName.trim().slice(0, 1) || '你',
+  };
+}
+
+function buildCoachDisplay(scenario, status) {
+  const coachName = 'Bunson老师';
+  return {
+    displayName: coachName,
+    username: status === 'error' ? '连接异常' : '在线',
+    avatarUrl: TEACHER_AVATAR,
+    initial: coachName.slice(0, 1) || '豆',
+  };
+}
+
+function buildTopicNote(scenario, state) {
+  if (!scenario) return '选择一个今日话题';
+  const stage = state?.currentLesson?.stage || '准备中';
+  const progress = state?.totalLessons ? `${Math.min((state.lessonIndex || 0) + 1, state.totalLessons)}/${state.totalLessons}` : '';
+  return [scenario.dailyTopic, stage, progress].filter(Boolean).join(' · ');
+}
+
+function renderVoiceDuration(message) {
+  if (message.durationSeconds) {
+    return formatTimer(message.durationSeconds);
+  }
+  return message.audioUrl ? '00:03' : '--:--';
 }
 
 export default function AIPracticePage({ user }) {
   const [availability, setAvailability] = useState({ available: false, missing: [], scenarios: [] });
   const [scenarioId, setScenarioId] = useState(null);
-  const [step, setStep] = useState(0);
-  const [showHint, setShowHint] = useState(false);
-  const [status, setStatus] = useState('loading');
-  const [statusDetail, setStatusDetail] = useState('正在读取场景配置。');
-  const [eventLog, setEventLog] = useState([]);
-  const [activeSession, setActiveSession] = useState(null);
+  const [session, setSession] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [textInput, setTextInput] = useState('');
+  const [state, setState] = useState(null);
+  const [status, setStatus] = useState('loading');
+  const [statusDetail, setStatusDetail] = useState('正在读取对话配置。');
   const [isRecording, setIsRecording] = useState(false);
+  const [recordSeconds, setRecordSeconds] = useState(0);
+  const [isSending, setIsSending] = useState(false);
+  const [startingTopicId, setStartingTopicId] = useState(null);
+  const [playingMessageId, setPlayingMessageId] = useState(null);
+  const [playingProgress, setPlayingProgress] = useState({ currentTime: 0, duration: 0 });
   const { play, stop } = usePronunciation();
 
-  const activeSessionRef = useRef(null);
-  const wsRef = useRef(null);
-  const audioContextRef = useRef(null);
-  const audioQueueRef = useRef(Promise.resolve());
+  const scrollRef = useRef(null);
   const captureContextRef = useRef(null);
   const processorRef = useRef(null);
   const mediaStreamRef = useRef(null);
-  const captureBufferRef = useRef([]);
-  const captureChunkSizeRef = useRef(INPUT_SAMPLES_PER_CHUNK);
+  const chunksRef = useRef([]);
+  const audioUrlsRef = useRef(new Set());
 
   const scenarios = availability.scenarios || [];
+  const dailyScenarios = availability.dailyScenarios || [];
+  const topicChoices = dailyScenarios.length > 0 ? dailyScenarios : scenarios.slice(0, 3);
   const scenario = useMemo(
-    () => scenarios.find((item) => item.id === scenarioId) ?? scenarios[0] ?? null,
-    [scenarioId, scenarios]
+    () =>
+      scenarios.find((item) => item.id === scenarioId)
+      ?? dailyScenarios.find((item) => item.id === scenarioId)
+      ?? dailyScenarios[0]
+      ?? scenarios[0]
+      ?? null,
+    [dailyScenarios, scenarioId, scenarios]
   );
-  const currentTurn = scenario?.steps?.[step] ?? null;
-  const progress = scenario?.steps?.length ? Math.round(((step + 1) / scenario.steps.length) * 100) : 0;
+  const coach = useMemo(() => buildCoachDisplay(scenario, status), [scenario, status]);
+  const learner = useMemo(() => buildUserDisplay(user), [user]);
+
+  function clearAudioUrls() {
+    audioUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    audioUrlsRef.current.clear();
+  }
+
+  function teardownRecording() {
+    if (processorRef.current) {
+      try {
+        processorRef.current.disconnect();
+      } catch {}
+      processorRef.current.onaudioprocess = null;
+      processorRef.current = null;
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+    if (captureContextRef.current) {
+      captureContextRef.current.close().catch(() => {});
+      captureContextRef.current = null;
+    }
+    chunksRef.current = [];
+    setIsRecording(false);
+    setRecordSeconds(0);
+  }
+
+  function appendMessages(nextMessages) {
+    setMessages((current) => [...current, ...nextMessages]);
+  }
 
   useEffect(() => {
     let mounted = true;
-
     (async () => {
       try {
         const data = await api.getDialogueScenarios();
         if (!mounted) return;
         setAvailability(data);
-        setScenarioId((value) => value || data.scenarios?.[0]?.id || null);
-        if (data.available) {
-          setStatus('idle');
-          setStatusDetail('选择场景后开始实时对话。');
-        } else {
-          setStatus('error');
-          setStatusDetail('火山 RTC 与 VoiceChat 参数还没配齐。');
-        }
+        setScenarioId((value) => value || data.dailyScenarios?.[0]?.id || data.scenarios?.[0]?.id || null);
+        setStatus(data.available ? 'idle' : 'error');
+        setStatusDetail(data.available ? '选择一个今日话题。' : '对话配置还没配齐。');
       } catch (error) {
         if (!mounted) return;
         setStatus('error');
@@ -139,604 +244,452 @@ export default function AIPracticePage({ user }) {
 
     return () => {
       mounted = false;
+      clearAudioUrls();
       stop();
+      teardownRecording();
     };
   }, [stop]);
 
   useEffect(() => {
-    setStep(0);
-    setShowHint(false);
+    if (!isRecording) return undefined;
+    const timer = window.setInterval(() => setRecordSeconds((value) => value + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [isRecording]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [messages]);
+
+  useEffect(() => {
+    setMessages([]);
+    setSession(null);
+    setState(null);
+    clearAudioUrls();
+    setStartingTopicId(null);
+    setPlayingMessageId(null);
+    setPlayingProgress({ currentTime: 0, duration: 0 });
+    setStatus(availability.available ? 'idle' : 'error');
+    setStatusDetail(availability.available ? '选择一个今日话题。' : '对话配置还没配齐。');
     stop();
-  }, [scenarioId, stop]);
+    teardownRecording();
+  }, [scenarioId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => () => {
-    teardownSession({ skipServerStop: false }).catch((error) => {
-      console.error('Failed to cleanup dialogue session:', error);
-    });
-  }, []);
-
-  async function teardownSession({ skipServerStop = false } = {}) {
-    const currentSession = activeSessionRef.current;
-    const socket = wsRef.current;
-    activeSessionRef.current = null;
-    stopRecording();
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      try {
-        socket.send(JSON.stringify({ type: 'finish' }));
-      } catch {}
-    }
-    if (wsRef.current) {
-      try {
-        wsRef.current.close();
-      } catch {}
-      wsRef.current = null;
-    }
-
-    if (!skipServerStop && currentSession?.task) {
-      try {
-        await api.stopDialogueSession({});
-      } catch (error) {
-        console.error('Failed to stop dialogue session on server:', error);
-      }
-    }
-
-    setActiveSession(null);
-  }
-
-  function appendMessage(message) {
-    setMessages((value) => [...value, { id: Date.now() + Math.random(), ...message }].slice(-16));
-  }
-
-  function enqueuePcmAudio(base64Audio) {
-    if (!base64Audio) return;
-    const raw = Uint8Array.from(atob(base64Audio), (char) => char.charCodeAt(0));
-    const sampleCount = Math.floor(raw.byteLength / 2);
-    const channelData = new Float32Array(sampleCount);
-    const pcm = new DataView(raw.buffer);
-
-    for (let i = 0; i < sampleCount; i += 1) {
-      channelData[i] = pcm.getInt16(i * 2, true) / 32768;
-    }
-
-    audioQueueRef.current = audioQueueRef.current.then(async () => {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) return;
-      if (!audioContextRef.current) {
-        audioContextRef.current = new AudioContextClass({ sampleRate: 24000 });
-      }
-      if (audioContextRef.current.state === 'suspended') {
-        await audioContextRef.current.resume();
-      }
-
-      const buffer = audioContextRef.current.createBuffer(1, channelData.length, 24000);
-      buffer.getChannelData(0).set(channelData);
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioContextRef.current.destination);
-      source.start();
-      await new Promise((resolve) => {
-        source.onended = resolve;
-      });
-    }).catch((error) => {
-      console.error('Failed to play dialogue pcm audio:', error);
-    });
-  }
-
-  function stopPlaybackQueue() {
-    audioQueueRef.current = Promise.resolve();
-    if (audioContextRef.current?.state === 'running') {
-      audioContextRef.current.suspend().catch(() => {});
+  async function handleStartTopic(nextScenarioId = scenario?.id) {
+    const selectedScenario = scenarios.find((item) => item.id === nextScenarioId)
+      ?? dailyScenarios.find((item) => item.id === nextScenarioId)
+      ?? scenario;
+    if (!selectedScenario) return;
+    setScenarioId(selectedScenario.id);
+    setStatus('starting');
+    setStatusDetail('正在生成今日话题。');
+    setStartingTopicId(selectedScenario.id);
+    try {
+      const response = await api.startDialogueSession(selectedScenario.id);
+      setSession(response.session);
+      setState(response.state);
+      setMessages([
+        {
+          id: `topic-note-${Date.now()}`,
+          role: 'system',
+          type: 'note',
+          text: buildTopicNote(response.session.scenario, response.state),
+          createdAt: new Date().toISOString(),
+        },
+        ...response.messages.map((message) => mapAudio(message, audioUrlsRef)),
+      ]);
+      setStatus(response.state?.isComplete ? 'complete' : 'active');
+      setStatusDetail('现在可以开始录音了。');
+    } catch (error) {
+      setStatus('error');
+      setStatusDetail(error.message || '启动对话失败。');
+    } finally {
+      setStartingTopicId(null);
     }
   }
 
-  function stopRecording({ sendEnd = false } = {}) {
-    if (processorRef.current) {
-      try {
-        processorRef.current.disconnect();
-      } catch {}
-      processorRef.current.onaudioprocess = null;
-      processorRef.current = null;
-    }
-
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-      mediaStreamRef.current = null;
-    }
-
-    if (captureContextRef.current) {
-      captureContextRef.current.close().catch(() => {});
-      captureContextRef.current = null;
-    }
-
-    captureBufferRef.current = [];
-    setIsRecording(false);
-
-    if (sendEnd && wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'end_asr' }));
-    }
-  }
-
-  async function startRecording() {
-    if (isRecording || status !== 'active' || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+  async function handleStopTopic() {
+    if (!session?.sessionId) {
+      setStatus(availability.available ? 'idle' : 'error');
+      setStatusDetail(availability.available ? '选择一个今日话题。' : '对话配置还没配齐。');
       return;
     }
 
+    teardownRecording();
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: 1,
-          noiseSuppression: true,
-          echoCancellation: true,
-          autoGainControl: true,
-        },
-      });
+      await api.stopDialogueSession({ sessionId: session.sessionId });
+    } catch {}
+    setSession(null);
+    setState(null);
+    setPlayingMessageId(null);
+    setPlayingProgress({ currentTime: 0, duration: 0 });
+    setStatus(availability.available ? 'idle' : 'error');
+    setStatusDetail(availability.available ? '重新选择一个今日话题。' : '对话配置还没配齐。');
+  }
 
+  async function startRecording() {
+    if (isRecording || isSending || status !== 'active') return;
+    try {
+      stop();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, noiseSuppression: true, echoCancellation: true, autoGainControl: true },
+      });
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (!AudioContextClass) {
-        throw new Error('当前浏览器不支持音频采集');
+        throw new Error('当前浏览器不支持录音。');
       }
 
-      const captureContext = new AudioContextClass();
-      const source = captureContext.createMediaStreamSource(stream);
-      const processor = captureContext.createScriptProcessor(4096, 1, 1);
-
+      const context = new AudioContextClass();
+      const source = context.createMediaStreamSource(stream);
+      const processor = context.createScriptProcessor(CHUNK_SIZE, 1, 1);
+      chunksRef.current = [];
       mediaStreamRef.current = stream;
-      captureContextRef.current = captureContext;
+      captureContextRef.current = context;
       processorRef.current = processor;
-      captureChunkSizeRef.current = INPUT_SAMPLES_PER_CHUNK;
-      captureBufferRef.current = [];
-
       processor.onaudioprocess = (event) => {
-        const input = event.inputBuffer.getChannelData(0);
-        const downsampled = downsampleTo16k(input, captureContext.sampleRate);
-        captureBufferRef.current.push(downsampled);
-
-        const merged = mergeFloat32Chunks(captureBufferRef.current);
-        let offset = 0;
-        while (merged.length - offset >= captureChunkSizeRef.current) {
-          const chunk = merged.slice(offset, offset + captureChunkSizeRef.current);
-          offset += captureChunkSizeRef.current;
-          if (wsRef.current?.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({
-              type: 'audio_chunk',
-              payload: floatTo16BitPCMBase64(chunk),
-            }));
-          }
-        }
-
-        captureBufferRef.current = offset < merged.length ? [merged.slice(offset)] : [];
+        const channelData = event.inputBuffer.getChannelData(0);
+        chunksRef.current.push(downsampleTo16k(channelData, context.sampleRate));
       };
-
       source.connect(processor);
-      processor.connect(captureContext.destination);
+      processor.connect(context.destination);
+      setRecordSeconds(0);
       setIsRecording(true);
-      appendMessage({ role: 'system', text: '开始说话…' });
+      setStatusDetail('录音中，再点一次就会发送。');
     } catch (error) {
-      console.error(error);
       setStatus('error');
       setStatusDetail(error.message || '麦克风启动失败。');
     }
   }
 
-  async function handleStartSession() {
-    if (!scenario) return;
+  async function stopRecordingAndSend() {
+    if (!isRecording || !session?.sessionId) return;
+    setIsSending(true);
+    const durationSeconds = Math.max(recordSeconds, 1);
 
-    setStatus('connecting');
-    setStatusDetail('正在准备豆包端到端连接参数。');
-    setEventLog([{ id: Date.now(), text: '正在向服务端申请豆包会话参数。' }]);
+    const merged = mergeFloat32Chunks(chunksRef.current);
+    const audioBlob = float32ToWavBlob(merged);
+    const localAudioUrl = URL.createObjectURL(audioBlob);
+    audioUrlsRef.current.add(localAudioUrl);
+    teardownRecording();
+
+    const localMessageId = `local-${Date.now()}`;
+    appendMessages([
+      {
+        id: localMessageId,
+        role: 'user',
+        type: 'audio',
+        text: '正在识别…',
+        audioUrl: localAudioUrl,
+        durationSeconds,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
 
     try {
-      await teardownSession({ skipServerStop: false });
+      const response = await api.sendDialogueMessage(session.sessionId, audioBlob);
+      setState(response.state);
+      setStatus(response.state?.isComplete ? 'complete' : 'active');
+      setStatusDetail(response.state?.isComplete ? '本次话题已完成。' : '继续下一句。');
 
-      const sessionResponse = await api.startDialogueSession(scenario.id);
-      const session = sessionResponse.session;
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === localMessageId
+            ? {
+                ...message,
+                text: response.userMessage?.text || '我刚才没有听清。',
+                createdAt: response.userMessage?.createdAt || message.createdAt,
+              }
+            : message
+        )
+      );
 
-      activeSessionRef.current = session;
-      setActiveSession(session);
-      setMessages([]);
-
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const token = localStorage.getItem(storage.USER_TOKEN_KEY);
-      const wsUrl = `${protocol}//${window.location.host}/api/dialogue/ws?token=${encodeURIComponent(token || '')}`;
-      const socket = new WebSocket(wsUrl);
-      wsRef.current = socket;
-
-      socket.addEventListener('open', () => {
-        socket.send(JSON.stringify({ type: 'start', sessionId: session.sessionId }));
-      });
-
-      socket.addEventListener('message', (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'proxy_ready') {
-          setStatus('connecting');
-          setStatusDetail('代理已连上，正在启动豆包会话。');
-          return;
-        }
-
-        if (data.type === 'session_started') {
-          setStatus('active');
-          setStatusDetail('已连线，现在可以直接输入中文或按住说话。');
-          appendMessage({ role: 'assistant', text: session.scenario.openingLine });
-          socket.send(JSON.stringify({ type: 'say_hello', content: session.scenario.openingLine }));
-          return;
-        }
-
-        if (data.type === 'chat_response') {
-          appendMessage({ role: 'assistant', text: data.payload?.content || '' });
-          return;
-        }
-
-        if (data.type === 'asr_response') {
-          const result = data.payload?.results?.[0];
-          if (result?.text) {
-            appendMessage({ role: result.is_interim ? 'system' : 'user', text: result.text });
-          }
-          return;
-        }
-
-        if (data.type === 'asr_info') {
-          stopPlaybackQueue();
-          setEventLog((value) => [
-            { id: Date.now() + Math.random(), text: '检测到你开始说话。' },
-            ...value,
-          ].slice(0, 8));
-          return;
-        }
-
-        if (data.type === 'asr_ended') {
-          setEventLog((value) => [
-            { id: Date.now() + Math.random(), text: '本轮语音输入已结束。' },
-            ...value,
-          ].slice(0, 8));
-          return;
-        }
-
-        if (data.type === 'tts_audio') {
-          enqueuePcmAudio(data.payload);
-          return;
-        }
-
-        if (data.type === 'dialog_error' || data.type === 'session_failed' || data.type === 'proxy_error') {
-          setStatus('error');
-          setStatusDetail(data.payload?.message || data.error || '豆包会话出错。');
-          return;
-        }
-
-        if (data.type === 'session_finished' || data.type === 'proxy_closed') {
-          setStatus('idle');
-          setStatusDetail('对话已结束。可以重新开始下一轮。');
-        }
-      });
-
-      socket.addEventListener('close', () => {
-        wsRef.current = null;
-      });
-
-      setEventLog((value) => [
-        { id: Date.now() + Math.random(), text: `连接地址：${session.doubao.wsUrl}` },
-        { id: Date.now() + Math.random(), text: `resource_id：${session.doubao.resourceId}` },
-        { id: Date.now() + Math.random(), text: `bot_name：${session.startSession.dialog.bot_name}` },
-        ...value,
-      ].slice(0, 8));
+      appendMessages(response.aiMessages.map((message) => mapAudio(message, audioUrlsRef)));
     } catch (error) {
-      console.error(error);
-      await teardownSession({ skipServerStop: false });
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === localMessageId
+            ? {
+                ...message,
+                text: '发送失败，请再试一次。',
+              }
+            : message
+        )
+      );
       setStatus('error');
-      setStatusDetail(error.message || '启动实时对话失败。');
+      setStatusDetail(error.message || '发送语音失败。');
+    } finally {
+      setIsSending(false);
     }
   }
 
-  async function handleStopSession() {
-    setStatus('idle');
-    setStatusDetail('对话已结束。可以重新开始下一轮。');
-    await teardownSession({ skipServerStop: false });
-  }
-
-  function handleSendText() {
-    const content = textInput.trim();
-    if (!content || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
-    wsRef.current.send(JSON.stringify({ type: 'text_query', content }));
-    appendMessage({ role: 'user', text: content });
-    setTextInput('');
-  }
-
-  function handleHoldStart(event) {
-    event.preventDefault();
-    startRecording();
-  }
-
-  function handleHoldEnd(event) {
-    event.preventDefault();
-    stopRecording({ sendEnd: true });
-  }
-
-  const canStart = availability.available && scenario && status !== 'connecting' && status !== 'active';
-  const canStop = status === 'active';
+  const recordButtonLabel = isRecording ? '结束录音' : '开始录音';
+  const recordButtonDisabled = !session?.sessionId || isSending || status === 'complete';
+  const handlePrimaryAction = isRecording ? stopRecordingAndSend : startRecording;
+  const playbackRatio = playingProgress.duration > 0
+    ? Math.min(1, Math.max(0, playingProgress.currentTime / playingProgress.duration))
+    : 0;
 
   return (
-    <div className="practice-page page-enter">
-      <div className="practice-scroll">
-        <header className="practice-hero animate-fade-in-up">
-          <div>
-            <div className="practice-kicker">对话</div>
-            <div className="practice-title">真人感练口语</div>
-            <div className="practice-subtitle">{user?.name ? `${user.name}，` : ''}按固定流程和豆包实时对话。</div>
+    <div className="im-page page-enter">
+      <div className="im-shell">
+        <header className="tg-chat-header animate-fade-in-up">
+          <div className="tg-chat-peer">
+            <img className="tg-peer-avatar image" src={coach.avatarUrl} alt={coach.displayName} />
+            <div className="tg-peer-meta">
+              <div className="tg-peer-name">{coach.displayName}</div>
+              <div className="tg-peer-status">
+                <span className={`tg-status-dot ${status === 'error' ? 'error' : ''}`}></span>
+                <span>{coach.username}</span>
+              </div>
+            </div>
           </div>
-          <div className={`practice-badge ${status}`}>{statusCopy(status)}</div>
         </header>
 
-        <div className="scenario-strip animate-fade-in-up stagger-1">
-          {scenarios.map((item) => (
-            <button
-              type="button"
-              key={item.id}
-              className={`scenario-pill ${item.id === scenario?.id ? 'active' : ''}`}
-              onClick={() => setScenarioId(item.id)}
-              disabled={status === 'connecting' || status === 'active'}
-            >
-              <span>{item.title}</span>
-            </button>
-          ))}
-        </div>
+        {!availability.available && availability.missing?.length > 0 && (
+          <div className="tg-warning">{availability.missing.join('、')}</div>
+        )}
 
-        <div className="mission-card animate-float-up stagger-2">
-          <div className="mission-top">
-            <div className="mission-title">
-              <span>{scenario?.title || '对话场景'}</span>
-            </div>
-            {currentTurn && (
-              <button type="button" className="coach-play" onClick={() => play({ text: currentTurn.coach })}>
-                <i className="fas fa-volume-up"></i>
-              </button>
-            )}
-          </div>
-          <div className="mission-subtitle">{scenario?.subtitle || '先读取配置。'}</div>
-          <div className="practice-progress">
-            <div className="practice-progress-bar">
-              <div className="practice-progress-fill" style={{ width: `${progress}%` }}></div>
-            </div>
-            <span>{currentTurn ? `${step + 1}/${scenario.steps.length}` : '--'}</span>
-          </div>
-        </div>
-
-        <div className="coach-card animate-float-up stagger-3">
-          <div className="coach-label">当前步骤</div>
-          <div className="coach-step">{currentTurn?.label || '等待开始'}</div>
-          <div className="coach-line">{currentTurn?.coach || '先选择场景，再开始实时语音练习。'}</div>
-          <div className="coach-line-km">{currentTurn?.coachKhmer || statusDetail}</div>
-
-          <div className="coach-actions">
-            <button
-              type="button"
-              className="secondary-action"
-              onClick={() => setShowHint((value) => !value)}
-              disabled={!currentTurn}
-            >
-              {showHint ? '收起提示' : '看提示'}
-            </button>
-            {canStop ? (
-              <button type="button" className="danger-action" onClick={handleStopSession}>
-                结束对话
-              </button>
-            ) : (
-              <button type="button" className="primary-action" onClick={handleStartSession} disabled={!canStart}>
-                开始对话
-              </button>
-            )}
-          </div>
-
-          {showHint && currentTurn && (
-            <div className="hint-panel animate-fade-in-up">
-              {currentTurn.hints.map((hint) => (
-                <div key={hint} className="hint-chip">{hint}</div>
-              ))}
-            </div>
-          )}
-
-          <div className="step-actions">
-            <button
-              type="button"
-              className="ghost-action"
-              onClick={() => setStep((value) => Math.max(value - 1, 0))}
-              disabled={!scenario || step === 0}
-            >
-              上一步
-            </button>
-            <button
-              type="button"
-              className="ghost-action"
-              onClick={() => setStep((value) => {
-                if (!scenario) return value;
-                return Math.min(value + 1, scenario.steps.length - 1);
-              })}
-              disabled={!scenario || step >= (scenario.steps?.length || 1) - 1}
-            >
-              下一步
-            </button>
-          </div>
-        </div>
-
-        <div className="roadmap-card animate-float-up stagger-4">
-          <div className="roadmap-title">状态</div>
-          <div className="roadmap-item">{statusDetail}</div>
-          {!availability.available && availability.missing?.length > 0 && (
-            <div className="missing-box">
-              <div className="missing-title">还缺这些火山参数</div>
-              {availability.missing.map((item) => (
-                <div key={item} className="missing-item">{item}</div>
-              ))}
-            </div>
-          )}
-          {activeSession && (
-            <div className="session-box">
-              <div className="session-item">地址：{activeSession.doubao.wsUrl}</div>
-              <div className="session-item">resource_id：{activeSession.doubao.resourceId}</div>
-              <div className="session-item">connect_id：{activeSession.doubao.connectId}</div>
-              <div className="session-item">bot_name：{activeSession.startSession.dialog.bot_name}</div>
-            </div>
-          )}
-        </div>
-
-        <div className="roadmap-card animate-float-up stagger-5">
-          <div className="roadmap-title">实时事件</div>
-          {eventLog.length === 0 ? (
-            <div className="roadmap-item">开始后，这里会显示连线和 AI 状态。</div>
-          ) : (
-            eventLog.map((item) => (
-              <div key={item.id} className="roadmap-item">{item.text}</div>
-            ))
-          )}
-        </div>
-
-        <div className="roadmap-card animate-float-up stagger-6">
-          <div className="roadmap-title">对话</div>
-          <div className="message-list">
-            {messages.length === 0 ? (
-              <div className="roadmap-item">开始后，这里会出现你和豆包的对话。</div>
-            ) : messages.map((message) => (
-              <div key={message.id} className={`message-bubble ${message.role}`}>
-                {message.text}
+        <div ref={scrollRef} className="tg-chat-stream animate-float-up stagger-2">
+          {!session?.sessionId ? (
+            <div className="tg-topic-grid-shell">
+              <div className="tg-topic-grid-title">今日话题</div>
+              <div className="tg-topic-grid">
+                {topicChoices.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`tg-topic-card ${startingTopicId === item.id ? 'loading' : ''}`}
+                    onClick={() => handleStartTopic(item.id)}
+                    disabled={!availability.available || isSending || isRecording || Boolean(startingTopicId)}
+                  >
+                    <div className="tg-topic-card-kicker">
+                      {startingTopicId === item.id ? '正在进入' : '开始练习'}
+                    </div>
+                    <div className="tg-topic-card-title">{item.title}</div>
+                    <div className="tg-topic-card-subtitle">{item.subtitle}</div>
+                    {startingTopicId === item.id && (
+                      <div className="tg-topic-card-loading" aria-hidden="true">
+                        <i></i><i></i><i></i>
+                      </div>
+                    )}
+                  </button>
+                ))}
               </div>
-            ))}
+            </div>
+          ) : (
+            messages.map((message) => {
+              if (message.type === 'note') {
+                return (
+                  <div key={message.id} className="tg-date-chip">
+                    {message.text}
+                  </div>
+                );
+              }
+
+              const isAssistant = message.role === 'assistant';
+              return (
+                <div key={message.id} className={`tg-message-row ${isAssistant ? 'assistant' : 'user'} tg-message-enter`}>
+                  {isAssistant && (
+                    <div className="tg-message-avatar">
+                      <img className="tg-peer-avatar image small" src={coach.avatarUrl} alt={coach.displayName} />
+                    </div>
+                  )}
+
+                  <div className={`tg-bubble ${isAssistant ? 'assistant' : 'user'}`}>
+                    {isAssistant && <div className="tg-bubble-name">{coach.displayName}</div>}
+                    {message.text && <div className="tg-bubble-text">{message.text}</div>}
+                    {message.khmerText && <div className="tg-bubble-translation">{message.khmerText}</div>}
+
+                    {message.type === 'audio' && (
+                      <button
+                        type="button"
+                        className={`tg-voice-card ${message.audioUrl ? 'ready' : 'loading'} ${playingMessageId === message.id ? 'playing' : ''}`}
+                        onClick={() => message.audioUrl && play({
+                          audioSrc: message.audioUrl,
+                          onStateChange: (stateEvent) => {
+                            if (stateEvent.kind === 'playing') {
+                              setPlayingMessageId(message.id);
+                              setPlayingProgress({
+                                currentTime: stateEvent.currentTime || 0,
+                                duration: stateEvent.duration || 0,
+                              });
+                              return;
+                            }
+
+                            setPlayingMessageId((currentId) => (currentId === message.id ? null : currentId));
+                            setPlayingProgress({ currentTime: 0, duration: 0 });
+                          },
+                        })}
+                        disabled={!message.audioUrl}
+                      >
+                        <span className="tg-voice-play">{message.audioUrl ? '▶' : '…'}</span>
+                        <span className="tg-voice-progress" style={{ width: playingMessageId === message.id ? `${playbackRatio * 100}%` : '0%' }}></span>
+                        <span className="tg-voice-wave">
+                          <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                        </span>
+                        <span className="tg-voice-duration">{renderVoiceDuration(message)}</span>
+                      </button>
+                    )}
+
+                    <div className="tg-bubble-meta">
+                      <span>{formatClock(message.createdAt)}</span>
+                      {!isAssistant && <span className="tg-bubble-check">✓✓</span>}
+                    </div>
+                  </div>
+
+                  {!isAssistant && (
+                    <div className="tg-message-avatar">
+                      {learner.avatarUrl ? (
+                        <img className="tg-peer-avatar image small" src={learner.avatarUrl} alt={learner.displayName} />
+                      ) : (
+                        <div className="tg-peer-avatar user small">{learner.initial}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div className="tg-bottom-spacer"></div>
+
+        <div className="tg-composer-wrap">
+          <div className="tg-composer">
+            <div className="tg-composer-head">
+              <div className="tg-composer-line">
+                <div className="tg-composer-title"></div>
+              </div>
+              <div className={`tg-rec-indicator ${isRecording ? 'active' : ''}`}></div>
+            </div>
+
+            <div className={`tg-rec-bar ${isRecording ? 'active' : ''}`}>
+              <span className="tg-rec-dot"></span>
+              <span></span>
+              <span className="tg-rec-time">{formatTimer(recordSeconds)}</span>
+            </div>
+
+            <div className="tg-composer-actions">
+              <button
+                type="button"
+                className={`tg-record-action full ${isRecording ? 'recording' : ''}`}
+                onClick={handlePrimaryAction}
+                disabled={recordButtonDisabled}
+              >
+                <span className="tg-record-icon">{isRecording ? '●' : '🎙'}</span>
+                <span>{recordButtonLabel}</span>
+                {isRecording && (
+                  <span className="tg-record-wave-live" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i>
+                  </span>
+                )}
+              </button>
+            </div>
+
+            <div className="tg-composer-meta">
+            </div>
           </div>
-          <div className="input-row">
-            <input
-              className="practice-input"
-              value={textInput}
-              onChange={(event) => setTextInput(event.target.value)}
-              placeholder="输入一句中文"
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') handleSendText();
-              }}
-            />
-            <button type="button" className="send-action" onClick={handleSendText} disabled={status !== 'active'}>
-              发送
-            </button>
-          </div>
-          <button
-            type="button"
-            className={`hold-to-talk ${isRecording ? 'recording' : ''}`}
-            onMouseDown={handleHoldStart}
-            onMouseUp={handleHoldEnd}
-            onMouseLeave={(event) => {
-              if (isRecording) handleHoldEnd(event);
-            }}
-            onTouchStart={handleHoldStart}
-            onTouchEnd={handleHoldEnd}
-            disabled={status !== 'active'}
-          >
-            {isRecording ? '松开发送' : '按住说话'}
-          </button>
         </div>
       </div>
 
       <style>{`
-        .practice-page { flex: 1; position: relative; z-index: 10; overflow: hidden; }
-        .practice-scroll { height: 100%; overflow-y: auto; padding: 12px 20px 104px; }
-        .practice-scroll::-webkit-scrollbar { display: none; }
-        .practice-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
-        .practice-kicker { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245, 216, 143, 0.82); }
-        .practice-title { margin-top: 6px; font-size: 30px; line-height: 1.04; font-weight: 800; color: #f5edce; font-family: 'Manrope', 'Noto Sans SC', sans-serif; }
-        .practice-subtitle { margin-top: 8px; font-size: 13px; color: rgba(245, 241, 225, 0.82); }
-        .practice-badge { padding: 10px 12px; border-radius: 18px; background: rgba(17,41,116,0.85); border: 1px solid rgba(245,216,143,0.24); font-size: 12px; color: rgba(245, 226, 179, 0.82); }
-        .practice-badge.active { color: #f7f0cf; border-color: rgba(245,216,143,0.56); }
-        .practice-badge.connecting { color: #f7f0cf; border-color: rgba(245,216,143,0.56); }
-        .practice-badge.error { color: #ffd7b0; border-color: rgba(255,151,111,0.4); }
-        .scenario-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; }
-        .scenario-strip::-webkit-scrollbar { display: none; }
-        .scenario-pill {
-          border: 1.5px solid rgba(245,216,143,0.58); background: rgba(17,41,116,0.84);
-          color: rgba(245, 232, 192, 0.92); border-radius: 999px; padding: 12px 16px;
-          display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px;
+        .im-page{flex:1;position:relative;overflow:hidden;z-index:10}
+        .im-shell{height:100%;overflow-y:auto;padding:10px 12px 156px;max-width:430px;margin:0 auto}
+        .im-shell::-webkit-scrollbar,.tg-chat-stream::-webkit-scrollbar{display:none}
+        .tg-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px 8px}
+        .tg-chat-peer{display:flex;align-items:center;gap:12px;min-width:0}
+        .tg-peer-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#7ed0ff,#3d7ef4);color:#fff;font-size:18px;font-weight:800;box-shadow:0 10px 24px rgba(9,29,87,.28)}
+        .tg-peer-avatar.user{background:linear-gradient(180deg,#f3d78d,#d0a54a);color:#173b7f}
+        .tg-peer-avatar.small{width:34px;height:34px;font-size:13px}
+        .tg-peer-avatar.image{object-fit:cover}
+        .tg-peer-meta{min-width:0}
+        .tg-peer-name{font-size:17px;font-weight:800;color:#f8fbff;line-height:1.15}
+        .tg-peer-status{margin-top:4px;display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(236,244,255,.7)}
+        .tg-status-dot{width:8px;height:8px;border-radius:50%;background:#59d37c;box-shadow:0 0 0 4px rgba(89,211,124,.14)}
+        .tg-status-dot.error{background:#ff8b73;box-shadow:0 0 0 4px rgba(255,139,115,.14)}
+        .tg-warning{margin-bottom:10px;padding:10px 12px;border-radius:16px;background:rgba(201,96,80,.18);border:1px solid rgba(255,165,142,.22);font-size:12px;color:#ffd9c7}
+        .tg-chat-stream{display:grid;gap:10px;min-height:420px;padding:8px 0 0;overflow-y:auto;align-content:start}
+        .tg-date-chip{justify-self:center;max-width:92%;padding:7px 12px;border-radius:999px;background:rgba(18,35,92,.72);color:rgba(241,247,255,.78);font-size:11px;border:1px solid rgba(255,255,255,.08)}
+        .tg-topic-grid-shell{display:grid;align-content:center;gap:16px;min-height:480px;padding:12px 0 24px}
+        .tg-topic-grid-title{justify-self:center;font-size:15px;font-weight:800;color:#f7fbff;letter-spacing:.08em}
+        .tg-topic-grid{display:grid;gap:14px}
+        .tg-topic-card{display:block;width:100%;min-height:124px;padding:20px 18px;border:none;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.1));border:1px solid rgba(255,255,255,.12);text-align:left;color:#f7fbff;box-shadow:0 18px 40px rgba(5,16,53,.2)}
+        .tg-topic-card.loading{transform:scale(.985);background:linear-gradient(180deg,rgba(106,154,255,.28),rgba(74,118,226,.18))}
+        .tg-topic-card-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:rgba(246,216,131,.95);text-transform:uppercase}
+        .tg-topic-card-title{margin-top:10px;font-size:24px;font-weight:900;line-height:1.15}
+        .tg-topic-card-subtitle{margin-top:8px;font-size:13px;line-height:1.65;color:rgba(236,244,255,.78)}
+        .tg-topic-card-loading{margin-top:12px;display:flex;gap:6px}
+        .tg-topic-card-loading i{width:8px;height:8px;border-radius:999px;background:#f8fbff;opacity:.35;animation:tgTopicPulse 1s ease-in-out infinite}
+        .tg-topic-card-loading i:nth-child(2){animation-delay:.15s}
+        .tg-topic-card-loading i:nth-child(3){animation-delay:.3s}
+        .tg-message-row{display:flex;align-items:flex-end;gap:8px}
+        .tg-message-row.assistant{justify-content:flex-start}
+        .tg-message-row.user{justify-content:flex-end}
+        .tg-message-enter{animation:tgMessageIn .22s ease-out}
+        .tg-message-avatar{width:34px;display:flex;justify-content:center;flex-shrink:0}
+        .tg-bubble{max-width:min(78%,304px);padding:10px 12px 8px;border-radius:18px;box-shadow:0 10px 28px rgba(5,16,53,.16)}
+        .tg-bubble.assistant{background:rgba(245,248,255,.96);color:#163873;border-top-left-radius:8px}
+        .tg-bubble.user{background:linear-gradient(180deg,#2b69de,#2559c0);color:#fff;border-top-right-radius:8px}
+        .tg-bubble-name{margin-bottom:4px;font-size:11px;font-weight:800;color:#5084df}
+        .tg-bubble-text{font-size:14px;line-height:1.65;white-space:pre-wrap}
+        .tg-bubble-translation{margin-top:6px;font-size:13px;line-height:1.65;white-space:pre-wrap;color:rgba(28,61,123,.72)}
+        .tg-bubble.user .tg-bubble-translation{color:rgba(255,255,255,.78)}
+        .tg-voice-card{position:relative;overflow:hidden;margin-top:8px;width:100%;height:42px;border:none;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 12px;background:rgba(25,85,191,.08);color:inherit}
+        .tg-voice-card.loading{opacity:.65}
+        .tg-voice-card.playing{box-shadow:inset 0 0 0 1px rgba(80,132,223,.24)}
+        .tg-voice-play{width:20px;text-align:center;font-size:12px;font-weight:900}
+        .tg-voice-progress{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(102,173,255,.22),rgba(80,132,223,.14));border-radius:999px;transition:width .08s linear}
+        .tg-voice-wave{position:relative;z-index:1;display:inline-flex;align-items:flex-end;gap:3px;flex:1}
+        .tg-voice-wave i{width:3px;background:currentColor;border-radius:999px;opacity:.55}
+        .tg-voice-card.playing .tg-voice-wave i{animation:tgVoiceWave 1.05s ease-in-out infinite}
+        .tg-voice-wave i:nth-child(1){height:8px}.tg-voice-wave i:nth-child(2){height:14px}.tg-voice-wave i:nth-child(3){height:11px}.tg-voice-wave i:nth-child(4){height:17px}.tg-voice-wave i:nth-child(5){height:9px}.tg-voice-wave i:nth-child(6){height:15px}.tg-voice-wave i:nth-child(7){height:7px}
+        .tg-voice-card.playing .tg-voice-wave i:nth-child(1){animation-delay:0s}.tg-voice-card.playing .tg-voice-wave i:nth-child(2){animation-delay:.08s}.tg-voice-card.playing .tg-voice-wave i:nth-child(3){animation-delay:.16s}.tg-voice-card.playing .tg-voice-wave i:nth-child(4){animation-delay:.24s}.tg-voice-card.playing .tg-voice-wave i:nth-child(5){animation-delay:.32s}.tg-voice-card.playing .tg-voice-wave i:nth-child(6){animation-delay:.4s}.tg-voice-card.playing .tg-voice-wave i:nth-child(7){animation-delay:.48s}
+        .tg-voice-duration{position:relative;z-index:1;font-size:12px;font-weight:700;opacity:.72}
+        .tg-bubble-meta{margin-top:6px;display:flex;justify-content:flex-end;align-items:center;gap:6px;font-size:11px;opacity:.72}
+        .tg-bubble-check{font-size:11px;letter-spacing:-0.08em}
+        .tg-bottom-spacer{height:16px}
+        .tg-composer-wrap{position:fixed;left:0;right:0;bottom:78px;padding:0 12px 10px;z-index:40;display:flex;justify-content:center}
+        .tg-composer{width:min(430px,calc(100vw - 24px));padding:12px;border-radius:22px;background:rgba(10,24,70,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);box-shadow:0 18px 42px rgba(5,16,53,.34)}
+        .tg-composer-head{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-height:8px}
+        .tg-composer-title{font-size:14px;font-weight:800;color:#f7fbff}
+        .tg-rec-indicator{padding:0;border-radius:999px;background:transparent;font-size:0;line-height:0;color:transparent;min-width:0;min-height:0}
+        .tg-rec-indicator.active{background:rgba(200,90,79,.18);color:#fff1e8}
+        .tg-rec-bar{margin-top:4px;height:36px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(236,244,255,.72)}
+        .tg-rec-bar.active{background:rgba(200,90,79,.12);color:#fff3eb}
+        .tg-rec-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.28)}
+        .tg-rec-bar.active .tg-rec-dot{background:#ff7f68;box-shadow:0 0 0 4px rgba(255,127,104,.14)}
+        .tg-rec-time{margin-left:auto;font-weight:800}
+        .tg-composer-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+        .tg-record-action{height:54px;border:none;border-radius:18px;font-size:15px;font-weight:800;background:linear-gradient(180deg,#52a2ff,#2e71ea);color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 12px 26px rgba(28,82,194,.26)}
+        .tg-record-action.full{width:100%}
+        .tg-record-action.recording{background:linear-gradient(180deg,#d56459,#9d2f31)}
+        .tg-record-action:disabled{opacity:.42;box-shadow:none}
+        .tg-record-icon{font-size:16px}
+        .tg-record-wave-live{display:inline-flex;align-items:flex-end;gap:3px;margin-left:4px}
+        .tg-record-wave-live i{width:3px;border-radius:999px;background:rgba(255,255,255,.9);animation:tgWave 1s ease-in-out infinite}
+        .tg-record-wave-live i:nth-child(1){height:9px;animation-delay:0s}
+        .tg-record-wave-live i:nth-child(2){height:15px;animation-delay:.1s}
+        .tg-record-wave-live i:nth-child(3){height:20px;animation-delay:.2s}
+        .tg-record-wave-live i:nth-child(4){height:13px;animation-delay:.3s}
+        .tg-record-wave-live i:nth-child(5){height:8px;animation-delay:.4s}
+        .tg-composer-meta{display:none}
+        @keyframes tgWave{0%,100%{transform:scaleY(.55);opacity:.55}50%{transform:scaleY(1.15);opacity:1}}
+        @keyframes tgTopicPulse{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-3px);opacity:1}}
+        @keyframes tgMessageIn{0%{opacity:0;transform:translateY(10px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes tgVoiceWave{0%,100%{transform:scaleY(.55);opacity:.45}50%{transform:scaleY(1.18);opacity:.95}}
+        @media (min-width:641px){
+          .im-page{background:
+            radial-gradient(circle at top, rgba(255,255,255,.04), transparent 32%),
+            linear-gradient(180deg,#1a2f88 0%,#132872 100%)}
         }
-        .scenario-pill.active { background: linear-gradient(180deg, rgba(244,218,146,0.22), rgba(18,41,116,0.92)); border-color: rgba(245,216,143,0.88); color: #fffef3; box-shadow: 0 12px 22px rgba(12,26,76,0.16); }
-        .mission-card, .coach-card, .roadmap-card {
-          background: linear-gradient(180deg, rgba(17,41,116,0.94), rgba(15,35,103,0.9));
-          border: 2px solid rgba(245,216,143,0.58);
-          border-radius: 28px;
-          box-shadow: 0 24px 60px rgba(6, 16, 56, 0.28);
-        }
-        .mission-card { padding: 18px; margin-bottom: 14px; }
-        .mission-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-        .mission-title { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: #fff6d9; }
-        .mission-subtitle { margin-top: 8px; font-size: 13px; color: rgba(245,241,225,0.82); }
-        .coach-play {
-          width: 46px; height: 46px; border-radius: 16px; border: 1px solid rgba(245,216,143,0.4);
-          background: rgba(245,216,143,0.12); color: #fff6d9;
-        }
-        .practice-progress { margin-top: 16px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: rgba(245, 232, 192, 0.76); }
-        .practice-progress-bar { flex: 1; height: 12px; border-radius: 999px; overflow: hidden; background: rgba(245,216,143,0.12); border: 1px solid rgba(245,216,143,0.18); }
-        .practice-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #f4d98f 0%, #2f58c5 100%); transition: width 180ms cubic-bezier(0.16, 1, 0.3, 1); }
-        .coach-card { padding: 20px; margin-bottom: 14px; }
-        .coach-label, .roadmap-title { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245, 216, 143, 0.82); }
-        .coach-step { margin-top: 10px; font-size: 14px; color: rgba(245,241,225,0.72); }
-        .coach-line { margin-top: 10px; font-size: 24px; line-height: 1.35; color: #fff6d9; font-weight: 800; }
-        .coach-line-km { margin-top: 10px; font-size: 14px; line-height: 1.7; color: rgba(245, 241, 225, 0.86); }
-        .coach-actions { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .step-actions { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .primary-action, .secondary-action, .danger-action, .ghost-action {
-          min-height: 48px; border-radius: 18px; font-size: 14px; font-weight: 700;
-          border: 1px solid rgba(245,216,143,0.2);
-        }
-        .primary-action { background: linear-gradient(180deg, #2f58c5, #2347ad); color: #fff; border: none; }
-        .secondary-action { background: linear-gradient(180deg, #f4d98f, #caa14a); color: #21408f; border: none; }
-        .danger-action { background: linear-gradient(180deg, #a34444, #7a2a2a); color: #fff; border: none; }
-        .ghost-action { background: rgba(245,216,143,0.08); color: #fff9e5; }
-        .hint-panel { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(245,216,143,0.12); display: flex; flex-wrap: wrap; gap: 10px; }
-        .hint-chip { padding: 10px 14px; border-radius: 16px; background: rgba(245,216,143,0.08); border: 1px solid rgba(245,216,143,0.18); color: #fff9e5; font-size: 13px; }
-        .roadmap-card { padding: 20px; margin-bottom: 14px; }
-        .roadmap-item { margin-top: 10px; font-size: 14px; line-height: 1.7; color: rgba(245, 241, 225, 0.82); word-break: break-word; }
-        .missing-box, .session-box {
-          margin-top: 14px;
-          padding-top: 14px;
-          border-top: 1px solid rgba(245,216,143,0.12);
-        }
-        .missing-title { font-size: 13px; color: #f8efca; font-weight: 700; }
-        .missing-item, .session-item { margin-top: 8px; font-size: 13px; color: rgba(245,241,225,0.78); word-break: break-word; }
-        .message-list { display: grid; gap: 10px; margin-top: 12px; }
-        .message-bubble {
-          border-radius: 16px;
-          padding: 12px 14px;
-          line-height: 1.6;
-          font-size: 14px;
-          color: #fff8e3;
-          background: rgba(245,216,143,0.08);
-          border: 1px solid rgba(245,216,143,0.14);
-        }
-        .message-bubble.user { background: rgba(47,88,197,0.24); }
-        .message-bubble.system { background: rgba(255,255,255,0.04); color: rgba(245,241,225,0.7); }
-        .input-row { margin-top: 14px; display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-        .practice-input {
-          min-height: 46px;
-          border-radius: 16px;
-          border: 1px solid rgba(245,216,143,0.18);
-          background: rgba(245,216,143,0.08);
-          color: #fff8e3;
-          padding: 0 14px;
-          outline: none;
-        }
-        .send-action {
-          min-width: 82px;
-          border-radius: 16px;
-          border: none;
-          background: linear-gradient(180deg, #2f58c5, #2347ad);
-          color: #fff;
-          font-weight: 700;
-        }
-        .hold-to-talk {
-          margin-top: 12px;
-          width: 100%;
-          min-height: 54px;
-          border-radius: 18px;
-          border: 1.5px solid rgba(245,216,143,0.42);
-          background: rgba(245,216,143,0.08);
-          color: #fff8e3;
-          font-weight: 800;
-          letter-spacing: 0.02em;
-        }
-        .hold-to-talk.recording {
-          background: linear-gradient(180deg, #a34444, #7a2a2a);
-          border-color: rgba(255,193,193,0.6);
+        @media (max-width:640px){
+          .im-shell{padding:8px 10px 154px}
+          .tg-composer-wrap{bottom:74px;padding:0 10px 8px}
+          .tg-composer{width:calc(100vw - 20px)}
+          .tg-bubble{max-width:calc(100% - 42px)}
+          .tg-topic-card-title{font-size:22px}
         }
       `}</style>
     </div>

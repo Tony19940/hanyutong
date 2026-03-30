@@ -19,10 +19,19 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Check for admin route
+  // Check for admin route or preview mode
   useEffect(() => {
     if (window.location.hash === '#admin' || window.location.pathname === '/admin') {
       setIsAdmin(true);
+      setLoading(false);
+    }
+    if (window.location.hash === '#preview') {
+      setUser({
+        name: 'User',
+        username: 'preview',
+        avatar_url: null,
+        hskLevel: 1,
+      });
       setLoading(false);
     }
   }, []);
@@ -168,15 +177,21 @@ export default function App() {
       </div>
 
       <div className="page-content">
-        {activeTab === 'home' && <HomePage user={user} />}
-        {activeTab === 'quiz' && <QuizPage user={user} />}
-        {activeTab === 'practice' && <AIPracticePage user={user} />}
-        {activeTab === 'profile' && profileView === 'profile' && (
+        <div style={{ display: activeTab === 'home' ? 'block' : 'none', height: '100%' }}>
+          <HomePage user={user} />
+        </div>
+        <div style={{ display: activeTab === 'quiz' ? 'block' : 'none', height: '100%' }}>
+          <QuizPage user={user} />
+        </div>
+        <div style={{ display: activeTab === 'practice' ? 'block' : 'none', height: '100%' }}>
+          <AIPracticePage user={user} />
+        </div>
+        <div style={{ display: activeTab === 'profile' && profileView === 'profile' ? 'block' : 'none', height: '100%' }}>
           <ProfilePage user={user} onOpenCollection={() => setProfileView('collection')} />
-        )}
-        {activeTab === 'profile' && profileView === 'collection' && (
+        </div>
+        <div style={{ display: activeTab === 'profile' && profileView === 'collection' ? 'block' : 'none', height: '100%' }}>
           <CollectionPage vocabulary={vocabulary} onBack={() => setProfileView('profile')} />
-        )}
+        </div>
       </div>
 
       <TabBar activeTab={activeTab} onTabChange={handleTabChange} />

@@ -149,6 +149,28 @@ export function attachDialogueProxyServer(server) {
           return;
         }
 
+        if (message.type === 'tts_text') {
+          upstream.send(buildEventFrame({
+            event: EventId.CHAT_TTS_TEXT,
+            payload: {
+              start: true,
+              content: message.content || '',
+              end: true,
+            },
+            sessionId: active.sessionId,
+          }));
+          return;
+        }
+
+        if (message.type === 'update_config') {
+          upstream.send(buildEventFrame({
+            event: EventId.UPDATE_CONFIG,
+            payload: message.payload || {},
+            sessionId: active.sessionId,
+          }));
+          return;
+        }
+
         if (message.type === 'audio_chunk') {
           const audioBytes = Buffer.from(message.payload || '', 'base64');
           upstream.send(buildEventFrame({

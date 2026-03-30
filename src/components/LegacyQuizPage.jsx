@@ -9,6 +9,70 @@ const QUEST_SIZE = 5;
 const QUEST_POOL_SIZE = 18;
 const MAX_HEARTS = 3;
 
+/* Sapphire Heart component */
+function SapphireHeart({ active }) {
+  return (
+    <div className={`sapphire-heart ${active ? 'active' : 'empty'}`}>
+      <svg width="28" height="26" viewBox="0 0 28 26" fill="none">
+        <defs>
+          <linearGradient id="sapphireGrad" x1="14" y1="0" x2="14" y2="26" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor={active ? '#7dd3fc' : '#3a4a6e'} />
+            <stop offset="40%" stopColor={active ? '#3b82f6' : '#2a3555'} />
+            <stop offset="100%" stopColor={active ? '#1e3a8a' : '#1a2440'} />
+          </linearGradient>
+          <linearGradient id="sapphireShine" x1="8" y1="2" x2="20" y2="14" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.6)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M14 24.35l-1.45-1.32C5.4 16.36 2 13.28 2 9.5 2 6.42 4.42 4 7.5 4c1.74 0 3.41.81 4.5 2.09C13.09 4.81 14.76 4 16.5 4 19.58 4 22 6.42 22 9.5c0 3.78-3.4 6.86-10.55 13.54L14 24.35z"
+          fill="url(#sapphireGrad)"
+          stroke={active ? 'rgba(245,216,143,0.8)' : 'rgba(245,216,143,0.2)'}
+          strokeWidth="1.5"
+          transform="translate(2, 0)"
+        />
+        {active && (
+          <path
+            d="M10 8c1.2-1.6 3-2.2 4.5-1.8"
+            stroke="url(#sapphireShine)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            fill="none"
+            transform="translate(2, 0)"
+          />
+        )}
+      </svg>
+    </div>
+  );
+}
+
+/* Golden crown/pagoda decoration */
+function GoldenCrown() {
+  return (
+    <div className="golden-crown" aria-hidden="true">
+      <svg width="100" height="56" viewBox="0 0 100 56" fill="none">
+        <defs>
+          <linearGradient id="crownGold" x1="50" y1="0" x2="50" y2="56" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#f5d88f" />
+            <stop offset="50%" stopColor="#d4a843" />
+            <stop offset="100%" stopColor="#8a6628" />
+          </linearGradient>
+        </defs>
+        {/* Pagoda spires */}
+        <path d="M50 2l6 16h10l4 12h8l6 16H16l6-16h8l4-12h10L50 2z" fill="url(#crownGold)" opacity="0.35" />
+        {/* Small side spires */}
+        <path d="M20 46l3-10h4l3-8 3 8h4l3 10" fill="none" stroke="rgba(245,216,143,0.3)" strokeWidth="1" />
+        <path d="M66 46l3-10h4l3-8 3 8h4l3 10" fill="none" stroke="rgba(245,216,143,0.3)" strokeWidth="1" />
+        {/* Base line */}
+        <path d="M10 50h80" stroke="rgba(245,216,143,0.4)" strokeWidth="1.5" />
+        {/* Decorative curve */}
+        <path d="M15 48c20-3 30-14 35-14s15 11 35 14" fill="none" stroke="rgba(245,216,143,0.5)" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
 export default function LegacyQuizPage({ user }) {
   const [questWords, setQuestWords] = useState([]);
   const [rounds, setRounds] = useState([]);
@@ -44,7 +108,44 @@ export default function LegacyQuizPage({ user }) {
       setGameState(nextQuestWords.length ? 'playing' : 'empty');
     } catch (err) {
       console.error('Failed to load quest:', err);
-      setGameState('empty');
+      // Preview fallback
+      if (window.location.hash === '#preview') {
+        const mockWords = [
+          { id: 1, chinese: '胖', pinyin: 'pàng', khmer: 'ជាត់ / ជាត់ទ្រលុកទ្រលន់', example_cn: '宝宝胖胖的。', example_km: 'កូនក្មេងជាត់ទ្រលុកទ្រលន់។' },
+          { id: 2, chinese: '瘦', pinyin: 'shòu', khmer: 'ស្គម', example_cn: '他很瘦。', example_km: 'គាត់ស្គមណាស់។' },
+          { id: 3, chinese: '帮', pinyin: 'bāng', khmer: 'ជួយ', example_cn: '请帮我。', example_km: 'សូមជួយខ្ញុំ។' },
+          { id: 4, chinese: '明白', pinyin: 'míngbai', khmer: 'យល់', example_cn: '我明白了。', example_km: 'ខ្ញុំយល់ហើយ។' },
+          { id: 5, chinese: '高兴', pinyin: 'gāoxìng', khmer: 'រីករាយ', example_cn: '很高兴认识你。', example_km: 'រីករាយដែលបានស្គាល់អ្នក។' },
+        ];
+        const mockRounds = mockWords.map((word) => ({
+          word,
+          type: 'khmer_to_chinese',
+          promptLabel: '看高棉语，选中文',
+          promptValue: word.khmer,
+          promptSubValue: word.pinyin,
+          correctOptionId: word.id,
+          options: [
+            { id: 1, primary: '帮', secondary: 'bāng' },
+            { id: 4, primary: '明白', secondary: 'míngbai' },
+            { id: 2, primary: '瘦', secondary: 'shòu' },
+            { id: word.id, primary: word.chinese, secondary: word.pinyin },
+          ].sort(() => Math.random() - 0.5),
+        }));
+        setQuestWords(mockWords);
+        setRounds(mockRounds);
+        setCurrentRoundIndex(0);
+        setStats({ total: 900, learned: 69, remaining: 831 });
+        setHearts(MAX_HEARTS);
+        setScore(0);
+        setCombo(0);
+        setLearnedInQuest(0);
+        setBookmarkedIds([]);
+        setSelectedOptionId(null);
+        setAnswerState(null);
+        setGameState('playing');
+      } else {
+        setGameState('empty');
+      }
     } finally {
       setLoading(false);
     }
@@ -176,178 +277,632 @@ export default function LegacyQuizPage({ user }) {
     return '';
   };
 
-  if (loading) return <div className="page-enter" style={{ padding: 24, color: '#fff' }}>加载测验...</div>;
-  if (gameState === 'empty') return <div className="page-enter" style={{ padding: 24, color: '#fff' }}>今天没有新题。</div>;
+  if (loading) return (
+    <div className="quiz-page page-enter">
+      <div className="temple-deco" aria-hidden="true"></div>
+      <div className="quiz-loading">
+        <div className="loading-shimmer" style={{ width: 120, height: 24, borderRadius: 12 }}></div>
+        <div className="loading-shimmer" style={{ width: 200, height: 16, borderRadius: 8, marginTop: 12 }}></div>
+      </div>
+      <style>{quizStyles}</style>
+    </div>
+  );
+
+  if (gameState === 'empty') return (
+    <div className="quiz-page page-enter">
+      <div className="temple-deco" aria-hidden="true"></div>
+      <div className="quiz-empty">
+        <div className="empty-celebration">📖</div>
+        <div className="empty-title">今天没有新题</div>
+        <div className="empty-sub">去学习新词后再来测验。</div>
+      </div>
+      <style>{quizStyles}</style>
+    </div>
+  );
 
   if (gameState === 'completed' || gameState === 'failed') {
     const failed = gameState === 'failed';
     return (
-      <div className="page-enter" style={{ padding: 20, color: '#fff' }}>
-        <div style={{ borderRadius: 28, padding: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ fontSize: 13, opacity: 0.68 }}>{failed ? '本关结束' : '本关完成'}</div>
-          <div style={{ marginTop: 12, fontSize: 46, fontWeight: 800 }}>{score}</div>
-          <div style={{ marginTop: 10, display: 'flex', gap: 8, fontSize: 28 }}>
-            {Array.from({ length: 3 }, (_, index) => <span key={index} style={{ color: index < starCount ? '#ffd67d' : 'rgba(255,255,255,0.18)' }}>★</span>)}
+      <div className="quiz-page page-enter">
+        <div className="temple-deco" aria-hidden="true"></div>
+        <div className="quiz-result">
+          <div className="result-card">
+            <div className="result-label">{failed ? '本关结束' : '本关完成 🎉'}</div>
+            <div className="result-score">{score}</div>
+            <div className="result-stars">
+              {Array.from({ length: 3 }, (_, i) => (
+                <span key={i} className={`result-star ${i < starCount ? 'earned' : ''}`}>★</span>
+              ))}
+            </div>
+            <div className="result-stats">
+              <div className="rs-item"><strong>{learnedInQuest}</strong><span>掌握</span></div>
+              <div className="rs-item"><strong>{bookmarkedIds.length}</strong><span>收藏</span></div>
+              <div className="rs-item"><strong>{hearts}</strong><span>体力</span></div>
+            </div>
+            <button type="button" className="result-btn" onClick={loadQuest}>再来一关</button>
           </div>
-          <div style={{ marginTop: 18, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            <div style={{ borderRadius: 18, padding: 14, background: 'rgba(255,255,255,0.05)' }}><strong>{learnedInQuest}</strong><div>掌握</div></div>
-            <div style={{ borderRadius: 18, padding: 14, background: 'rgba(255,255,255,0.05)' }}><strong>{bookmarkedIds.length}</strong><div>收藏</div></div>
-            <div style={{ borderRadius: 18, padding: 14, background: 'rgba(255,255,255,0.05)' }}><strong>{hearts}</strong><div>体力</div></div>
-          </div>
-          <button type="button" onClick={loadQuest} style={{ marginTop: 18, width: '100%', minHeight: 50, borderRadius: 18, border: '2px solid rgba(245,216,143,0.54)', background: 'linear-gradient(180deg, #355dcb, #2749a8)', color: '#fff', fontWeight: 700 }}>再来一关</button>
         </div>
+        <style>{quizStyles}</style>
       </div>
     );
   }
 
   return (
-    <div className="page-enter" style={{ padding: '12px 18px 104px', color: '#fff', overflowY: 'auto', height: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
-        <div>
-          <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(245,216,143,0.72)' }}>测验 · {user.name}</div>
-          <div style={{ marginTop: 8, fontSize: 30, lineHeight: 1.04, fontWeight: 800, color: '#f7efcf' }}>5 词一关</div>
-          <div style={{ marginTop: 8, fontSize: 13, color: 'rgba(245,241,225,0.82)' }}>看题，选对答案。</div>
-        </div>
-        <div style={{ display: 'flex', gap: 8, padding: '6px 2px', borderRadius: 999 }}>
-          {Array.from({ length: MAX_HEARTS }, (_, index) => (
-            <span
-              key={index}
-              style={{
-                width: 28,
-                height: 28,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                fontSize: 18,
-                color: index < hearts ? '#f9f2d6' : 'rgba(255,255,255,0.2)',
-                background: index < hearts
-                  ? 'radial-gradient(circle at 35% 30%, #6ce0ff 0%, #3b75f0 42%, #2f3bb4 72%, #1a266f 100%)'
-                  : 'rgba(18,40,108,0.42)',
-                border: index < hearts ? '1.5px solid rgba(245,216,143,0.7)' : '1px solid rgba(245,216,143,0.18)',
-                boxShadow: index < hearts ? '0 8px 18px rgba(28,62,156,0.24)' : 'none',
-              }}
-            >
-              ♥
-            </span>
-          ))}
-        </div>
-      </div>
+    <div className="quiz-page page-enter">
+      <div className="temple-deco" aria-hidden="true"></div>
+      <div className="quiz-dot-pattern" aria-hidden="true"></div>
 
-      <div style={{ marginBottom: 16, position: 'relative', borderRadius: 26, padding: 16, background: 'linear-gradient(180deg, rgba(18,43,125,0.96), rgba(20,47,135,0.9))', border: '1.5px solid rgba(245,216,143,0.64)', overflow: 'hidden', boxShadow: '0 20px 36px rgba(9,21,70,0.22)' }}>
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(circle at 16% 14%, rgba(245,216,143,0.12), transparent 22%)' }}></div>
-        <div style={{ position: 'absolute', right: 18, bottom: 16, width: 138, height: 58, opacity: 0.28, pointerEvents: 'none' }}>
-          <svg viewBox="0 0 138 58" width="138" height="58" aria-hidden="true">
-            <path d="M2 56h132" fill="none" stroke="rgba(245,216,143,0.22)" strokeWidth="2"/>
-            <path d="M8 54l14-26 10 12 14-22 10 14 12-18 10 18 10-12 18 34" fill="none" stroke="rgba(245,216,143,0.36)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-        <div style={{ position: 'absolute', right: -6, top: -2, width: 132, height: 62, opacity: 0.9, pointerEvents: 'none' }}>
-          <svg viewBox="0 0 112 54" width="112" height="54" aria-hidden="true">
-            <path d="M6 44c24-2 35-20 53-20 17 0 20 12 47 10" fill="none" stroke="rgba(245,216,143,0.82)" strokeWidth="3" strokeLinecap="round"/>
-            <path d="M18 37c11-1 16-10 26-10 9 0 13 7 23 6" fill="none" stroke="rgba(245,216,143,0.46)" strokeWidth="2.2" strokeLinecap="round"/>
-          </svg>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(245,216,143,0.88)' }}>总进度</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <div style={{ color: '#f7e3a5', fontSize: 40, fontWeight: 800, lineHeight: 1 }}>{globalProgress}%</div>
-            <div style={{ color: 'rgba(247,236,207,0.84)', fontSize: 15, fontWeight: 700 }}>({stats.learned}/{stats.total})</div>
+      <div className="quiz-layout">
+        {/* Header */}
+        <div className="quiz-header">
+          <div className="quiz-header-left">
+            <div className="quiz-kicker">测验 · {user.name || 'USER'}</div>
+            <div className="quiz-main-title">5 词一关</div>
+            <div className="quiz-desc">看题，选对答案。</div>
+          </div>
+          <div className="quiz-hearts">
+            {Array.from({ length: MAX_HEARTS }, (_, i) => (
+              <SapphireHeart key={i} active={i < hearts} />
+            ))}
           </div>
         </div>
-        <div style={{ position: 'relative', height: 12, borderRadius: 999, background: 'rgba(226,222,208,0.28)', overflow: 'hidden', border: '1px solid rgba(245,216,143,0.18)' }}>
-          <div style={{ position: 'absolute', left: 2, top: 2, bottom: 2, width: globalProgress ? `max(calc(${Math.min(globalProgress, 100)}% - 4px), 28px)` : 0, borderRadius: 999, background: 'linear-gradient(90deg, #f5d88f 0%, #d8a645 52%, #9b6e25 100%)', boxShadow: '0 0 16px rgba(245,216,143,0.18)' }}></div>
-        </div>
-      </div>
 
-      <div style={{ borderRadius: 28, padding: 20, background: 'linear-gradient(180deg, rgba(18,43,125,0.98), rgba(17,39,112,0.92))', border: '2px solid rgba(245,216,143,0.64)', boxShadow: '0 24px 46px rgba(7,19,68,0.26)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(245,216,143,0.76)' }}>{currentRound.promptLabel}</div>
-            <div style={{ marginTop: 8, fontSize: 28, lineHeight: 1.25, fontWeight: 800, color: '#f7efcf' }}>{currentRound.promptValue}</div>
-            <div style={{ marginTop: 6, fontSize: 14, color: 'rgba(245,241,225,0.82)' }}>{currentRound.promptSubValue}</div>
+        {/* Progress card */}
+        <div className="quiz-progress-card">
+          <GoldenCrown />
+          <div className="qp-content">
+            <div className="qp-label">总进度</div>
+            <div className="qp-row">
+              <div className="qp-percent">{globalProgress}%</div>
+              <div className="qp-count">({stats.learned}/{stats.total})</div>
+            </div>
           </div>
-          <button type="button" onClick={handlePlayPrompt} style={{ width: 54, height: 54, borderRadius: 18, border: '1px solid rgba(245,216,143,0.4)', background: 'rgba(245,216,143,0.12)', color: '#fff5d7' }}>
-            <i className="fas fa-volume-up"></i>
-          </button>
-        </div>
-
-        <div style={{ marginTop: 16, display: 'inline-flex', gap: 10, borderRadius: 999, padding: '10px 14px', background: 'rgba(245,216,143,0.08)', border: '1px solid rgba(245,216,143,0.18)', color: '#f7edcf' }}>
-          <span>第 {currentRoundIndex + 1} 题</span>
-          <span>{bookmarkedIds.includes(currentWord?.id) ? '已收藏' : '可收藏'}</span>
-        </div>
-
-        <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'rgba(245,232,192,0.74)' }}>
-          <div style={{ flex: 1, height: 8, borderRadius: 999, background: 'rgba(245,216,143,0.1)', overflow: 'hidden' }}>
-            <div style={{ width: `${questProgress}%`, height: '100%', background: 'linear-gradient(90deg, #f4d98f 0%, #cfa54d 100%)' }}></div>
+          <div className="qp-bar-wrap">
+            <div className="qp-bar-fill" style={{ width: `${Math.min(globalProgress, 100)}%` }}></div>
           </div>
-          <span>{currentRoundIndex}/{rounds.length}</span>
         </div>
 
-        <div style={{ marginTop: 18, display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
-          {currentRound.options.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => handleOptionSelect(option.id)}
-              disabled={Boolean(answerState)}
-              style={{
-                minHeight: 112,
-                borderRadius: 22,
-                border: '1.5px solid rgba(245,216,143,0.54)',
-                background: renderOptionState(option.id) === 'correct'
-                  ? 'linear-gradient(180deg, rgba(245,216,143,0.22), rgba(204,167,86,0.14))'
-                  : renderOptionState(option.id) === 'wrong'
-                    ? 'linear-gradient(180deg, rgba(255,132,132,0.16), rgba(146,45,45,0.08))'
-                    : 'linear-gradient(180deg, rgba(245,216,143,0.07), rgba(255,255,255,0.02))',
-                color: '#fff8e3',
-                textAlign: 'left',
-                padding: '16px 14px',
-                boxShadow: 'inset 0 -8px 0 rgba(212,168,74,0.12)',
-                position: 'relative',
-              }}
-            >
-              <span style={{ position: 'absolute', inset: 7, border: '1px solid rgba(245,216,143,0.18)', borderRadius: 18, pointerEvents: 'none' }}></span>
-              <span style={{ position: 'absolute', left: 10, top: 10, width: 16, height: 16, borderLeft: '1.5px solid rgba(245,216,143,0.28)', borderTop: '1.5px solid rgba(245,216,143,0.28)', borderTopLeftRadius: 8 }}></span>
-              <span style={{ position: 'absolute', right: 10, bottom: 10, width: 16, height: 16, borderRight: '1.5px solid rgba(245,216,143,0.28)', borderBottom: '1.5px solid rgba(245,216,143,0.28)', borderBottomRightRadius: 8 }}></span>
-              <div style={{ fontSize: 22, fontWeight: 700 }}>{option.primary}</div>
-              <div style={{ marginTop: 10, fontSize: 12, color: 'rgba(245,241,225,0.76)' }}>{option.secondary}</div>
+        {/* Question card */}
+        <div className="quiz-question-card">
+          {/* Inner border decoration */}
+          <div className="qq-inner-border" aria-hidden="true"></div>
+
+          <div className="qq-header">
+            <div className="qq-prompt-area">
+              <div className="qq-prompt-label">{currentRound.promptLabel}</div>
+              <div className="qq-prompt-value">{currentRound.promptValue}</div>
+              <div className="qq-prompt-sub">{currentRound.promptSubValue}</div>
+            </div>
+            <button type="button" className="qq-play-btn" onClick={handlePlayPrompt}>
+              <i className="fas fa-volume-up"></i>
             </button>
-          ))}
+          </div>
+
+          <div className="qq-meta-row">
+            <div className="qq-badge">
+              <span>第 {currentRoundIndex + 1} 题</span>
+              <span className="qq-badge-sep">·</span>
+              <span>{bookmarkedIds.includes(currentWord?.id) ? '已收藏' : '可收藏'}</span>
+            </div>
+          </div>
+
+          {/* Quest progress */}
+          <div className="qq-progress">
+            <div className="qq-progress-bar">
+              <div className="qq-progress-fill" style={{ width: `${questProgress}%` }}></div>
+            </div>
+            <span className="qq-progress-text">{currentRoundIndex}/{rounds.length}</span>
+          </div>
+
+          {/* Options grid */}
+          <div className="qq-options">
+            {currentRound.options.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => handleOptionSelect(option.id)}
+                disabled={Boolean(answerState)}
+                className={`qq-option ${renderOptionState(option.id)}`}
+              >
+                <div className="qq-option-inner">
+                  {/* Corner decorations */}
+                  <span className="qq-corner tl"></span>
+                  <span className="qq-corner br"></span>
+                  <div className="qq-option-cn">{option.primary}</div>
+                  <div className="qq-option-py">{option.secondary}</div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
+        {/* Answer feedback */}
         {answerState && (
-          <div style={{ marginTop: 18, borderRadius: 22, padding: 16, background: answerState === 'correct' ? 'linear-gradient(180deg, rgba(245,216,143,0.16), rgba(212,168,74,0.08))' : 'rgba(255,117,117,0.12)', border: '1px solid rgba(245,216,143,0.18)' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#fff5d7' }}>{answerState === 'correct' ? '答对了' : '再看一眼'}</div>
-            <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.7, color: '#f7edcf' }}>{answerState === 'correct' ? `${currentWord.chinese} · ${currentWord.khmer}` : `正确答案：${currentWord.chinese} · ${currentWord.khmer}`}</div>
-            {currentExample && (
-              <button
-                type="button"
-                onClick={handlePlayAnswerExample}
-                style={{
-                  marginTop: 12,
-                  width: '100%',
-                  padding: '14px 44px 14px 14px',
-                  borderRadius: 16,
-                  background: 'rgba(245,216,143,0.08)',
-                  border: '1px solid rgba(245,216,143,0.18)',
-                  color: '#fff8e3',
-                  textAlign: 'left',
-                  position: 'relative',
-                }}
-              >
-                <div style={{ fontSize: 14, lineHeight: 1.7, fontWeight: 700 }}>{currentExample.chinese}</div>
-                <div style={{ marginTop: 4, fontSize: 13, lineHeight: 1.7, color: 'rgba(245,241,225,0.76)' }}>{currentExample.khmer}</div>
-                <i className="fas fa-volume-up" style={{ position: 'absolute', right: 14, top: 16, color: 'rgba(245,216,143,0.88)' }}></i>
+          <div className={`qq-feedback ${answerState}`}>
+            <div className="qq-fb-title">{answerState === 'correct' ? '✓ 答对了' : '✗ 再看一眼'}</div>
+            <div className="qq-fb-detail">
+              {answerState === 'correct'
+                ? `${currentWord.chinese} · ${currentWord.khmer}`
+                : `正确答案：${currentWord.chinese} · ${currentWord.khmer}`}
+            </div>
+            <div className="qq-fb-actions">
+              <button type="button" className="qq-fb-secondary" onClick={handleBookmark}>
+                {answerState === 'correct' ? '已掌握' : bookmarkedIds.includes(currentWord.id) ? '已收藏' : '加入收藏'}
               </button>
-            )}
-            <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <button type="button" onClick={handleBookmark} style={{ minHeight: 48, borderRadius: 18, border: '1px solid rgba(245,216,143,0.18)', background: 'rgba(245,216,143,0.08)', color: 'rgba(245,241,225,0.92)' }}>{answerState === 'correct' ? '已掌握' : bookmarkedIds.includes(currentWord.id) ? '已收藏' : '加入收藏'}</button>
-              <button type="button" onClick={answerState === 'correct' ? moveToNextRound : handleReplayPrompt} style={{ minHeight: 48, borderRadius: 18, border: '2px solid rgba(245,216,143,0.54)', background: 'linear-gradient(180deg, #355dcb, #2749a8)', color: '#fff', fontWeight: 700 }}>{answerState === 'correct' ? '下一题' : '再试一次'}</button>
+              <button type="button" className="qq-fb-primary" onClick={answerState === 'correct' ? moveToNextRound : handleReplayPrompt}>
+                {answerState === 'correct' ? '下一题' : '再试一次'}
+              </button>
             </div>
           </div>
         )}
       </div>
+
+      <style>{quizStyles}</style>
     </div>
   );
 }
+
+const quizStyles = `
+  .quiz-page {
+    flex: 1;
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .quiz-dot-pattern {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.22;
+    background-image:
+      radial-gradient(circle at 18px 18px, rgba(245,216,143,0.14) 0 1.2px, transparent 1.6px),
+      radial-gradient(circle at 62px 62px, rgba(245,216,143,0.10) 0 1.2px, transparent 1.6px);
+    background-size: 80px 80px;
+    z-index: 0;
+  }
+  .quiz-loading, .quiz-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+    padding: 24px;
+    color: #fff;
+  }
+  .quiz-empty .empty-celebration {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+  .quiz-empty .empty-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f7ebc4;
+  }
+  .quiz-empty .empty-sub {
+    font-size: 14px;
+    color: rgba(245,236,207,0.78);
+  }
+
+  /* Result screen */
+  .quiz-result {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .result-card {
+    width: 100%;
+    border-radius: 28px;
+    padding: clamp(20px, 3vh, 30px) 24px;
+    background: linear-gradient(180deg, rgba(18,43,125,0.96), rgba(15,35,103,0.92));
+    border: 2px solid rgba(245,216,143,0.5);
+    box-shadow: 0 24px 50px rgba(6,16,56,0.3);
+    text-align: center;
+    color: #fff;
+  }
+  .result-label { font-size: 14px; color: rgba(245,232,192,0.82); }
+  .result-score { margin-top: 12px; font-size: 52px; font-weight: 800; color: #f7e3a5; }
+  .result-stars { margin-top: 10px; display: flex; gap: 8px; justify-content: center; font-size: 28px; }
+  .result-star { color: rgba(255,255,255,0.18); }
+  .result-star.earned { color: #ffd67d; }
+  .result-stats {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .rs-item {
+    border-radius: 16px;
+    padding: 12px 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(245,216,143,0.18);
+  }
+  .rs-item strong { display: block; font-size: 22px; color: #f7e3a5; }
+  .rs-item span { font-size: 12px; color: rgba(245,232,192,0.72); }
+  .result-btn {
+    margin-top: 18px;
+    width: 100%;
+    min-height: 50px;
+    border-radius: 18px;
+    border: 2px solid rgba(245,216,143,0.54);
+    background: linear-gradient(180deg, #355dcb, #2749a8);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  /* Main quiz layout */
+  .quiz-layout {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(8px, 1.2vh, 14px) 16px 8px;
+    position: relative;
+    z-index: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: clamp(6px, 1vh, 12px);
+    flex-shrink: 0;
+  }
+  .quiz-kicker {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(245,216,143,0.78);
+  }
+  .quiz-main-title {
+    margin-top: 4px;
+    font-size: clamp(24px, 4.5vw, 32px);
+    line-height: 1.1;
+    font-weight: 800;
+    color: #f7efcf;
+  }
+  .quiz-desc {
+    margin-top: 4px;
+    font-size: 13px;
+    color: rgba(245,241,225,0.78);
+  }
+  .quiz-hearts {
+    display: flex;
+    gap: 4px;
+    padding-top: 4px;
+    flex-shrink: 0;
+  }
+  .sapphire-heart {
+    filter: drop-shadow(0 4px 8px rgba(30,58,138,0.3));
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .sapphire-heart.empty { opacity: 0.4; }
+
+  /* Progress card */
+  .quiz-progress-card {
+    position: relative;
+    border-radius: clamp(18px, 3vw, 24px);
+    padding: clamp(10px, 1.5vh, 16px) 16px;
+    background: linear-gradient(180deg, rgba(16,40,118,0.96), rgba(18,44,128,0.92));
+    border: 1.5px solid rgba(245,216,143,0.58);
+    overflow: hidden;
+    box-shadow: 0 16px 32px rgba(9,21,70,0.22);
+    margin-bottom: clamp(6px, 1vh, 10px);
+    flex-shrink: 0;
+  }
+  .golden-crown {
+    position: absolute;
+    right: -6px;
+    top: -8px;
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .qp-content { position: relative; z-index: 1; }
+  .qp-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(245,216,143,0.85);
+    letter-spacing: 0.06em;
+  }
+  .qp-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .qp-percent {
+    font-size: clamp(32px, 6vw, 42px);
+    font-weight: 800;
+    color: #f7e3a5;
+    line-height: 1;
+  }
+  .qp-count {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(247,236,207,0.82);
+  }
+  .qp-bar-wrap {
+    position: relative;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(226,222,208,0.22);
+    overflow: hidden;
+    border: 1px solid rgba(245,216,143,0.15);
+    margin-top: 8px;
+    z-index: 1;
+  }
+  .qp-bar-fill {
+    position: absolute;
+    left: 2px; top: 2px; bottom: 2px;
+    min-width: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f5d88f 0%, #d8a645 52%, #9b6e25 100%);
+    box-shadow: 0 0 12px rgba(245,216,143,0.18);
+    transition: width 0.3s ease;
+  }
+
+  /* Question card */
+  .quiz-question-card {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: clamp(18px, 3vw, 24px);
+    padding: clamp(12px, 1.8vh, 18px) clamp(14px, 2.5vw, 18px);
+    background: linear-gradient(180deg, rgba(16,40,118,0.98), rgba(14,36,106,0.94));
+    border: 2px solid rgba(245,216,143,0.62);
+    box-shadow: 0 20px 42px rgba(7,19,68,0.26);
+    position: relative;
+    overflow: hidden;
+  }
+  .qq-inner-border {
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(245,216,143,0.16);
+    border-radius: clamp(14px, 2.5vw, 20px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .qq-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+  .qq-prompt-label {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: rgba(245,216,143,0.72);
+  }
+  .qq-prompt-value {
+    margin-top: 4px;
+    font-size: clamp(20px, 4vw, 28px);
+    line-height: 1.3;
+    font-weight: 800;
+    color: #f7efcf;
+  }
+  .qq-prompt-sub {
+    margin-top: 3px;
+    font-size: clamp(12px, 2vw, 14px);
+    color: rgba(245,241,225,0.78);
+  }
+  .qq-play-btn {
+    width: 44px; height: 44px;
+    border-radius: 16px;
+    border: 1px solid rgba(245,216,143,0.4);
+    background: rgba(245,216,143,0.12);
+    color: #fff5d7;
+    font-size: 16px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qq-meta-row {
+    margin-top: clamp(6px, 1vh, 12px);
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+  .qq-badge {
+    display: inline-flex;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 6px 14px;
+    background: linear-gradient(180deg, rgba(244,218,146,0.18), rgba(204,167,86,0.08));
+    border: 1px solid rgba(245,216,143,0.34);
+    color: #f7edcf;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .qq-badge-sep { opacity: 0.5; }
+
+  /* Quest progress */
+  .qq-progress {
+    margin-top: clamp(6px, 1vh, 10px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: rgba(245,232,192,0.68);
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+  .qq-progress-bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(245,216,143,0.1);
+    overflow: hidden;
+  }
+  .qq-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f4d98f 0%, #cfa54d 100%);
+    transition: width 0.3s ease;
+  }
+
+  /* Options grid - blue glassmorphism */
+  .qq-options {
+    margin-top: clamp(8px, 1.2vh, 14px);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(8px, 1.2vh, 12px);
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-height: 0;
+  }
+  .qq-option {
+    border-radius: clamp(16px, 2.5vw, 22px);
+    border: 1.5px solid rgba(245,216,143,0.50);
+    background: linear-gradient(160deg,
+      rgba(55,100,210,0.42) 0%,
+      rgba(35,72,175,0.52) 40%,
+      rgba(25,55,148,0.62) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff8e3;
+    text-align: left;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    min-height: 0;
+  }
+  .qq-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02));
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .qq-option:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .qq-option.correct {
+    border-color: rgba(245,216,143,0.88);
+    background: linear-gradient(160deg,
+      rgba(245,216,143,0.22) 0%,
+      rgba(204,167,86,0.18) 100%);
+  }
+  .qq-option.wrong {
+    border-color: rgba(255,132,132,0.6);
+    background: linear-gradient(160deg,
+      rgba(255,80,80,0.18) 0%,
+      rgba(180,40,40,0.14) 100%);
+  }
+  .qq-option-inner {
+    position: relative;
+    padding: clamp(12px, 2vh, 18px) clamp(12px, 2vw, 16px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* Corner bracket decorations */
+  .qq-corner {
+    position: absolute;
+    width: 14px; height: 14px;
+    pointer-events: none;
+  }
+  .qq-corner.tl {
+    top: 6px; left: 6px;
+    border-left: 1.5px solid rgba(245,216,143,0.28);
+    border-top: 1.5px solid rgba(245,216,143,0.28);
+    border-top-left-radius: 6px;
+  }
+  .qq-corner.br {
+    bottom: 6px; right: 6px;
+    border-right: 1.5px solid rgba(245,216,143,0.28);
+    border-bottom: 1.5px solid rgba(245,216,143,0.28);
+    border-bottom-right-radius: 6px;
+  }
+  .qq-option-cn {
+    font-size: clamp(20px, 4vw, 26px);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .qq-option-py {
+    margin-top: clamp(4px, 0.6vh, 8px);
+    font-size: clamp(11px, 1.8vw, 13px);
+    color: rgba(245,241,225,0.72);
+  }
+
+  /* Answer feedback overlay */
+  .qq-feedback {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    border-radius: 22px 22px 0 0;
+    padding: 16px 18px;
+    background: linear-gradient(180deg, rgba(18,43,125,0.98), rgba(14,35,100,0.96));
+    border-top: 2px solid rgba(245,216,143,0.4);
+    box-shadow: 0 -12px 32px rgba(6,16,56,0.4);
+    animation: slideUp 0.3s ease;
+  }
+  .qq-feedback.correct { border-top-color: rgba(245,216,143,0.6); }
+  .qq-feedback.wrong { border-top-color: rgba(255,132,132,0.5); }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .qq-fb-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff5d7;
+  }
+  .qq-fb-detail {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(247,237,207,0.86);
+  }
+  .qq-fb-actions {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .qq-fb-secondary, .qq-fb-primary {
+    min-height: 44px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .qq-fb-secondary {
+    border: 1px solid rgba(245,216,143,0.22);
+    background: rgba(245,216,143,0.08);
+    color: rgba(245,241,225,0.88);
+  }
+  .qq-fb-primary {
+    border: 2px solid rgba(245,216,143,0.5);
+    background: linear-gradient(180deg, #355dcb, #2749a8);
+    color: #fff;
+  }
+`;

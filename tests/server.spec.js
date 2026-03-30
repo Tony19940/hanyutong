@@ -88,7 +88,7 @@ describe('auth and user permissions', () => {
     expect(response.body.user.id).not.toBe(bob.user.id);
   });
 
-  it('returns dialogue scenarios and reports missing rtc configuration in test env', async () => {
+  it('returns dialogue scenarios and reports missing dialogue service configuration in test env', async () => {
     const login = await loginWithKey('HYT-2026-AAAA-0001', 'dialogue-user');
 
     const response = await request(app)
@@ -98,10 +98,10 @@ describe('auth and user permissions', () => {
     expect(response.status).toBe(200);
     expect(response.body.available).toBe(false);
     expect(response.body.scenarios.length).toBeGreaterThan(0);
-    expect(response.body.missing).toContain('DOUBAO_DIALOG_APP_ID');
+    expect(response.body.missing).toContain('DOUBAO_ASR_APP_ID');
   });
 
-  it('rejects starting dialogue session when rtc configuration is missing', async () => {
+  it('rejects starting dialogue session when dialogue configuration is missing', async () => {
     const login = await loginWithKey('HYT-2026-AAAA-0001', 'dialogue-start-user');
 
     const response = await request(app)

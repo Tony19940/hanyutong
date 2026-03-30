@@ -6,7 +6,7 @@ export function usePronunciation() {
   const cleanupRef = useRef(null);
   const { speak, stop: stopTts } = useTTS();
 
-  const stop = useCallback(() => {
+  const stop = useCallback((onStateChange) => {
     stopTts();
 
     if (cleanupRef.current) {
@@ -20,23 +20,59 @@ export function usePronunciation() {
     audio.pause();
     audio.currentTime = 0;
     audioRef.current = null;
+    if (typeof onStateChange === 'function') {
+      onStateChange({
+        kind: 'stopped',
+        currentTime: 0,
+        duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+      });
+    }
   }, [stopTts]);
 
-  const play = useCallback(async ({ text, audioSrc, lang = 'zh-CN' }) => {
-    stop();
+  const play = useCallback(async ({ text, audioSrc, lang = 'zh-CN', onStateChange }) => {
+    stop(onStateChange);
 
     if (audioSrc) {
       try {
         const audio = new Audio(audioSrc);
         audio.preload = 'auto';
         audioRef.current = audio;
+        let rafId = null;
+        const emitProgress = () => {
+          if (typeof onStateChange === 'function') {
+            onStateChange({
+              kind: 'playing',
+              currentTime: audio.currentTime || 0,
+              duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+            });
+          }
+          if (!audio.paused && !audio.ended) {
+            rafId = window.requestAnimationFrame(emitProgress);
+          }
+        };
         await audio.play();
+        if (typeof onStateChange === 'function') {
+          onStateChange({
+            kind: 'playing',
+            currentTime: 0,
+            duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+          });
+        }
+        rafId = window.requestAnimationFrame(emitProgress);
         await new Promise((resolve) => {
           const finalize = () => {
             audio.removeEventListener('ended', handleDone);
             audio.removeEventListener('error', handleDone);
+            if (rafId) window.cancelAnimationFrame(rafId);
             if (cleanupRef.current === finalize) cleanupRef.current = null;
             if (audioRef.current === audio) audioRef.current = null;
+            if (typeof onStateChange === 'function') {
+              onStateChange({
+                kind: 'ended',
+                currentTime: Number.isFinite(audio.duration) ? audio.duration : 0,
+                duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+              });
+            }
             resolve();
           };
           const handleDone = () => finalize();
