@@ -554,23 +554,8 @@ export default function AIPracticePage({ user }) {
           )}
         </div>
 
-        <div className="tg-bottom-spacer"></div>
-
         <div className="tg-composer-wrap">
           <div className="tg-composer">
-            <div className="tg-composer-head">
-              <div className="tg-composer-line">
-                <div className="tg-composer-title"></div>
-              </div>
-              <div className={`tg-rec-indicator ${isRecording ? 'active' : ''}`}></div>
-            </div>
-
-            <div className={`tg-rec-bar ${isRecording ? 'active' : ''}`}>
-              <span className="tg-rec-dot"></span>
-              <span></span>
-              <span className="tg-rec-time">{formatTimer(recordSeconds)}</span>
-            </div>
-
             <div className="tg-composer-actions">
               <button
                 type="button"
@@ -578,8 +563,14 @@ export default function AIPracticePage({ user }) {
                 onClick={handlePrimaryAction}
                 disabled={recordButtonDisabled}
               >
-                <span className="tg-record-icon">{isRecording ? '●' : '🎙'}</span>
-                <span>{recordButtonLabel}</span>
+                <span className="tg-record-left">
+                  <span className="tg-record-icon">{isRecording ? '●' : '🎙'}</span>
+                  <span>{recordButtonLabel}</span>
+                </span>
+                <span className={`tg-record-timer ${isRecording ? 'live' : ''}`}>
+                  <span className="tg-record-inline-dot"></span>
+                  <span>{formatTimer(recordSeconds)}</span>
+                </span>
                 {isRecording && (
                   <span className="tg-record-wave-live" aria-hidden="true">
                     <i></i><i></i><i></i><i></i><i></i>
@@ -587,16 +578,13 @@ export default function AIPracticePage({ user }) {
                 )}
               </button>
             </div>
-
-            <div className="tg-composer-meta">
-            </div>
           </div>
         </div>
       </div>
 
       <style>{`
         .im-page{flex:1;position:relative;overflow:hidden;z-index:10}
-        .im-shell{height:100%;overflow-y:auto;padding:10px 12px 156px;max-width:430px;margin:0 auto}
+        .im-shell{height:100%;display:flex;flex-direction:column;overflow:hidden;padding:10px 12px 0;max-width:430px;margin:0 auto}
         .im-shell::-webkit-scrollbar,.tg-chat-stream::-webkit-scrollbar{display:none}
         .tg-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px 8px}
         .tg-chat-peer{display:flex;align-items:center;gap:12px;min-width:0}
@@ -610,7 +598,7 @@ export default function AIPracticePage({ user }) {
         .tg-status-dot{width:8px;height:8px;border-radius:50%;background:#59d37c;box-shadow:0 0 0 4px rgba(89,211,124,.14)}
         .tg-status-dot.error{background:#ff8b73;box-shadow:0 0 0 4px rgba(255,139,115,.14)}
         .tg-warning{margin-bottom:10px;padding:10px 12px;border-radius:16px;background:rgba(201,96,80,.18);border:1px solid rgba(255,165,142,.22);font-size:12px;color:#ffd9c7}
-        .tg-chat-stream{display:grid;gap:10px;min-height:420px;padding:8px 0 0;overflow-y:auto;align-content:start}
+        .tg-chat-stream{flex:1;min-height:0;display:grid;gap:10px;padding:8px 0 188px;overflow-y:auto;align-content:start;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
         .tg-date-chip{justify-self:center;max-width:92%;padding:7px 12px;border-radius:999px;background:rgba(18,35,92,.72);color:rgba(241,247,255,.78);font-size:11px;border:1px solid rgba(255,255,255,.08)}
         .tg-topic-grid-shell{display:grid;align-content:center;gap:16px;min-height:480px;padding:12px 0 24px}
         .tg-topic-grid-title{justify-self:center;font-size:15px;font-weight:800;color:#f7fbff;letter-spacing:.08em}
@@ -649,24 +637,19 @@ export default function AIPracticePage({ user }) {
         .tg-voice-duration{position:relative;z-index:1;font-size:12px;font-weight:700;opacity:.72}
         .tg-bubble-meta{margin-top:6px;display:flex;justify-content:flex-end;align-items:center;gap:6px;font-size:11px;opacity:.72}
         .tg-bubble-check{font-size:11px;letter-spacing:-0.08em}
-        .tg-bottom-spacer{height:16px}
         .tg-composer-wrap{position:fixed;left:0;right:0;bottom:78px;padding:0 12px 10px;z-index:40;display:flex;justify-content:center}
         .tg-composer{width:min(430px,calc(100vw - 24px));padding:12px;border-radius:22px;background:rgba(10,24,70,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);box-shadow:0 18px 42px rgba(5,16,53,.34)}
-        .tg-composer-head{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-height:8px}
-        .tg-composer-title{font-size:14px;font-weight:800;color:#f7fbff}
-        .tg-rec-indicator{padding:0;border-radius:999px;background:transparent;font-size:0;line-height:0;color:transparent;min-width:0;min-height:0}
-        .tg-rec-indicator.active{background:rgba(200,90,79,.18);color:#fff1e8}
-        .tg-rec-bar{margin-top:4px;height:36px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(236,244,255,.72)}
-        .tg-rec-bar.active{background:rgba(200,90,79,.12);color:#fff3eb}
-        .tg-rec-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.28)}
-        .tg-rec-bar.active .tg-rec-dot{background:#ff7f68;box-shadow:0 0 0 4px rgba(255,127,104,.14)}
-        .tg-rec-time{margin-left:auto;font-weight:800}
-        .tg-composer-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
-        .tg-record-action{height:54px;border:none;border-radius:18px;font-size:15px;font-weight:800;background:linear-gradient(180deg,#52a2ff,#2e71ea);color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 12px 26px rgba(28,82,194,.26)}
+        .tg-composer-actions{display:grid;grid-template-columns:1fr}
+        .tg-record-action{height:56px;border:none;border-radius:18px;font-size:15px;font-weight:800;background:linear-gradient(180deg,#52a2ff,#2e71ea);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px;box-shadow:0 12px 26px rgba(28,82,194,.26)}
         .tg-record-action.full{width:100%}
         .tg-record-action.recording{background:linear-gradient(180deg,#d56459,#9d2f31)}
         .tg-record-action:disabled{opacity:.42;box-shadow:none}
+        .tg-record-left{display:flex;align-items:center;gap:10px}
         .tg-record-icon{font-size:16px}
+        .tg-record-timer{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.12);font-size:12px;font-weight:800;color:rgba(255,255,255,.9)}
+        .tg-record-timer.live{background:rgba(255,255,255,.18)}
+        .tg-record-inline-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.4)}
+        .tg-record-timer.live .tg-record-inline-dot{background:#fff3eb;box-shadow:0 0 0 4px rgba(255,255,255,.12)}
         .tg-record-wave-live{display:inline-flex;align-items:flex-end;gap:3px;margin-left:4px}
         .tg-record-wave-live i{width:3px;border-radius:999px;background:rgba(255,255,255,.9);animation:tgWave 1s ease-in-out infinite}
         .tg-record-wave-live i:nth-child(1){height:9px;animation-delay:0s}
@@ -674,7 +657,6 @@ export default function AIPracticePage({ user }) {
         .tg-record-wave-live i:nth-child(3){height:20px;animation-delay:.2s}
         .tg-record-wave-live i:nth-child(4){height:13px;animation-delay:.3s}
         .tg-record-wave-live i:nth-child(5){height:8px;animation-delay:.4s}
-        .tg-composer-meta{display:none}
         @keyframes tgWave{0%,100%{transform:scaleY(.55);opacity:.55}50%{transform:scaleY(1.15);opacity:1}}
         @keyframes tgTopicPulse{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-3px);opacity:1}}
         @keyframes tgMessageIn{0%{opacity:0;transform:translateY(10px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
@@ -685,11 +667,12 @@ export default function AIPracticePage({ user }) {
             linear-gradient(180deg,#1a2f88 0%,#132872 100%)}
         }
         @media (max-width:640px){
-          .im-shell{padding:8px 10px 154px}
+          .im-shell{padding:8px 10px 0}
           .tg-composer-wrap{bottom:74px;padding:0 10px 8px}
           .tg-composer{width:calc(100vw - 20px)}
           .tg-bubble{max-width:calc(100% - 42px)}
           .tg-topic-card-title{font-size:22px}
+          .tg-chat-stream{padding-bottom:182px}
         }
       `}</style>
     </div>

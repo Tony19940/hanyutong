@@ -218,8 +218,6 @@ export default function WordCard({
           <button
             type="button"
             className={`word-speaker ${speakingTarget === 'word' ? 'speaking' : ''}`}
-            onTouchStart={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => handleSpeak({ text: word.chinese, audioSrc: word.audio_word, target: 'word', e })}
           >
             <i className="fas fa-volume-up"></i>
@@ -232,8 +230,6 @@ export default function WordCard({
           <button
             type="button"
             className={`example-item ${speakingTarget === 'example' ? 'speaking-item' : ''}`}
-            onTouchStart={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => handleSpeak({ text: exampleToSpeak, audioSrc: exampleAudio, target: 'example', e })}
           >
             <span className="example-badge">①</span>
@@ -248,8 +244,6 @@ export default function WordCard({
               type="button"
               key={example.id}
               className={`example-item ${speakingTarget === example.id ? 'speaking-item' : ''}`}
-              onTouchStart={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => handleSpeak({ text: example.chinese, audioSrc: example.audio, target: example.id, e })}
             >
               <span className="example-badge">②</span>

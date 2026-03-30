@@ -332,7 +332,7 @@ export default function LegacyQuizPage({ user }) {
       <div className="temple-deco" aria-hidden="true"></div>
       <div className="quiz-dot-pattern" aria-hidden="true"></div>
 
-      <div className="quiz-layout">
+      <div className={`quiz-layout ${answerState ? 'has-feedback' : ''}`}>
         {/* Header */}
         <div className="quiz-header">
           <div className="quiz-header-left">
@@ -416,26 +416,26 @@ export default function LegacyQuizPage({ user }) {
           </div>
         </div>
 
-        {/* Answer feedback */}
-        {answerState && (
-          <div className={`qq-feedback ${answerState}`}>
-            <div className="qq-fb-title">{answerState === 'correct' ? '✓ 答对了' : '✗ 再看一眼'}</div>
-            <div className="qq-fb-detail">
-              {answerState === 'correct'
-                ? `${currentWord.chinese} · ${currentWord.khmer}`
-                : `正确答案：${currentWord.chinese} · ${currentWord.khmer}`}
-            </div>
-            <div className="qq-fb-actions">
-              <button type="button" className="qq-fb-secondary" onClick={handleBookmark}>
-                {answerState === 'correct' ? '已掌握' : bookmarkedIds.includes(currentWord.id) ? '已收藏' : '加入收藏'}
-              </button>
-              <button type="button" className="qq-fb-primary" onClick={answerState === 'correct' ? moveToNextRound : handleReplayPrompt}>
-                {answerState === 'correct' ? '下一题' : '再试一次'}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {answerState && (
+        <div className={`qq-feedback ${answerState}`}>
+          <div className="qq-fb-title">{answerState === 'correct' ? '✓ 答对了' : '✗ 再看一眼'}</div>
+          <div className="qq-fb-detail">
+            {answerState === 'correct'
+              ? `${currentWord.chinese} · ${currentWord.khmer}`
+              : `正确答案：${currentWord.chinese} · ${currentWord.khmer}`}
+          </div>
+          <div className="qq-fb-actions">
+            <button type="button" className="qq-fb-secondary" onClick={handleBookmark}>
+              {answerState === 'correct' ? '已掌握' : bookmarkedIds.includes(currentWord.id) ? '已收藏' : '加入收藏'}
+            </button>
+            <button type="button" className="qq-fb-primary" onClick={answerState === 'correct' ? moveToNextRound : handleReplayPrompt}>
+              {answerState === 'correct' ? '下一题' : '再试一次'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <style>{quizStyles}</style>
     </div>
@@ -549,6 +549,9 @@ const quizStyles = `
     z-index: 1;
     min-height: 0;
     overflow: hidden;
+  }
+  .quiz-layout.has-feedback {
+    padding-bottom: 118px;
   }
 
   /* Header */
@@ -854,11 +857,12 @@ const quizStyles = `
 
   /* Answer feedback overlay */
   .qq-feedback {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 20;
+    position: fixed;
+    left: 50%;
+    bottom: 76px;
+    transform: translateX(-50%);
+    width: min(448px, calc(100vw - 24px));
+    z-index: 60;
     border-radius: 22px 22px 0 0;
     padding: 16px 18px;
     background: linear-gradient(180deg, rgba(18,43,125,0.98), rgba(14,35,100,0.96));
