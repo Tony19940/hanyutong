@@ -115,6 +115,13 @@ export default function App() {
     }
   }, []);
 
+  const tabViewStyle = (visible) => ({
+    display: visible ? 'flex' : 'none',
+    flex: '1 1 0%',
+    minHeight: 0,
+    width: '100%',
+  });
+
   if (loading) {
     return (
       <div className="app-container">
@@ -177,19 +184,19 @@ export default function App() {
       </div>
 
       <div className="page-content">
-        <div style={{ display: activeTab === 'home' ? 'block' : 'none', height: '100%' }}>
+        <div style={tabViewStyle(activeTab === 'home')}>
           <HomePage user={user} />
         </div>
-        <div style={{ display: activeTab === 'quiz' ? 'block' : 'none', height: '100%' }}>
+        <div style={tabViewStyle(activeTab === 'quiz')}>
           <QuizPage user={user} />
         </div>
-        <div style={{ display: activeTab === 'practice' ? 'block' : 'none', height: '100%' }}>
+        <div style={tabViewStyle(activeTab === 'practice')}>
           <AIPracticePage user={user} />
         </div>
-        <div style={{ display: activeTab === 'profile' && profileView === 'profile' ? 'block' : 'none', height: '100%' }}>
+        <div style={tabViewStyle(activeTab === 'profile' && profileView === 'profile')}>
           <ProfilePage user={user} onOpenCollection={() => setProfileView('collection')} />
         </div>
-        <div style={{ display: activeTab === 'profile' && profileView === 'collection' ? 'block' : 'none', height: '100%' }}>
+        <div style={tabViewStyle(activeTab === 'profile' && profileView === 'collection')}>
           <CollectionPage vocabulary={vocabulary} onBack={() => setProfileView('profile')} />
         </div>
       </div>

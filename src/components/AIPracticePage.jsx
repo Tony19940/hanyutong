@@ -174,6 +174,7 @@ export default function AIPracticePage({ user }) {
   const { play, stop } = usePronunciation();
 
   const scrollRef = useRef(null);
+  const bottomAnchorRef = useRef(null);
   const captureContextRef = useRef(null);
   const processorRef = useRef(null);
   const mediaStreamRef = useRef(null);
@@ -257,10 +258,15 @@ export default function AIPracticePage({ user }) {
   }, [isRecording]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: 'smooth',
+    if (!scrollRef.current) return;
+    const node = scrollRef.current;
+    const rafId = window.requestAnimationFrame(() => {
+      node.scrollTo({
+        top: node.scrollHeight,
+        behavior: 'smooth',
+      });
     });
+    return () => window.cancelAnimationFrame(rafId);
   }, [messages]);
 
   useEffect(() => {
@@ -447,111 +453,114 @@ export default function AIPracticePage({ user }) {
           </div>
         </header>
 
-        {!availability.available && availability.missing?.length > 0 && (
-          <div className="tg-warning">{availability.missing.join('、')}</div>
-        )}
+        <div className="tg-chat-body">
+          {!availability.available && availability.missing?.length > 0 && (
+            <div className="tg-warning">{availability.missing.join('、')}</div>
+          )}
 
-        <div ref={scrollRef} className="tg-chat-stream animate-float-up stagger-2">
-          {!session?.sessionId ? (
-            <div className="tg-topic-grid-shell">
-              <div className="tg-topic-grid-title">今日话题</div>
-              <div className="tg-topic-grid">
-                {topicChoices.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={`tg-topic-card ${startingTopicId === item.id ? 'loading' : ''}`}
-                    onClick={() => handleStartTopic(item.id)}
-                    disabled={!availability.available || isSending || isRecording || Boolean(startingTopicId)}
-                  >
-                    <div className="tg-topic-card-kicker">
-                      {startingTopicId === item.id ? '正在进入' : '开始练习'}
+          <div ref={scrollRef} className="tg-chat-stream animate-float-up stagger-2">
+            {!session?.sessionId ? (
+              <div className="tg-topic-grid-shell">
+                <div className="tg-topic-grid-title">今日话题</div>
+                <div className="tg-topic-grid">
+                  {topicChoices.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`tg-topic-card ${startingTopicId === item.id ? 'loading' : ''}`}
+                      onClick={() => handleStartTopic(item.id)}
+                      disabled={!availability.available || isSending || isRecording || Boolean(startingTopicId)}
+                    >
+                      <div className="tg-topic-card-kicker">
+                        {startingTopicId === item.id ? '正在进入' : '开始练习'}
+                      </div>
+                      <div className="tg-topic-card-title">{item.title}</div>
+                      <div className="tg-topic-card-subtitle">{item.subtitle}</div>
+                      {startingTopicId === item.id && (
+                        <div className="tg-topic-card-loading" aria-hidden="true">
+                          <i></i><i></i><i></i>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              messages.map((message) => {
+                if (message.type === 'note') {
+                  return (
+                    <div key={message.id} className="tg-date-chip">
+                      {message.text}
                     </div>
-                    <div className="tg-topic-card-title">{item.title}</div>
-                    <div className="tg-topic-card-subtitle">{item.subtitle}</div>
-                    {startingTopicId === item.id && (
-                      <div className="tg-topic-card-loading" aria-hidden="true">
-                        <i></i><i></i><i></i>
+                  );
+                }
+
+                const isAssistant = message.role === 'assistant';
+                return (
+                  <div key={message.id} className={`tg-message-row ${isAssistant ? 'assistant' : 'user'} tg-message-enter`}>
+                    {isAssistant && (
+                      <div className="tg-message-avatar">
+                        <img className="tg-peer-avatar image small" src={coach.avatarUrl} alt={coach.displayName} />
                       </div>
                     )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            messages.map((message) => {
-              if (message.type === 'note') {
-                return (
-                  <div key={message.id} className="tg-date-chip">
-                    {message.text}
+
+                    <div className={`tg-bubble ${isAssistant ? 'assistant' : 'user'}`}>
+                      {isAssistant && <div className="tg-bubble-name">{coach.displayName}</div>}
+                      {message.text && <div className="tg-bubble-text">{message.text}</div>}
+                      {message.khmerText && <div className="tg-bubble-translation">{message.khmerText}</div>}
+
+                      {message.type === 'audio' && (
+                        <button
+                          type="button"
+                          className={`tg-voice-card ${message.audioUrl ? 'ready' : 'loading'} ${playingMessageId === message.id ? 'playing' : ''}`}
+                          onClick={() => message.audioUrl && play({
+                            audioSrc: message.audioUrl,
+                            onStateChange: (stateEvent) => {
+                              if (stateEvent.kind === 'playing') {
+                                setPlayingMessageId(message.id);
+                                setPlayingProgress({
+                                  currentTime: stateEvent.currentTime || 0,
+                                  duration: stateEvent.duration || 0,
+                                });
+                                return;
+                              }
+
+                              setPlayingMessageId((currentId) => (currentId === message.id ? null : currentId));
+                              setPlayingProgress({ currentTime: 0, duration: 0 });
+                            },
+                          })}
+                          disabled={!message.audioUrl}
+                        >
+                          <span className="tg-voice-play">{message.audioUrl ? '▶' : '…'}</span>
+                          <span className="tg-voice-progress" style={{ width: playingMessageId === message.id ? `${playbackRatio * 100}%` : '0%' }}></span>
+                          <span className="tg-voice-wave">
+                            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                          </span>
+                          <span className="tg-voice-duration">{renderVoiceDuration(message)}</span>
+                        </button>
+                      )}
+
+                      <div className="tg-bubble-meta">
+                        <span>{formatClock(message.createdAt)}</span>
+                        {!isAssistant && <span className="tg-bubble-check">✓✓</span>}
+                      </div>
+                    </div>
+
+                    {!isAssistant && (
+                      <div className="tg-message-avatar">
+                        {learner.avatarUrl ? (
+                          <img className="tg-peer-avatar image small" src={learner.avatarUrl} alt={learner.displayName} />
+                        ) : (
+                          <div className="tg-peer-avatar user small">{learner.initial}</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
-              }
-
-              const isAssistant = message.role === 'assistant';
-              return (
-                <div key={message.id} className={`tg-message-row ${isAssistant ? 'assistant' : 'user'} tg-message-enter`}>
-                  {isAssistant && (
-                    <div className="tg-message-avatar">
-                      <img className="tg-peer-avatar image small" src={coach.avatarUrl} alt={coach.displayName} />
-                    </div>
-                  )}
-
-                  <div className={`tg-bubble ${isAssistant ? 'assistant' : 'user'}`}>
-                    {isAssistant && <div className="tg-bubble-name">{coach.displayName}</div>}
-                    {message.text && <div className="tg-bubble-text">{message.text}</div>}
-                    {message.khmerText && <div className="tg-bubble-translation">{message.khmerText}</div>}
-
-                    {message.type === 'audio' && (
-                      <button
-                        type="button"
-                        className={`tg-voice-card ${message.audioUrl ? 'ready' : 'loading'} ${playingMessageId === message.id ? 'playing' : ''}`}
-                        onClick={() => message.audioUrl && play({
-                          audioSrc: message.audioUrl,
-                          onStateChange: (stateEvent) => {
-                            if (stateEvent.kind === 'playing') {
-                              setPlayingMessageId(message.id);
-                              setPlayingProgress({
-                                currentTime: stateEvent.currentTime || 0,
-                                duration: stateEvent.duration || 0,
-                              });
-                              return;
-                            }
-
-                            setPlayingMessageId((currentId) => (currentId === message.id ? null : currentId));
-                            setPlayingProgress({ currentTime: 0, duration: 0 });
-                          },
-                        })}
-                        disabled={!message.audioUrl}
-                      >
-                        <span className="tg-voice-play">{message.audioUrl ? '▶' : '…'}</span>
-                        <span className="tg-voice-progress" style={{ width: playingMessageId === message.id ? `${playbackRatio * 100}%` : '0%' }}></span>
-                        <span className="tg-voice-wave">
-                          <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                        </span>
-                        <span className="tg-voice-duration">{renderVoiceDuration(message)}</span>
-                      </button>
-                    )}
-
-                    <div className="tg-bubble-meta">
-                      <span>{formatClock(message.createdAt)}</span>
-                      {!isAssistant && <span className="tg-bubble-check">✓✓</span>}
-                    </div>
-                  </div>
-
-                  {!isAssistant && (
-                    <div className="tg-message-avatar">
-                      {learner.avatarUrl ? (
-                        <img className="tg-peer-avatar image small" src={learner.avatarUrl} alt={learner.displayName} />
-                      ) : (
-                        <div className="tg-peer-avatar user small">{learner.initial}</div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          )}
+              })
+            )}
+            <div ref={bottomAnchorRef} className="tg-scroll-anchor" aria-hidden="true"></div>
+          </div>
         </div>
 
         <div className="tg-composer-wrap">
@@ -583,8 +592,8 @@ export default function AIPracticePage({ user }) {
       </div>
 
       <style>{`
-        .im-page{flex:1;position:relative;overflow:hidden;z-index:10}
-        .im-shell{height:100%;display:flex;flex-direction:column;overflow:hidden;padding:10px 12px 0;max-width:430px;margin:0 auto}
+        .im-page{flex:1 1 0%;display:flex;min-height:0;position:relative;overflow:hidden;z-index:10}
+        .im-shell{flex:1 1 0%;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:10px 12px 0;max-width:430px;margin:0 auto;width:100%}
         .im-shell::-webkit-scrollbar,.tg-chat-stream::-webkit-scrollbar{display:none}
         .tg-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px 8px}
         .tg-chat-peer{display:flex;align-items:center;gap:12px;min-width:0}
@@ -597,8 +606,10 @@ export default function AIPracticePage({ user }) {
         .tg-peer-status{margin-top:4px;display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(236,244,255,.7)}
         .tg-status-dot{width:8px;height:8px;border-radius:50%;background:#59d37c;box-shadow:0 0 0 4px rgba(89,211,124,.14)}
         .tg-status-dot.error{background:#ff8b73;box-shadow:0 0 0 4px rgba(255,139,115,.14)}
+        .tg-chat-body{flex:1 1 0%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
         .tg-warning{margin-bottom:10px;padding:10px 12px;border-radius:16px;background:rgba(201,96,80,.18);border:1px solid rgba(255,165,142,.22);font-size:12px;color:#ffd9c7}
-        .tg-chat-stream{flex:1;min-height:0;display:grid;gap:10px;padding:8px 0 188px;overflow-y:auto;align-content:start;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+        .tg-chat-stream{flex:1;min-height:0;display:grid;gap:10px;padding:8px 0 212px;overflow-y:auto;align-content:start;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+        .tg-scroll-anchor{height:1px}
         .tg-date-chip{justify-self:center;max-width:92%;padding:7px 12px;border-radius:999px;background:rgba(18,35,92,.72);color:rgba(241,247,255,.78);font-size:11px;border:1px solid rgba(255,255,255,.08)}
         .tg-topic-grid-shell{display:grid;align-content:center;gap:16px;min-height:480px;padding:12px 0 24px}
         .tg-topic-grid-title{justify-self:center;font-size:15px;font-weight:800;color:#f7fbff;letter-spacing:.08em}
@@ -637,8 +648,8 @@ export default function AIPracticePage({ user }) {
         .tg-voice-duration{position:relative;z-index:1;font-size:12px;font-weight:700;opacity:.72}
         .tg-bubble-meta{margin-top:6px;display:flex;justify-content:flex-end;align-items:center;gap:6px;font-size:11px;opacity:.72}
         .tg-bubble-check{font-size:11px;letter-spacing:-0.08em}
-        .tg-composer-wrap{position:fixed;left:0;right:0;bottom:78px;padding:0 12px 10px;z-index:40;display:flex;justify-content:center}
-        .tg-composer{width:min(430px,calc(100vw - 24px));padding:12px;border-radius:22px;background:rgba(10,24,70,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);box-shadow:0 18px 42px rgba(5,16,53,.34)}
+        .tg-composer-wrap{position:fixed;left:0;right:0;bottom:78px;padding:0 12px 10px;z-index:40;display:flex;justify-content:center;pointer-events:none}
+        .tg-composer{width:min(430px,calc(100vw - 24px));padding:12px;border-radius:22px;background:rgba(10,24,70,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);box-shadow:0 18px 42px rgba(5,16,53,.34);pointer-events:auto}
         .tg-composer-actions{display:grid;grid-template-columns:1fr}
         .tg-record-action{height:56px;border:none;border-radius:18px;font-size:15px;font-weight:800;background:linear-gradient(180deg,#52a2ff,#2e71ea);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px;box-shadow:0 12px 26px rgba(28,82,194,.26)}
         .tg-record-action.full{width:100%}
@@ -672,7 +683,7 @@ export default function AIPracticePage({ user }) {
           .tg-composer{width:calc(100vw - 20px)}
           .tg-bubble{max-width:calc(100% - 42px)}
           .tg-topic-card-title{font-size:22px}
-          .tg-chat-stream{padding-bottom:182px}
+          .tg-chat-stream{padding-bottom:202px}
         }
       `}</style>
     </div>
