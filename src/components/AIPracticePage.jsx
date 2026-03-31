@@ -168,6 +168,7 @@ export default function AIPracticePage({ user }) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
   const [isSending, setIsSending] = useState(false);
+  const [isAwaitingReply, setIsAwaitingReply] = useState(false);
   const [startingTopicId, setStartingTopicId] = useState(null);
   const [playingMessageId, setPlayingMessageId] = useState(null);
   const [playingProgress, setPlayingProgress] = useState({ currentTime: 0, duration: 0 });
@@ -277,6 +278,7 @@ export default function AIPracticePage({ user }) {
     setStartingTopicId(null);
     setPlayingMessageId(null);
     setPlayingProgress({ currentTime: 0, duration: 0 });
+    setIsAwaitingReply(false);
     setStatus(availability.available ? 'idle' : 'error');
     setStatusDetail(availability.available ? '选择一个今日话题。' : '对话配置还没配齐。');
     stop();
@@ -331,6 +333,7 @@ export default function AIPracticePage({ user }) {
     setState(null);
     setPlayingMessageId(null);
     setPlayingProgress({ currentTime: 0, duration: 0 });
+    setIsAwaitingReply(false);
     setStatus(availability.available ? 'idle' : 'error');
     setStatusDetail(availability.available ? '重新选择一个今日话题。' : '对话配置还没配齐。');
   }
@@ -372,6 +375,7 @@ export default function AIPracticePage({ user }) {
   async function stopRecordingAndSend() {
     if (!isRecording || !session?.sessionId) return;
     setIsSending(true);
+    setIsAwaitingReply(true);
     const durationSeconds = Math.max(recordSeconds, 1);
 
     const merged = mergeFloat32Chunks(chunksRef.current);
@@ -386,7 +390,7 @@ export default function AIPracticePage({ user }) {
         id: localMessageId,
         role: 'user',
         type: 'audio',
-        text: '正在识别…',
+        text: '',
         audioUrl: localAudioUrl,
         durationSeconds,
         createdAt: new Date().toISOString(),
@@ -426,6 +430,7 @@ export default function AIPracticePage({ user }) {
       setStatus('error');
       setStatusDetail(error.message || '发送语音失败。');
     } finally {
+      setIsAwaitingReply(false);
       setIsSending(false);
     }
   }
@@ -447,7 +452,7 @@ export default function AIPracticePage({ user }) {
               <div className="tg-peer-name">{coach.displayName}</div>
               <div className="tg-peer-status">
                 <span className={`tg-status-dot ${status === 'error' ? 'error' : ''}`}></span>
-                <span>{coach.username}</span>
+                <span>{isAwaitingReply ? '正在输入…' : coach.username}</span>
               </div>
             </div>
           </div>
@@ -486,7 +491,8 @@ export default function AIPracticePage({ user }) {
                 </div>
               </div>
             ) : (
-              messages.map((message) => {
+              <>
+                {messages.map((message) => {
                 if (message.type === 'note') {
                   return (
                     <div key={message.id} className="tg-date-chip">
@@ -557,7 +563,21 @@ export default function AIPracticePage({ user }) {
                     )}
                   </div>
                 );
-              })
+              })}
+                {isAwaitingReply && (
+                  <div className="tg-message-row assistant tg-message-enter">
+                    <div className="tg-message-avatar">
+                      <img className="tg-peer-avatar image small" src={coach.avatarUrl} alt={coach.displayName} />
+                    </div>
+                    <div className="tg-bubble assistant tg-typing-bubble">
+                      <div className="tg-bubble-name">{coach.displayName}</div>
+                      <div className="tg-typing-indicator" aria-label="对方正在输入">
+                        <i></i><i></i><i></i>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
             <div ref={bottomAnchorRef} className="tg-scroll-anchor" aria-hidden="true"></div>
           </div>
@@ -633,8 +653,14 @@ export default function AIPracticePage({ user }) {
         .tg-bubble.user{background:linear-gradient(180deg,#2b69de,#2559c0);color:#fff;border-top-right-radius:8px}
         .tg-bubble-name{margin-bottom:4px;font-size:11px;font-weight:800;color:#5084df}
         .tg-bubble-text{font-size:14px;line-height:1.65;white-space:pre-wrap}
+        .tg-bubble-text:empty{display:none}
         .tg-bubble-translation{margin-top:6px;font-size:13px;line-height:1.65;white-space:pre-wrap;color:rgba(28,61,123,.72)}
         .tg-bubble.user .tg-bubble-translation{color:rgba(255,255,255,.78)}
+        .tg-typing-bubble{min-width:88px}
+        .tg-typing-indicator{display:inline-flex;align-items:center;gap:6px;padding:6px 2px 2px}
+        .tg-typing-indicator i{width:8px;height:8px;border-radius:999px;background:rgba(80,132,223,.65);animation:tgTypingPulse 1.1s ease-in-out infinite}
+        .tg-typing-indicator i:nth-child(2){animation-delay:.14s}
+        .tg-typing-indicator i:nth-child(3){animation-delay:.28s}
         .tg-voice-card{position:relative;overflow:hidden;margin-top:8px;width:100%;height:42px;border:none;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 12px;background:rgba(25,85,191,.08);color:inherit}
         .tg-voice-card.loading{opacity:.65}
         .tg-voice-card.playing{box-shadow:inset 0 0 0 1px rgba(80,132,223,.24)}
@@ -672,6 +698,7 @@ export default function AIPracticePage({ user }) {
         @keyframes tgTopicPulse{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-3px);opacity:1}}
         @keyframes tgMessageIn{0%{opacity:0;transform:translateY(10px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes tgVoiceWave{0%,100%{transform:scaleY(.55);opacity:.45}50%{transform:scaleY(1.18);opacity:.95}}
+        @keyframes tgTypingPulse{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-2px);opacity:1}}
         @media (min-width:641px){
           .im-page{background:
             radial-gradient(circle at top, rgba(255,255,255,.04), transparent 32%),
