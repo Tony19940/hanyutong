@@ -839,22 +839,31 @@ export function buildLessonIntroSpecs(session, { retrying = false } = {}) {
   if (!lessonItem) return [];
 
   if (lessonItem.mode === 'shadow') {
-    return [
-      { role: 'assistant', type: 'audio', text: lessonItem.target, khmerText: lessonItem.targetKm },
-      { role: 'assistant', type: 'audio', text: retrying ? '再跟我读一遍。' : lessonItem.prompt, khmerText: lessonItem.promptKm },
-    ];
+    return [{
+      role: 'assistant',
+      type: 'audio',
+      text: retrying ? `再试一次：${lessonItem.target}` : lessonItem.target,
+      khmerText: lessonItem.targetKm,
+    }];
   }
 
-  return [
-    { role: 'assistant', type: 'audio', text: lessonItem.prompt, khmerText: lessonItem.promptKm },
-    { role: 'assistant', type: 'audio', text: lessonItem.focus, khmerText: lessonItem.focusKm },
-  ];
+  return [{
+    role: 'assistant',
+    type: 'audio',
+    text: retrying ? `再说一次：${lessonItem.prompt}` : lessonItem.prompt,
+    khmerText: lessonItem.promptKm,
+  }];
 }
 
 export function buildStartSpecs(session) {
   return [
     { role: 'system', type: 'note', text: session.scenario.dailyTopic },
-    { role: 'assistant', type: 'audio', text: `我是Bunson老师。今天我们练${session.scenario.title}。`, khmerText: `ខ្ញុំគឺគ្រូ Bunson។ ថ្ងៃនេះយើងហាត់ប្រធានបទ${session.scenario.title}។` },
+    {
+      role: 'assistant',
+      type: 'audio',
+      text: `我们先练${session.scenario.title}。`,
+      khmerText: `ថ្ងៃនេះយើងហាត់ប្រធានបទ${session.scenario.title}។`,
+    },
     ...buildLessonIntroSpecs(session),
   ];
 }
