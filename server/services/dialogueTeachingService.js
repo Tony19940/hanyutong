@@ -22,13 +22,13 @@ function buildMessage({ role, type, text, audio = null, khmerText = '' }) {
   };
 }
 
-async function attachAudio(message) {
+async function attachAudio(message, options = {}) {
   if (message.type !== 'audio' || message.role !== 'assistant') {
     return message;
   }
 
   try {
-    const audio = await synthesizeDialogueText(message.text);
+    const audio = await synthesizeDialogueText(message.text, { voiceType: options.voiceType });
     return buildMessage({ ...message, audio });
   } catch (error) {
     console.error('Failed to synthesize dialogue TTS:', error);
@@ -36,10 +36,10 @@ async function attachAudio(message) {
   }
 }
 
-export async function materializeMessageSpecs(specs) {
+export async function materializeMessageSpecs(specs, options = {}) {
   const messages = [];
   for (const spec of specs) {
-    messages.push(await attachAudio(spec));
+    messages.push(await attachAudio(spec, options));
   }
   return messages;
 }
@@ -100,7 +100,7 @@ async function buildFeedbackText({ session, lesson, transcript, outcome, retryCo
 
 export async function buildDialogueStartResponse(session) {
   return {
-    messages: await materializeMessageSpecs(buildStartSpecs(session)),
+    messages: await materializeMessageSpecs(buildStartSpecs(session), { voiceType: session.voiceType }),
     state: buildDialogueState(session),
   };
 }
@@ -142,7 +142,7 @@ export async function buildDialogueTurnResponse({ session, transcript }) {
 
   return {
     userMessage,
-    aiMessages: await materializeMessageSpecs(specs),
+    aiMessages: await materializeMessageSpecs(specs, { voiceType: session.voiceType }),
     state: progress.state,
     evaluation: progress.evaluation,
   };

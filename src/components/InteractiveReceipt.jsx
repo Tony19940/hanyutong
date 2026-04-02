@@ -22,7 +22,7 @@ function createTexture({ user, stats, hskLevel }) {
   ctx.fillStyle = '#111827';
   ctx.textAlign = 'left';
   ctx.font = '800 132px Manrope, Arial';
-  ctx.fillText('汉语通', left, 222);
+  ctx.fillText('Bunson老师', left, 222);
   ctx.fillStyle = 'rgba(17,24,39,0.62)';
   ctx.font = '700 48px Manrope, Arial';
   ctx.fillText('学习成果小票', left, 306);
@@ -50,10 +50,10 @@ function createTexture({ user, stats, hskLevel }) {
   const boxWidth = (right - left - boxGap) / 2;
   const boxHeight = 316;
   const summaryBoxes = [
-    { x: left, y: summaryTop, label: '今日掌握', value: `${stats.wordsLearned}`, accent: '#4cc9f0', unit: '词' },
-    { x: left + boxWidth + boxGap, y: summaryTop, label: '连续学习', value: `${stats.streak}`, accent: '#ff7eb6', unit: '天' },
-    { x: left, y: summaryTop + boxHeight + boxGap, label: '掌握度', value: `${stats.mastery}`, accent: '#52d7ad', unit: '%' },
-    { x: left + boxWidth + boxGap, y: summaryTop + boxHeight + boxGap, label: '学习时长', value: `${stats.totalHours}`, accent: '#ffb84d', unit: 'h' },
+    { x: left, y: summaryTop, label: '今日掌握', value: `${stats.wordsLearned}`, accent: '#0b6a58', unit: '词' },
+    { x: left + boxWidth + boxGap, y: summaryTop, label: '连续学习', value: `${stats.streak}`, accent: '#d2aa36', unit: '天' },
+    { x: left, y: summaryTop + boxHeight + boxGap, label: '掌握度', value: `${stats.mastery}`, accent: '#2d7a5c', unit: '%' },
+    { x: left + boxWidth + boxGap, y: summaryTop + boxHeight + boxGap, label: '学习时长', value: `${stats.totalHours}`, accent: '#c28f2c', unit: 'h' },
   ];
 
   summaryBoxes.forEach((item) => {

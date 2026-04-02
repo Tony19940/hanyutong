@@ -810,7 +810,7 @@ export function buildDialogueState(session) {
   };
 }
 
-export function buildDialogueSession({ scenarioId, learnerName }) {
+export function buildDialogueSession({ scenarioId, learnerName, voiceType = '' }) {
   const availability = getDialogueAvailability();
   if (!availability.available) {
     throw badRequest('Dialogue configuration missing', 'DIALOGUE_CONFIG_MISSING');
@@ -830,6 +830,7 @@ export function buildDialogueSession({ scenarioId, learnerName }) {
     passed: 0,
     skipped: 0,
     isComplete: false,
+    voiceType,
     startedAt: new Date().toISOString(),
   };
 }

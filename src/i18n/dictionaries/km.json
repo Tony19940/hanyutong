@@ -1,0 +1,59 @@
+{
+  "brand": {
+    "appTitle": "Bunson老师",
+    "adminTitle": "Bunson老师 Admin",
+    "learnChinese": "Bunson老师"
+  },
+  "tabs": {
+    "home": "រៀន",
+    "quiz": "តេស្ត",
+    "practice": "សន្ទនា",
+    "profile": "ខ្ញុំ"
+  },
+  "common": {
+    "loading": "កំពុងផ្ទុក",
+    "language": "ភាសា",
+    "theme": "រូបរាង",
+    "darkMode": "ងងឹត",
+    "lightMode": "ភ្លឺ",
+    "settings": "ការកំណត់",
+    "save": "រក្សាទុក",
+    "logout": "ចាកចេញ",
+    "share": "ចែករំលែកលទ្ធផល",
+    "collection": "ពាក្យដែលបានរក្សាទុក"
+  },
+  "login": {
+    "title": "Bunson老师",
+    "subtitle": "កម្មវិធីរៀនភាសាចិនសម្រាប់អ្នកនិយាយភាសាខ្មែរ",
+    "inputLabel": "បញ្ចូលលេខកូដបើកប្រើ",
+    "placeholder": "HYT-XXXX-XXXX-XXXX",
+    "invalidKey": "សូមបញ្ចូលលេខកូដឱ្យត្រឹមត្រូវ",
+    "loginFailed": "ចូលមិនបានទេ សូមព្យាយាមម្ដងទៀត",
+    "verifying": "កំពុងផ្ទៀងផ្ទាត់...",
+    "startLearning": "ចាប់ផ្តើមរៀន",
+    "contactSupport": "ទំនាក់ទំនងទិញលេខកូដ",
+    "supportMeta": "@sotheary92 · 24/7"
+  },
+  "home": {
+    "title": "រៀនពាក្យដោយស្វាយ",
+    "subtitle": "អូសឆ្វេង = រៀនបាន, អូសស្តាំ = រក្សាទុក។",
+    "progress": "វឌ្ឍនភាព",
+    "doneToday": "រួចរាល់សម្រាប់ថ្ងៃនេះ",
+    "goQuiz": "ទៅផ្ទាំងតេស្តដើម្បីហាត់ម្ដងទៀត។"
+  },
+  "profile": {
+    "title": "ខ្ញុំ",
+    "wordsLearned": "ពាក្យដែលបានរៀន",
+    "studyHours": "ម៉ោងសិក្សា",
+    "mastery": "កម្រិតចេះចាំ",
+    "streakDays": "រៀនជាប់គ្នា {count} ថ្ងៃ",
+    "languageSetting": "ភាសាផ្ទាំងកម្មវិធី",
+    "themeSetting": "រូបរាងកម្មវិធី",
+    "voiceSetting": "សំឡេងគ្រូ",
+    "voiceDefault": "លំនាំដើម"
+  },
+  "share": {
+    "receipt": "បង្កាន់ដៃការរៀន",
+    "saveImage": "រក្សាទុករូបភាព"
+  }
+}

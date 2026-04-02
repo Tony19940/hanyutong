@@ -1,0 +1,59 @@
+{
+  "brand": {
+    "appTitle": "Bunson老师",
+    "adminTitle": "Bunson老师 Admin",
+    "learnChinese": "Bunson老师"
+  },
+  "tabs": {
+    "home": "学习",
+    "quiz": "测验",
+    "practice": "对话",
+    "profile": "我的"
+  },
+  "common": {
+    "loading": "加载中",
+    "language": "语言",
+    "theme": "主题",
+    "darkMode": "夜间模式",
+    "lightMode": "白天模式",
+    "settings": "设置",
+    "save": "保存",
+    "logout": "退出登录",
+    "share": "分享成果",
+    "collection": "收藏词库"
+  },
+  "login": {
+    "title": "Bunson老师",
+    "subtitle": "适合柬埔寨用户的实用中文学习",
+    "inputLabel": "输入你的激活码",
+    "placeholder": "HYT-XXXX-XXXX-XXXX",
+    "invalidKey": "请输入正确的激活码",
+    "loginFailed": "登录失败，请稍后再试",
+    "verifying": "正在验证...",
+    "startLearning": "开始学习",
+    "contactSupport": "联系购买激活码",
+    "supportMeta": "@sotheary92 · 24/7"
+  },
+  "home": {
+    "title": "滑卡背词",
+    "subtitle": "左滑学会，右滑收藏。",
+    "progress": "进度",
+    "doneToday": "今天已完成",
+    "goQuiz": "去“测验”再刷一轮。"
+  },
+  "profile": {
+    "title": "我的",
+    "wordsLearned": "已学词数",
+    "studyHours": "学习时长",
+    "mastery": "掌握度",
+    "streakDays": "连续学习 {count} 天",
+    "languageSetting": "界面语言",
+    "themeSetting": "外观模式",
+    "voiceSetting": "老师音色",
+    "voiceDefault": "默认音色"
+  },
+  "share": {
+    "receipt": "学习小票",
+    "saveImage": "保存图片"
+  }
+}

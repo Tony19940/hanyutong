@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import WordCard from './WordCard.jsx';
 import { api } from '../utils/api.js';
+import { useAppShell } from '../i18n/index.js';
 
 export default function HomePage({ user }) {
+  const { t, language, languageOptions, setLanguage } = useAppShell();
   const [words, setWords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stats, setStats] = useState({ total: 0, learned: 0, remaining: 0 });
@@ -85,14 +87,27 @@ export default function HomePage({ user }) {
       <div className="home-layout">
         {/* Header */}
         <header className="home-head">
-          <h1 className="home-title">滑卡背词</h1>
-          <p className="home-subtitle">左滑学会，右滑收藏。</p>
+          <div className="home-language-switch" role="group" aria-label={t('common.language')}>
+            {languageOptions.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`home-language-btn ${language === item.id ? 'active' : ''}`}
+                onClick={() => setLanguage(item.id)}
+                aria-label={item.englishLabel}
+              >
+                <span>{item.flag}</span>
+              </button>
+            ))}
+          </div>
+          <h1 className="home-title">{t('home.title')}</h1>
+          <p className="home-subtitle">{t('home.subtitle')}</p>
         </header>
 
         {/* Progress */}
         <section className="home-summary">
           <div className="summary-topline">
-            <span>{progressPercent}% 进度</span>
+            <span>{progressPercent}% {t('home.progress')}</span>
             <strong>{stats.learned}/{stats.total || 0}</strong>
           </div>
           <div className="summary-track">
@@ -125,8 +140,8 @@ export default function HomePage({ user }) {
           ) : (
             <div className="empty-state animate-float-up">
               <div className="empty-celebration">✓</div>
-              <div className="empty-title">今天已完成</div>
-              <div className="empty-sub">去"测验"再刷一轮。</div>
+              <div className="empty-title">{t('home.doneToday')}</div>
+              <div className="empty-sub">{t('home.goQuiz')}</div>
             </div>
           )}
         </div>
@@ -147,8 +162,8 @@ export default function HomePage({ user }) {
           pointer-events: none;
           opacity: 0.32;
           background-image:
-            radial-gradient(circle at 18px 18px, rgba(245,216,143,0.14) 0 1.2px, transparent 1.6px),
-            radial-gradient(circle at 62px 62px, rgba(245,216,143,0.10) 0 1.2px, transparent 1.6px);
+            radial-gradient(circle at 18px 18px, var(--bg-pattern-a) 0 1.2px, transparent 1.6px),
+            radial-gradient(circle at 62px 62px, var(--bg-pattern-b) 0 1.2px, transparent 1.6px);
           background-size: 80px 80px, 80px 80px;
           background-position: 0 0, 40px 40px;
           z-index: 0;
@@ -169,20 +184,52 @@ export default function HomePage({ user }) {
           text-align: center;
           margin-bottom: clamp(6px, 1.2vh, 12px);
           flex-shrink: 0;
+          position: relative;
+        }
+        .home-language-switch {
+          position: absolute;
+          top: 0;
+          right: 0;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 5px;
+          border-radius: 16px;
+          border: 1px solid var(--settings-border);
+          background: var(--settings-surface);
+          box-shadow: 0 8px 18px var(--home-card-shadow);
+        }
+        .home-language-btn {
+          width: 34px;
+          height: 34px;
+          border-radius: 12px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          color: var(--text-primary);
+          background: transparent;
+          border: 1px solid transparent;
+          transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+        }
+        .home-language-btn.active {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.14);
+          transform: translateY(-1px);
         }
         .home-title {
           font-size: clamp(28px, 5vw, 36px);
           line-height: 1.1;
           font-weight: 800;
-          color: #f7f0cf;
-          text-shadow: 0 2px 10px rgba(0,0,0,0.18);
+          color: var(--home-title-color);
+          text-shadow: 0 2px 10px rgba(0,0,0,0.08);
           font-family: 'Manrope', 'Noto Sans SC', sans-serif;
           margin: 0;
         }
         .home-subtitle {
           margin-top: clamp(4px, 0.6vh, 8px);
           font-size: clamp(12px, 1.8vw, 14px);
-          color: rgba(245, 241, 225, 0.78);
+          color: var(--home-subtitle-color);
         }
 
         /* Progress */
@@ -190,9 +237,9 @@ export default function HomePage({ user }) {
           margin-bottom: clamp(6px, 1vh, 12px);
           padding: clamp(8px, 1.2vh, 14px) 16px;
           border-radius: 18px;
-          background: linear-gradient(180deg, rgba(19,46,133,0.94), rgba(17,41,116,0.86));
-          border: 1.5px solid rgba(245,216,143,0.34);
-          box-shadow: 0 12px 24px rgba(10,22,75,0.18);
+          background: var(--home-card-bg);
+          border: 1.5px solid var(--home-card-border);
+          box-shadow: 0 12px 24px var(--home-card-shadow);
           flex-shrink: 0;
         }
         .summary-topline {
@@ -201,22 +248,22 @@ export default function HomePage({ user }) {
           align-items: center;
           margin-bottom: 6px;
           font-size: 12px;
-          color: rgba(247, 236, 207, 0.78);
+          color: var(--text-secondary);
         }
         .summary-topline strong {
-          color: #f7e3a5;
+          color: var(--accent-gold);
           font-size: 14px;
         }
         .summary-track {
           height: 6px;
           border-radius: 999px;
           overflow: hidden;
-          background: rgba(245,216,143,0.12);
+          background: var(--surface);
         }
         .summary-fill {
           height: 100%;
           border-radius: 999px;
-          background: linear-gradient(90deg, #f5d88f 0%, #c89a41 55%, #8a6628 100%);
+          background: linear-gradient(90deg, var(--brand-gold) 0%, #c89a41 55%, var(--brand-teal) 100%);
           transition: width 0.3s ease;
         }
 
@@ -235,8 +282,8 @@ export default function HomePage({ user }) {
           width: 100%;
           border-radius: 24px;
           padding: clamp(20px, 3vh, 30px) 22px;
-          background: linear-gradient(180deg, rgba(244,236,212,0.98), rgba(235,225,194,0.94));
-          border: 2px solid rgba(219,180,97,0.95);
+          background: var(--word-stage-bg);
+          border: 1.5px solid var(--word-stage-border);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -264,13 +311,13 @@ export default function HomePage({ user }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(245, 216, 143, 0.16);
-          border: 1px solid rgba(245, 216, 143, 0.32);
+          background: var(--settings-surface);
+          border: 1px solid var(--settings-border);
           font-size: 26px;
-          color: #f5d88f;
+          color: var(--accent-gold);
         }
-        .empty-title { font-size: 24px; font-weight: 700; color: #f7ebc4; }
-        .empty-sub { font-size: 13px; color: rgba(245, 236, 207, 0.78); }
+        .empty-title { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+        .empty-sub { font-size: 13px; color: var(--text-secondary); }
       `}</style>
     </div>
   );

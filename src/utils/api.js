@@ -82,6 +82,17 @@ export const api = {
   getAllWords: () => request('/words/all'),
 
   getProfile: () => request('/user/profile'),
+  getUserSettings: () => request('/user/settings'),
+  updateUserSettings: (payload) =>
+    request('/user/settings', {
+      method: 'POST',
+      body: payload,
+    }),
+  synthesizePreviewAudio: (text, voiceType) =>
+    request('/user/tts-preview', {
+      method: 'POST',
+      body: { text, voiceType },
+    }),
   getCollection: () => request('/user/collection'),
   getDialogueScenarios: () => request('/dialogue/scenarios'),
   startDialogueSession: (scenarioId) =>

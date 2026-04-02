@@ -32,6 +32,7 @@ beforeEach(async () => {
   await dbModule.query('DELETE FROM sessions');
   await dbModule.query('DELETE FROM user_progress');
   await dbModule.query('DELETE FROM daily_records');
+  await dbModule.query('DELETE FROM user_settings');
   await dbModule.query('DELETE FROM users');
   await dbModule.query('DELETE FROM keys');
 
@@ -111,6 +112,86 @@ describe('auth and user permissions', () => {
 
     expect(response.status).toBe(400);
     expect(response.body.code).toBe('DIALOGUE_CONFIG_MISSING');
+  });
+
+  it('returns default user settings for a newly logged in user', async () => {
+    const login = await loginWithKey('HYT-2026-AAAA-0001', 'settings-default-user');
+
+    const response = await request(app)
+      .get('/api/user/settings')
+      .set('Authorization', `Bearer ${login.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.settings.language).toBe('zh-CN');
+    expect(response.body.settings.theme).toBe('dark');
+    expect(response.body.settings.voiceType).toBe('BV001_streaming');
+    expect(response.body.settings.fallbackAvatarId).toMatch(/^avatar-[1-6]$/);
+    expect(response.body.voiceSettings.defaultVoiceType).toBe('BV001_streaming');
+    expect(Array.isArray(response.body.voiceSettings.availableVoices)).toBe(true);
+    expect(response.body.voiceSettings.availableVoices.length).toBeGreaterThan(0);
+  });
+
+  it('persists user settings updates and returns them from profile', async () => {
+    const login = await loginWithKey('HYT-2026-AAAA-0001', 'settings-update-user');
+
+    const update = await request(app)
+      .post('/api/user/settings')
+      .set('Authorization', `Bearer ${login.token}`)
+      .send({
+        language: 'en',
+        theme: 'light',
+        voiceType: 'BV001_streaming',
+        fallbackAvatarId: 'avatar-3',
+      });
+
+    expect(update.status).toBe(200);
+    expect(update.body.settings).toEqual({
+      language: 'en',
+      theme: 'light',
+      voiceType: 'BV001_streaming',
+      fallbackAvatarId: 'avatar-3',
+    });
+
+    const profile = await request(app)
+      .get('/api/user/profile')
+      .set('Authorization', `Bearer ${login.token}`);
+
+    expect(profile.status).toBe(200);
+    expect(profile.body.settings).toEqual({
+      language: 'en',
+      theme: 'light',
+      voiceType: 'BV001_streaming',
+      fallbackAvatarId: 'avatar-3',
+    });
+    expect(profile.body.voiceSettings.defaultVoiceType).toBe('BV001_streaming');
+  });
+
+  it('falls back to a deterministic built-in avatar when requested avatar id is invalid', async () => {
+    const login = await loginWithKey('HYT-2026-AAAA-0001', 'avatar-fallback-user');
+
+    const update = await request(app)
+      .post('/api/user/settings')
+      .set('Authorization', `Bearer ${login.token}`)
+      .send({
+        fallbackAvatarId: 'not-a-real-avatar',
+      });
+
+    expect(update.status).toBe(200);
+    expect(update.body.settings.fallbackAvatarId).toMatch(/^avatar-[1-6]$/);
+  });
+
+  it('falls back to the default teacher voice when the requested voice is unavailable', async () => {
+    const login = await loginWithKey('HYT-2026-AAAA-0001', 'voice-fallback-user');
+
+    const update = await request(app)
+      .post('/api/user/settings')
+      .set('Authorization', `Bearer ${login.token}`)
+      .send({
+        voiceType: 'NOT_A_REAL_VOICE',
+      });
+
+    expect(update.status).toBe(200);
+    expect(update.body.settings.voiceType).toBe('BV001_streaming');
   });
 });
 

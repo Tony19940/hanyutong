@@ -17,6 +17,7 @@ import {
 } from '../services/dialogueTeachingService.js';
 import { getDialogueSession, removeDialogueSession, saveDialogueSession } from '../services/dialogueSessionStore.js';
 import { transcribeDialogueAudio } from '../services/doubaoAsrService.js';
+import { ensureUserSettingsForDialogue } from '../services/userSettingsService.js';
 
 const router = Router();
 const upload = multer({
@@ -43,6 +44,7 @@ router.post('/session/start', asyncHandler(async (req, res) => {
   const session = buildDialogueSession({
     scenarioId,
     learnerName: req.user.name || '学员',
+    voiceType: (await ensureUserSettingsForDialogue(req.user)).voiceType,
   });
   saveDialogueSession(session);
 

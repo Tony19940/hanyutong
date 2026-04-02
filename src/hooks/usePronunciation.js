@@ -1,5 +1,11 @@
 import { useCallback, useRef } from 'react';
 import { useTTS } from './useTTS.js';
+import { api } from '../utils/api.js';
+
+function decodeBase64ToBlob(base64, mimeType = 'audio/mpeg') {
+  const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+  return new Blob([bytes], { type: mimeType });
+}
 
 export function usePronunciation() {
   const audioRef = useRef(null);
@@ -29,12 +35,12 @@ export function usePronunciation() {
     }
   }, [stopTts]);
 
-  const play = useCallback(async ({ text, audioSrc, lang = 'zh-CN', onStateChange }) => {
+  const play = useCallback(async ({ text, audioSrc, lang = 'zh-CN', onStateChange, voiceType }) => {
     stop(onStateChange);
 
-    if (audioSrc) {
+    const playAudio = async (src) => {
       try {
-        const audio = new Audio(audioSrc);
+        const audio = new Audio(src);
         audio.preload = 'auto';
         audioRef.current = audio;
         let rafId = null;
@@ -82,7 +88,32 @@ export function usePronunciation() {
         });
         return { mode: 'audio' };
       } catch (error) {
+        throw error;
+      }
+    };
+
+    if (audioSrc) {
+      try {
+        return await playAudio(audioSrc);
+      } catch (error) {
         console.warn('Audio playback failed, falling back to TTS:', error);
+      }
+    }
+
+    if (text && voiceType) {
+      try {
+        const response = await api.synthesizePreviewAudio(text, voiceType);
+        if (response?.audio?.base64) {
+          const blob = decodeBase64ToBlob(response.audio.base64, response.audio.mimeType);
+          const objectUrl = URL.createObjectURL(blob);
+          try {
+            return await playAudio(objectUrl);
+          } finally {
+            URL.revokeObjectURL(objectUrl);
+          }
+        }
+      } catch (error) {
+        console.warn('Server TTS preview failed, falling back to browser speech synthesis:', error);
       }
     }
 

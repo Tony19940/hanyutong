@@ -2,6 +2,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderWithShell } from './renderWithShell.jsx';
 
 const loginMock = vi.fn();
 const getTelegramUserMock = vi.fn();
@@ -41,12 +42,12 @@ describe('LoginPage', () => {
       user: { id: 1, name: 'Alice' },
     });
 
-    render(<LoginPage onLogin={onLogin} />);
+    renderWithShell(<LoginPage onLogin={onLogin} />);
 
     fireEvent.change(screen.getByPlaceholderText('HYT-XXXX-XXXX-XXXX'), {
       target: { value: 'HYT2026AAAA0001' },
     });
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: /start learning|开始学习|ចាប់ផ្តើមរៀន/i }));
 
     await waitFor(() => {
       expect(loginMock).toHaveBeenCalled();

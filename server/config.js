@@ -47,6 +47,10 @@ export const config = {
   doubaoTtsPitchRatio: Number.parseFloat(process.env.DOUBAO_TTS_PITCH_RATIO || '1.0') || 1.0,
   doubaoTtsEmotion: process.env.DOUBAO_TTS_EMOTION || '',
   doubaoTtsLanguage: process.env.DOUBAO_TTS_LANGUAGE || 'cn',
+  doubaoTtsAllowedVoices: String(process.env.DOUBAO_TTS_ALLOWED_VOICES || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
   hskThresholds: [
     { minLearned: 2500, level: 6 },
     { minLearned: 1200, level: 5 },

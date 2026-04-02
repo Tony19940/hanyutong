@@ -1,0 +1,59 @@
+{
+  "brand": {
+    "appTitle": "Teacher Bunson",
+    "adminTitle": "Teacher Bunson Admin",
+    "learnChinese": "Teacher Bunson"
+  },
+  "tabs": {
+    "home": "Learn",
+    "quiz": "Quiz",
+    "practice": "Dialogue",
+    "profile": "Me"
+  },
+  "common": {
+    "loading": "Loading",
+    "language": "Language",
+    "theme": "Theme",
+    "darkMode": "Dark",
+    "lightMode": "Light",
+    "settings": "Settings",
+    "save": "Save",
+    "logout": "Log out",
+    "share": "Share Progress",
+    "collection": "Saved Words"
+  },
+  "login": {
+    "title": "Teacher Bunson",
+    "subtitle": "Practical Chinese learning for Khmer speakers",
+    "inputLabel": "Enter your activation code",
+    "placeholder": "HYT-XXXX-XXXX-XXXX",
+    "invalidKey": "Please enter a valid activation code",
+    "loginFailed": "Login failed. Please try again.",
+    "verifying": "Verifying...",
+    "startLearning": "Start Learning",
+    "contactSupport": "Contact to buy an activation code",
+    "supportMeta": "@sotheary92 · 24/7"
+  },
+  "home": {
+    "title": "Swipe to Learn",
+    "subtitle": "Swipe left to learn, right to save.",
+    "progress": "Progress",
+    "doneToday": "Done for today",
+    "goQuiz": "Jump into Quiz for another round."
+  },
+  "profile": {
+    "title": "Me",
+    "wordsLearned": "Words",
+    "studyHours": "Hours",
+    "mastery": "Mastery",
+    "streakDays": "{count} day streak",
+    "languageSetting": "Interface Language",
+    "themeSetting": "Appearance",
+    "voiceSetting": "Teacher Voice",
+    "voiceDefault": "Default"
+  },
+  "share": {
+    "receipt": "Study Receipt",
+    "saveImage": "Save Image"
+  }
+}

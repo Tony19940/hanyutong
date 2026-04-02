@@ -26,6 +26,18 @@ const schemaStatements = [
     )
   `,
   `
+    CREATE TABLE IF NOT EXISTS user_settings (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL UNIQUE,
+      language TEXT NOT NULL DEFAULT 'zh-CN',
+      theme TEXT NOT NULL DEFAULT 'dark',
+      voice_type TEXT NOT NULL DEFAULT '',
+      fallback_avatar_id TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `,
+  `
     CREATE TABLE IF NOT EXISTS user_progress (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL,
@@ -81,16 +93,19 @@ const schemaStatements = [
   'ALTER TABLE admin_sessions ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP',
   'ALTER TABLE keys DROP CONSTRAINT IF EXISTS keys_user_id_fkey',
   'ALTER TABLE users DROP CONSTRAINT IF EXISTS users_key_id_fkey',
+  'ALTER TABLE user_settings DROP CONSTRAINT IF EXISTS user_settings_user_id_fkey',
   'ALTER TABLE user_progress DROP CONSTRAINT IF EXISTS user_progress_user_id_fkey',
   'ALTER TABLE daily_records DROP CONSTRAINT IF EXISTS daily_records_user_id_fkey',
   'ALTER TABLE sessions DROP CONSTRAINT IF EXISTS sessions_user_id_fkey',
   'ALTER TABLE keys ADD CONSTRAINT keys_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL',
   'ALTER TABLE users ADD CONSTRAINT users_key_id_fkey FOREIGN KEY (key_id) REFERENCES keys(id) ON DELETE SET NULL',
+  'ALTER TABLE user_settings ADD CONSTRAINT user_settings_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
   'ALTER TABLE user_progress ADD CONSTRAINT user_progress_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
   'ALTER TABLE daily_records ADD CONSTRAINT daily_records_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
   'ALTER TABLE sessions ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
   'CREATE INDEX IF NOT EXISTS idx_keys_code ON keys(key_code)',
   'CREATE INDEX IF NOT EXISTS idx_keys_status ON keys(status)',
+  'CREATE INDEX IF NOT EXISTS idx_user_settings_user ON user_settings(user_id)',
   'CREATE INDEX IF NOT EXISTS idx_progress_user ON user_progress(user_id)',
   'CREATE INDEX IF NOT EXISTS idx_progress_status ON user_progress(user_id, status)',
   'CREATE INDEX IF NOT EXISTS idx_daily_user ON daily_records(user_id)',

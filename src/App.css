@@ -3,28 +3,216 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --accent: #e7c06a;
-  --accent-secondary: #2a4eaf;
-  --accent-pink: #d7b05f;
-  --accent-lime: #1d4b38;
-  --accent-gold: #f5d88f;
+  --accent: #d2b13f;
+  --accent-secondary: #8ed4c3;
+  --accent-pink: #d3be73;
+  --accent-lime: #0b6a58;
+  --accent-gold: #e1bf53;
   --surface: rgba(255,255,255,0.05);
   --surface-strong: rgba(255,255,255,0.09);
   --surface-border: rgba(255,255,255,0.09);
-  --text-primary: #f8fbff;
-  --text-secondary: rgba(235,240,255,0.7);
-  --text-muted: rgba(235,240,255,0.48);
+  --text-primary: #f6f0df;
+  --text-secondary: rgba(228,232,224,0.72);
+  --text-muted: rgba(206,211,202,0.48);
   --radius-card: 24px;
   --radius-btn: 18px;
   --transition-fast: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  --brand-gold: #e1bf53;
+  --brand-green: #0b6a58;
+  --brand-teal: #8ed4c3;
+  --spinner-track: rgba(255,255,255,0.1);
+  --spinner-accent: #d6b74f;
+  --app-body-bg: #0b0f0c;
+  --app-shell-gradient: linear-gradient(180deg, #0a0e0c 0%, #0c110e 52%, #0c110f 100%);
+  --bg-layer-gradient:
+    radial-gradient(circle at 18% 8%, rgba(225,191,83,0.10), transparent 20%),
+    radial-gradient(circle at 86% 12%, rgba(142,212,195,0.10), transparent 18%),
+    radial-gradient(circle at 28% 92%, rgba(11,106,88,0.18), transparent 28%),
+    linear-gradient(180deg, rgba(10,14,12,0.98) 0%, rgba(11,15,13,0.99) 100%);
+  --bg-pattern-a: rgba(225,191,83,0.07);
+  --bg-pattern-b: rgba(142,212,195,0.06);
+  --tabbar-bg: linear-gradient(180deg, rgba(12,15,13,0.96), rgba(10,13,11,0.98));
+  --tabbar-border: rgba(225,191,83,0.10);
+  --tab-icon: rgba(239,232,216,0.45);
+  --tab-label: rgba(239,232,216,0.48);
+  --tab-active-surface: linear-gradient(180deg, rgba(14,106,88,0.36), rgba(14,106,88,0.18));
+  --tab-active-border: rgba(142,212,195,0.18);
+  --tab-active-shadow: rgba(142,212,195,0.16);
+  --button-primary-start: #0f8c73;
+  --button-primary-mid: #0a6a58;
+  --button-primary-end: #06493e;
+  --button-primary-shadow: rgba(6,73,62,0.28);
+  --input-bg: rgba(255,255,255,0.03);
+  --input-border: rgba(255,255,255,0.06);
+  --input-focus-border: rgba(142,212,195,0.24);
+  --input-focus-bg: rgba(255,255,255,0.05);
+  --home-card-bg: linear-gradient(180deg, rgba(12,43,35,0.98), rgba(7,35,29,0.96));
+  --home-card-border: rgba(142,212,195,0.16);
+  --home-card-shadow: rgba(0,0,0,0.24);
+  --home-title-color: #8ed4c3;
+  --home-subtitle-color: rgba(239,232,216,0.72);
+  --profile-hero-bg:
+    radial-gradient(circle at 50% -10%, rgba(255,255,255,0.06), transparent 36%),
+    radial-gradient(circle at top, rgba(225,191,83,0.08), transparent 36%),
+    linear-gradient(180deg, rgba(5,18,14,0.98), rgba(7,14,12,0.98));
+  --profile-hero-border: rgba(225,191,83,0.34);
+  --profile-card-bg: linear-gradient(180deg, rgba(37,38,33,0.92), rgba(31,32,28,0.96));
+  --profile-card-border: rgba(225,191,83,0.10);
+  --profile-card-text: #f1cd4f;
+  --profile-secondary-text: rgba(239,232,216,0.72);
+  --settings-surface: rgba(255,255,255,0.03);
+  --settings-border: rgba(225,191,83,0.10);
+  --settings-chip-bg: rgba(255,255,255,0.04);
+  --settings-chip-active-bg: linear-gradient(135deg, rgba(225,191,83,0.22), rgba(142,212,195,0.18));
+  --settings-chip-active-text: #f6f0df;
+  --settings-chip-text: rgba(247,236,207,0.88);
+  --login-logo-bg: linear-gradient(180deg, #157f6b, #0b6a58 60%, #075346);
+  --login-logo-shadow: rgba(8,56,47,0.28);
+  --login-card-bg: linear-gradient(180deg, rgba(24,39,34,0.92), rgba(13,24,21,0.94));
+  --login-card-border: rgba(142,212,195,0.08);
+  --login-support-text: #8ed4c3;
+  --word-shell-bg: linear-gradient(180deg, rgba(7,16,13,0.98), rgba(10,20,17,0.96));
+  --word-shell-border: rgba(142,212,195,0.14);
+  --word-stage-bg: linear-gradient(180deg, rgba(4,49,40,1), rgba(2,41,33,0.98));
+  --word-stage-border: rgba(16,114,95,0.56);
+  --word-stage-title: #f4f0e7;
+  --word-stage-subtitle: rgba(255,223,120,0.92);
+  --word-stage-khmer: rgba(183,222,210,0.92);
+  --word-speaker-bg: linear-gradient(180deg, #2a433a, #202b27);
+  --word-speaker-border: rgba(225,191,83,0.18);
+  --word-speaker-icon: #8ed4c3;
+  --example-card-bg: linear-gradient(180deg, rgba(20,24,22,0.96), rgba(24,28,25,0.98));
+  --example-card-border: rgba(225,191,83,0.08);
+  --example-text-main: #f4f0e7;
+  --example-text-sub: rgba(214,232,225,0.82);
+  --quiz-panel-bg-start: rgba(20,23,21,0.98);
+  --quiz-panel-bg-end: rgba(23,26,24,0.96);
+  --quiz-panel-border: rgba(225,191,83,0.12);
+  --quiz-answer-bg: linear-gradient(180deg, rgba(9,106,88,0.92), rgba(8,87,73,0.96));
+  --quiz-answer-bg-idle: linear-gradient(180deg, rgba(38,39,34,0.96), rgba(33,34,30,0.98));
+  --quiz-answer-border: rgba(142,212,195,0.22);
+  --dialog-shell-bg: transparent;
+  --dialog-chip-bg: rgba(39,39,34,0.84);
+  --dialog-chip-text: rgba(236,226,199,0.76);
+  --dialog-assistant-bubble: linear-gradient(180deg, rgba(6,96,80,0.98), rgba(6,87,72,0.98));
+  --dialog-assistant-text: #f6f2e8;
+  --dialog-assistant-translation: rgba(184,226,214,0.84);
+  --dialog-user-bubble: linear-gradient(180deg, #f3cf57, #e6bc3d);
+  --dialog-user-text: #20423b;
+  --dialog-user-translation: rgba(32,66,59,0.72);
+  --dialog-composer-bg: rgba(17,22,20,0.94);
+  --dialog-record-bg: linear-gradient(180deg, #0f8c73, #0b6a58);
+  --dialog-record-bg-active: linear-gradient(180deg, #e2b531, #c99a19);
+  --dialog-record-text: #f7f1e3;
+}
+
+:root[data-theme='light'] {
+  --accent: #c7a132;
+  --accent-secondary: #0b6a58;
+  --accent-pink: #c7a132;
+  --accent-lime: #0b6a58;
+  --accent-gold: #c7a132;
+  --surface: rgba(18,39,102,0.05);
+  --surface-strong: rgba(18,39,102,0.09);
+  --surface-border: rgba(39,72,151,0.09);
+  --text-primary: #143f37;
+  --text-secondary: rgba(20,63,55,0.76);
+  --text-muted: rgba(20,63,55,0.46);
+  --brand-gold: #d2aa36;
+  --brand-green: #0b6a58;
+  --brand-teal: #7ccfc0;
+  --spinner-track: rgba(20,63,55,0.12);
+  --spinner-accent: #c7a132;
+  --app-body-bg: #faf7f0;
+  --app-shell-gradient: linear-gradient(180deg, #fcfaf4 0%, #f8f4ec 58%, #f8f3ea 100%);
+  --bg-layer-gradient:
+    radial-gradient(circle at 12% 10%, rgba(210,170,54,0.16), transparent 24%),
+    radial-gradient(circle at 84% 16%, rgba(11,106,88,0.10), transparent 20%),
+    radial-gradient(circle at 18% 82%, rgba(124,207,192,0.12), transparent 26%),
+    linear-gradient(180deg, rgba(252,250,244,0.98) 0%, rgba(248,244,236,0.96) 100%);
+  --bg-pattern-a: rgba(20,63,55,0.06);
+  --bg-pattern-b: rgba(210,170,54,0.06);
+  --tabbar-bg: linear-gradient(180deg, rgba(255,253,248,0.96), rgba(248,244,236,0.98));
+  --tabbar-border: rgba(20,63,55,0.08);
+  --tab-icon: rgba(20,63,55,0.44);
+  --tab-label: rgba(20,63,55,0.5);
+  --tab-active-surface: linear-gradient(180deg, rgba(11,106,88,0.16), rgba(11,106,88,0.08));
+  --tab-active-border: rgba(11,106,88,0.14);
+  --tab-active-shadow: rgba(11,106,88,0.08);
+  --button-primary-start: #0d7f69;
+  --button-primary-mid: #0b6a58;
+  --button-primary-end: #075346;
+  --button-primary-shadow: rgba(11,106,88,0.16);
+  --input-bg: rgba(255,255,255,0.86);
+  --input-border: rgba(20,63,55,0.08);
+  --input-focus-border: rgba(11,106,88,0.20);
+  --input-focus-bg: rgba(255,255,255,0.98);
+  --home-card-bg: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,247,240,0.98));
+  --home-card-border: rgba(20,63,55,0.08);
+  --home-card-shadow: rgba(20,63,55,0.06);
+  --home-title-color: #0b6a58;
+  --home-subtitle-color: rgba(20,63,55,0.68);
+  --profile-hero-bg:
+    radial-gradient(circle at 50% -10%, rgba(255,255,255,0.72), transparent 36%),
+    radial-gradient(circle at top, rgba(210,170,54,0.10), transparent 36%),
+    linear-gradient(180deg, rgba(253,250,244,0.96), rgba(248,244,236,0.96));
+  --profile-hero-border: rgba(210,170,54,0.24);
+  --profile-card-bg: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,246,240,0.98));
+  --profile-card-border: rgba(20,63,55,0.08);
+  --profile-card-text: #0b6a58;
+  --profile-secondary-text: rgba(20,63,55,0.68);
+  --settings-surface: rgba(255,255,255,0.82);
+  --settings-border: rgba(20,63,55,0.08);
+  --settings-chip-bg: rgba(20,63,55,0.05);
+  --settings-chip-active-bg: linear-gradient(135deg, rgba(210,170,54,0.26), rgba(11,106,88,0.16));
+  --settings-chip-active-text: #143f37;
+  --settings-chip-text: rgba(20,63,55,0.82);
+  --login-logo-bg: linear-gradient(180deg, #0b6a58, #075346);
+  --login-logo-shadow: rgba(11,106,88,0.16);
+  --login-card-bg: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(251,248,242,0.96));
+  --login-card-border: rgba(20,63,55,0.06);
+  --login-support-text: #0b6a58;
+  --word-shell-bg: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(252,249,244,0.96));
+  --word-shell-border: rgba(20,63,55,0.08);
+  --word-stage-bg: linear-gradient(180deg, rgba(255,255,255,1), rgba(252,248,241,0.98));
+  --word-stage-border: rgba(20,63,55,0.08);
+  --word-stage-title: #0b6a58;
+  --word-stage-subtitle: rgba(199,161,50,0.96);
+  --word-stage-khmer: rgba(20,63,55,0.78);
+  --word-speaker-bg: linear-gradient(180deg, #ffffff, #f6f1e7);
+  --word-speaker-border: rgba(199,161,50,0.22);
+  --word-speaker-icon: #0b6a58;
+  --example-card-bg: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,246,240,0.98));
+  --example-card-border: rgba(20,63,55,0.08);
+  --example-text-main: #1d2a26;
+  --example-text-sub: rgba(20,63,55,0.72);
+  --quiz-panel-bg-start: rgba(255,255,255,0.96);
+  --quiz-panel-bg-end: rgba(249,246,240,0.98);
+  --quiz-panel-border: rgba(20,63,55,0.08);
+  --quiz-answer-bg: linear-gradient(180deg, rgba(9,122,102,0.98), rgba(7,107,89,0.98));
+  --quiz-answer-bg-idle: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,243,236,0.98));
+  --quiz-answer-border: rgba(11,106,88,0.10);
+  --dialog-shell-bg: transparent;
+  --dialog-chip-bg: rgba(255,255,255,0.72);
+  --dialog-chip-text: rgba(119,105,72,0.76);
+  --dialog-assistant-bubble: linear-gradient(180deg, rgba(9,106,88,0.98), rgba(7,98,81,0.98));
+  --dialog-assistant-text: #f7f2e8;
+  --dialog-assistant-translation: rgba(199,235,224,0.86);
+  --dialog-user-bubble: linear-gradient(180deg, #f6d35b, #ecc441);
+  --dialog-user-text: #20423b;
+  --dialog-user-translation: rgba(32,66,59,0.72);
+  --dialog-composer-bg: rgba(255,255,255,0.92);
+  --dialog-record-bg: linear-gradient(180deg, #0d7f69, #0b6a58);
+  --dialog-record-bg-active: linear-gradient(180deg, #f0c940, #d9ac25);
+  --dialog-record-text: #fffef9;
 }
 
 html, body, #root { width: 100%; height: 100%; overflow: hidden; }
 
 body {
   font-family: 'Manrope', 'Noto Sans SC', sans-serif;
-  background: #0d1f69;
+  background: var(--app-body-bg);
   color: var(--text-primary);
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
@@ -38,7 +226,7 @@ body {
   margin: 0 auto;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(180deg, #173590 0%, #17327f 58%, #18347e 100%);
+  background: var(--app-shell-gradient);
 }
 
 .bg-layer {
@@ -51,11 +239,7 @@ body {
 .bg-gradient {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 12% 10%, rgba(245,216,143,0.2), transparent 24%),
-    radial-gradient(circle at 84% 16%, rgba(245,216,143,0.16), transparent 20%),
-    radial-gradient(circle at 18% 82%, rgba(26,62,150,0.28), transparent 26%),
-    linear-gradient(180deg, rgba(17, 40, 123, 0.88) 0%, rgba(17, 41, 118, 0.96) 100%);
+  background: var(--bg-layer-gradient);
 }
 
 .bg-gradient::after {
@@ -63,8 +247,8 @@ body {
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 24px 24px, rgba(245,216,143,0.16) 0 2px, transparent 2.5px),
-    radial-gradient(circle at 72px 72px, rgba(245,216,143,0.12) 0 1.5px, transparent 2px);
+    radial-gradient(circle at 24px 24px, var(--bg-pattern-a) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 72px 72px, var(--bg-pattern-b) 0 1.5px, transparent 2px);
   background-size: 96px 96px;
   opacity: 0.38;
 }
@@ -118,7 +302,6 @@ body {
   overflow: hidden;
 }
 
-/* Khmer temple silhouette decoration */
 .temple-deco {
   position: absolute;
   top: 0;
@@ -165,10 +348,10 @@ body {
   width: 100%;
   max-width: 480px;
   height: 68px;
-  background: linear-gradient(180deg, rgba(14,30,88,0.96), rgba(10,24,72,0.98));
+  background: var(--tabbar-bg);
   backdrop-filter: blur(28px) saturate(1.35);
   -webkit-backdrop-filter: blur(28px) saturate(1.35);
-  border-top: 1.5px solid rgba(245,216,143,0.28);
+  border-top: 1.5px solid var(--tabbar-border);
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
@@ -191,7 +374,7 @@ body {
   width: 44px; height: 34px;
   display: flex; align-items: center; justify-content: center;
   font-size: 16px;
-  color: rgba(239,228,197,0.54);
+  color: var(--tab-icon);
   position: relative;
   transition: color var(--transition-smooth), transform var(--transition-fast);
   border-radius: 14px;
@@ -204,14 +387,14 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(244,218,146,0.26), rgba(212,172,82,0.08));
-  border: 1px solid rgba(245,216,143,0.28);
+  background: var(--tab-active-surface);
+  border: 1px solid var(--tab-active-border);
   border-radius: 14px;
-  box-shadow: 0 10px 20px rgba(245,216,143,0.18);
+  box-shadow: 0 10px 20px var(--tab-active-shadow);
 }
 .tab-lbl {
   font-size: 9px;
-  color: rgba(239,228,197,0.54);
+  color: var(--tab-label);
   transition: color var(--transition-smooth);
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -221,7 +404,7 @@ body {
 .btn-grad {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(180deg, #f4d98f 0%, #cfaa52 44%, #8e6123 100%);
+  background: linear-gradient(180deg, var(--button-primary-start) 0%, var(--button-primary-mid) 44%, var(--button-primary-end) 100%);
   border: none;
   border-radius: var(--radius-btn);
   color: #fff;
@@ -229,20 +412,20 @@ body {
   font-weight: 800;
   cursor: pointer;
   font-family: 'Manrope', 'Noto Sans SC', sans-serif;
-  box-shadow: 0 18px 32px rgba(86,57,15,0.28);
+  box-shadow: 0 18px 32px var(--button-primary-shadow);
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 .btn-grad:active {
   transform: scale(0.98);
-  box-shadow: 0 8px 18px rgba(86,57,15,0.22);
+  box-shadow: 0 8px 18px var(--button-primary-shadow);
   opacity: 0.95;
 }
 
 .input-box {
   display: flex;
   align-items: center;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 16px;
   padding: 14px 18px;
   gap: 10px;
@@ -250,17 +433,18 @@ body {
   transition: border-color var(--transition-smooth), background var(--transition-smooth), box-shadow var(--transition-smooth);
 }
 .input-box:focus-within {
-  border-color: rgba(216,180,92,0.28);
-  background: rgba(255,255,255,0.08);
+  border-color: var(--input-focus-border);
+  background: var(--input-focus-bg);
   box-shadow: 0 0 0 3px rgba(216,180,92,0.1);
 }
 .input-box i { color: rgba(255,255,255,0.4); font-size: 15px; }
+:root[data-theme='light'] .input-box i { color: rgba(24,52,111,0.4); }
 .input-box input {
-  background: none; border: none; outline: none; color: #fff; font-size: 14px; flex: 1;
+  background: none; border: none; outline: none; color: var(--text-primary); font-size: 14px; flex: 1;
   letter-spacing: 0.06em;
   font-family: 'Manrope', 'Noto Sans SC', sans-serif;
 }
-.input-box input::placeholder { color: rgba(255,255,255,0.25); font-size: 12px; }
+.input-box input::placeholder { color: var(--text-muted); font-size: 12px; }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(24px); }
@@ -299,4 +483,10 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite;
   border-radius: 12px;
+}
+:root[data-theme='light'] .loading-shimmer {
+  background: linear-gradient(90deg,
+    rgba(24,52,111,0.04) 25%,
+    rgba(24,52,111,0.09) 50%,
+    rgba(24,52,111,0.04) 75%);
 }

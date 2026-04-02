@@ -8,6 +8,10 @@ function getKey(req, keyPrefix) {
 
 export function createRateLimiter({ windowMs, max, keyPrefix }) {
   return (req, res, next) => {
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
+
     const key = getKey(req, keyPrefix);
     const now = Date.now();
     const current = store.get(key);

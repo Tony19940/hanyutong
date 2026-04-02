@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { usePronunciation } from '../hooks/usePronunciation.js';
 import { getPrimaryExample, getWordExamples } from '../utils/vocabulary.js';
+import { useAppShell } from '../i18n/index.js';
 
 const SWIPE_THRESHOLD = 80;
 const TAP_THRESHOLD = 10;
@@ -14,6 +15,7 @@ export default function WordCard({
   mode = 'home',
   autoplaySequence = false,
 }) {
+  const { voiceType, defaultVoiceType } = useAppShell();
   const [overlayDir, setOverlayDir] = useState(null);
   const [animating, setAnimating] = useState(false);
   const [showContent, setShowContent] = useState(false);
@@ -26,6 +28,7 @@ export default function WordCard({
   const clearSpeakingTimerRef = useRef(null);
   const autoPlayCancelledRef = useRef(false);
   const { play, stop } = usePronunciation();
+  const shouldUseDynamicVoice = Boolean(voiceType && voiceType !== defaultVoiceType);
 
   useEffect(() => {
     stop();
@@ -66,7 +69,11 @@ export default function WordCard({
       for (const item of queue) {
         if (!mounted || autoPlayCancelledRef.current) break;
         setSpeakingTarget(item.target);
-        await play({ text: item.text, audioSrc: item.audioSrc });
+        await play({
+          text: item.text,
+          audioSrc: shouldUseDynamicVoice ? null : item.audioSrc,
+          voiceType: shouldUseDynamicVoice ? voiceType : '',
+        });
         if (!mounted || autoPlayCancelledRef.current) break;
         await new Promise((resolve) => setTimeout(resolve, 220));
       }
@@ -86,7 +93,7 @@ export default function WordCard({
       autoPlayCancelledRef.current = true;
       clearTimeout(timer);
     };
-  }, [autoplaySequence, play, showContent, word]);
+  }, [autoplaySequence, play, shouldUseDynamicVoice, showContent, voiceType, word]);
 
   const handleSpeak = useCallback(async ({ text, audioSrc, target, e }) => {
     if (e) {
@@ -100,9 +107,13 @@ export default function WordCard({
     setIsAutoPlaying(false);
     clearTimeout(clearSpeakingTimerRef.current);
     setSpeakingTarget(target);
-    await play({ text, audioSrc });
+    await play({
+      text,
+      audioSrc: shouldUseDynamicVoice ? null : audioSrc,
+      voiceType: shouldUseDynamicVoice ? voiceType : '',
+    });
     clearSpeakingTimerRef.current = setTimeout(() => setSpeakingTarget(null), 1200);
-  }, [play]);
+  }, [play, shouldUseDynamicVoice, voiceType]);
 
   const handleStart = useCallback((clientX) => {
     if (animating) return;
@@ -279,9 +290,9 @@ export default function WordCard({
           padding: clamp(10px, 1.5vh, 16px) clamp(12px, 2vw, 18px) clamp(8px, 1vh, 14px);
           position: relative;
           overflow: hidden;
-          background: linear-gradient(180deg, rgba(16,38,110,0.96), rgba(18,42,120,0.92));
-          border: 2px solid rgba(237,204,117,0.74);
-          box-shadow: 0 20px 48px rgba(8, 20, 70, 0.32);
+          background: var(--word-shell-bg);
+          border: 1.5px solid var(--word-shell-border);
+          box-shadow: 0 20px 48px rgba(8, 20, 17, 0.22);
           cursor: grab;
           touch-action: pan-y;
           will-change: transform;
@@ -322,9 +333,9 @@ export default function WordCard({
           margin: 0 clamp(4px, 1vw, 10px);
           padding: clamp(16px, 3vh, 32px) clamp(12px, 2vw, 18px) clamp(20px, 3.5vh, 36px);
           border-radius: clamp(18px, 3vw, 24px);
-          background: linear-gradient(180deg, rgba(251,243,223,0.98), rgba(244,233,206,0.96));
-          border: 2px solid rgba(228, 189, 96, 0.88);
-          box-shadow: inset 0 -6px 0 rgba(224, 188, 110, 0.15);
+          background: var(--word-stage-bg);
+          border: 1.5px solid var(--word-stage-border);
+          box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.05);
           overflow: visible;
           z-index: 2;
           flex-shrink: 0;
@@ -339,7 +350,7 @@ export default function WordCard({
         .wrd-cn {
           font-size: clamp(48px, 12vw, 78px);
           font-weight: 800;
-          color: #5a4520;
+          color: var(--word-stage-title);
           font-family: 'Manrope', 'Noto Sans SC', serif;
           letter-spacing: 1px;
           line-height: 1.05;
@@ -347,13 +358,13 @@ export default function WordCard({
         .wrd-py {
           margin-top: clamp(4px, 0.8vh, 10px);
           font-size: clamp(16px, 3vw, 22px);
-          color: #203b8f;
+          color: var(--word-stage-subtitle);
           font-weight: 500;
         }
         .wrd-km {
           margin-top: clamp(4px, 0.6vh, 8px);
           font-size: clamp(13px, 2.2vw, 17px);
-          color: rgba(31, 43, 87, 0.82);
+          color: var(--word-stage-khmer);
           line-height: 1.5;
         }
 
@@ -367,15 +378,15 @@ export default function WordCard({
           height: 44px;
           padding: 0;
           border-radius: 999px;
-          border: 2px solid rgba(255,248,224,0.92);
-          background: linear-gradient(180deg, #efce7d, #c39235);
-          color: #fffdf1;
+          border: 1.5px solid var(--word-speaker-border);
+          background: var(--word-speaker-bg);
+          color: var(--word-speaker-icon);
           display: inline-flex;
           align-items: center;
           justify-content: center;
           font-size: 16px;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
-          box-shadow: 0 8px 18px rgba(173, 123, 36, 0.30);
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
           z-index: 5;
         }
         .word-speaker.speaking {
@@ -402,8 +413,8 @@ export default function WordCard({
         }
         .example-item {
           width: 100%;
-          border: 1.5px solid rgba(237,204,117,0.76);
-          background: linear-gradient(180deg, rgba(251,243,223,0.98), rgba(244,233,206,0.96));
+          border: 1.5px solid var(--example-card-border);
+          background: var(--example-card-bg);
           border-radius: clamp(14px, 2.5vw, 18px);
           padding: clamp(10px, 1.5vh, 14px) 16px clamp(14px, 2vh, 20px) 44px;
           text-align: left;
@@ -412,14 +423,14 @@ export default function WordCard({
           color: #fff;
           position: relative;
           transition: transform 0.18s ease, border-color 0.18s ease;
-          box-shadow: 0 10px 20px rgba(8, 20, 70, 0.10);
+          box-shadow: 0 10px 20px rgba(8, 20, 17, 0.08);
           overflow: visible;
           flex-shrink: 1;
           min-height: 0;
         }
         .example-item.speaking-item {
-          border-color: rgba(237,204,117,0.94);
-          background: linear-gradient(180deg, rgba(255,248,233,1), rgba(247,237,212,0.98));
+          border-color: var(--word-stage-border);
+          background: var(--word-stage-bg);
           transform: translateY(-1px);
         }
         .example-badge {
@@ -428,18 +439,18 @@ export default function WordCard({
           left: 12px;
           font-size: 14px;
           font-weight: 700;
-          color: #b68f43;
+          color: var(--accent-gold);
         }
         .example-item-cn {
           font-size: clamp(14px, 2.2vw, 17px);
           line-height: 1.45;
           font-weight: 650;
-          color: #2d3f88;
+          color: var(--example-text-main);
         }
         .example-item-km {
           font-size: clamp(12px, 1.8vw, 14px);
           line-height: 1.5;
-          color: rgba(45, 63, 136, 0.70);
+          color: var(--example-text-sub);
         }
         .example-speaker-wrap {
           position: absolute;
@@ -453,9 +464,9 @@ export default function WordCard({
           height: 32px;
           border-radius: 999px;
           font-size: 12px;
-          color: #fffdf1;
-          background: linear-gradient(180deg, #efce7d, #c39235);
-          border: 2px solid rgba(255,248,224,0.92);
+          color: var(--word-speaker-icon);
+          background: var(--word-speaker-bg);
+          border: 1.5px solid var(--word-speaker-border);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -480,8 +491,8 @@ export default function WordCard({
           opacity: 0.72;
           font-weight: 600;
         }
-        .sg.lft { color: #d7f0d6; }
-        .sg.rgt { color: #f4dd9a; }
+        .sg.lft { color: var(--accent-secondary); }
+        .sg.rgt { color: var(--accent-gold); }
       `}</style>
     </div>
   );

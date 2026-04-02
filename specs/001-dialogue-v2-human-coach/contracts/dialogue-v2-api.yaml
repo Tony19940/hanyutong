@@ -1,0 +1,251 @@
+openapi: 3.0.3
+info:
+  title: HanYuTong Dialogue V2 API
+  version: 0.1.0
+  description: Contract surface for the guided voice-message dialogue flow.
+servers:
+  - url: /api
+paths:
+  /dialogue/scenarios:
+    get:
+      summary: List dialogue availability and topic recommendations
+      responses:
+        '200':
+          description: Dialogue metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [available, missing, scenarios, dailyScenarios]
+                properties:
+                  available:
+                    type: boolean
+                  missing:
+                    type: array
+                    items:
+                      type: string
+                  scenarios:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ScenarioSummary'
+                  dailyScenarios:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ScenarioSummary'
+  /dialogue/session/start:
+    post:
+      summary: Start a new dialogue session for one selected topic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scenarioId]
+              properties:
+                scenarioId:
+                  type: string
+      responses:
+        '200':
+          description: Started session with opening teacher messages
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, session, messages, state]
+                properties:
+                  ok:
+                    type: boolean
+                  session:
+                    $ref: '#/components/schemas/SessionEnvelope'
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  state:
+                    $ref: '#/components/schemas/DialogueState'
+  /dialogue/session/message:
+    post:
+      summary: Send one learner voice message and receive teacher replies
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [sessionId, audio]
+              properties:
+                sessionId:
+                  type: string
+                audio:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Evaluated learner turn and generated teacher follow-up
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, aiMessages, state, evaluation]
+                properties:
+                  ok:
+                    type: boolean
+                  userMessage:
+                    nullable: true
+                    allOf:
+                      - $ref: '#/components/schemas/Message'
+                  aiMessages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  state:
+                    $ref: '#/components/schemas/DialogueState'
+                  evaluation:
+                    $ref: '#/components/schemas/Evaluation'
+  /dialogue/session/stop:
+    post:
+      summary: Stop and discard the current dialogue session
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId:
+                  type: string
+      responses:
+        '200':
+          description: Session stopped
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+components:
+  schemas:
+    ScenarioSummary:
+      type: object
+      required: [id, title, subtitle, dailyTopic, coachName, stages]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        subtitle:
+          type: string
+        dailyTopic:
+          type: string
+        coachName:
+          type: string
+        stages:
+          type: array
+          items:
+            type: string
+    SessionEnvelope:
+      type: object
+      required: [sessionId, scenario]
+      properties:
+        sessionId:
+          type: string
+        scenario:
+          type: object
+          required: [id, title, subtitle, dailyTopic, stages]
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+            subtitle:
+              type: string
+            dailyTopic:
+              type: string
+            stages:
+              type: array
+              items:
+                type: string
+    AudioPayload:
+      type: object
+      required: [base64, mimeType]
+      properties:
+        base64:
+          type: string
+        mimeType:
+          type: string
+    Message:
+      type: object
+      required: [id, role, type, text, createdAt]
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+          enum: [system, assistant, user]
+        type:
+          type: string
+          enum: [note, text, audio]
+        text:
+          type: string
+        khmerText:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        audio:
+          $ref: '#/components/schemas/AudioPayload'
+    DialogueState:
+      type: object
+      required: [lessonIndex, totalLessons, passed, skipped, retryCount, isComplete, currentLesson]
+      properties:
+        lessonIndex:
+          type: integer
+        totalLessons:
+          type: integer
+        passed:
+          type: integer
+        skipped:
+          type: integer
+        retryCount:
+          type: integer
+        isComplete:
+          type: boolean
+        currentLesson:
+          nullable: true
+          type: object
+          properties:
+            id:
+              type: string
+            label:
+              type: string
+            stage:
+              type: string
+            target:
+              type: string
+            targetKm:
+              type: string
+            focus:
+              type: string
+            focusKm:
+              type: string
+            prompt:
+              type: string
+            promptKm:
+              type: string
+    Evaluation:
+      type: object
+      required: [passed, skipped, retryCount, lessonIndex, isComplete]
+      properties:
+        passed:
+          type: boolean
+        skipped:
+          type: boolean
+        retryCount:
+          type: integer
+        lessonIndex:
+          type: integer
+        isComplete:
+          type: boolean

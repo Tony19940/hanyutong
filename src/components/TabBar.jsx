@@ -1,13 +1,15 @@
 import React from 'react';
+import { useAppShell } from '../i18n/index.js';
 
 const tabs = [
-  { id: 'home', icon: 'fas fa-book-open', label: '学习' },
-  { id: 'quiz', icon: 'fas fa-clipboard-check', label: '测验' },
-  { id: 'practice', icon: 'fas fa-comment-dots', label: '对话' },
-  { id: 'profile', icon: 'fas fa-user', label: '我的' },
+  { id: 'home', icon: 'fas fa-book-open', labelKey: 'tabs.home' },
+  { id: 'quiz', icon: 'fas fa-clipboard-check', labelKey: 'tabs.quiz' },
+  { id: 'practice', icon: 'fas fa-comment-dots', labelKey: 'tabs.practice' },
+  { id: 'profile', icon: 'fas fa-user', labelKey: 'tabs.profile' },
 ];
 
 export default function TabBar({ activeTab, onTabChange }) {
+  const { t } = useAppShell();
   const activeIndex = tabs.findIndex(t => t.id === activeTab);
   const tabWidth = 100 / tabs.length;
   const offset = tabWidth / 2;
@@ -31,7 +33,7 @@ export default function TabBar({ activeTab, onTabChange }) {
             <i className={tab.icon}></i>
           </div>
           <div className={`tab-lbl ${activeTab === tab.id ? 'active' : ''}`}>
-            {tab.label}
+            {t(tab.labelKey)}
           </div>
         </div>
       ))}
@@ -41,10 +43,10 @@ export default function TabBar({ activeTab, onTabChange }) {
           position: absolute;
           top: 6px;
           width: 36px; height: 4px;
-          background: linear-gradient(90deg, #f4da92, #d0a44d);
+          background: linear-gradient(90deg, var(--brand-gold), var(--brand-teal));
           border-radius: 999px;
           transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 4px 16px rgba(244,218,146,0.45);
+          box-shadow: 0 4px 16px var(--tab-active-shadow);
           pointer-events: none;
         }
       `}</style>

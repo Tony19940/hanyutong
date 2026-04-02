@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { usePronunciation } from '../hooks/usePronunciation.js';
 import { api } from '../utils/api.js';
+import { resolveAvatarUrl } from '../utils/avatar.js';
 
 const INPUT_SAMPLE_RATE = 16000;
 const CHUNK_SIZE = 4096;
@@ -124,7 +125,8 @@ function mapAudio(message, audioUrlsRef) {
 function buildUserDisplay(user) {
   const displayName = user?.display_name || user?.name || user?.username || '你';
   const username = user?.username ? `@${user.username}` : '今天在线';
-  const avatarUrl = user?.avatarUrl || user?.avatar_url || null;
+  const fallbackAvatarId = user?.fallbackAvatarId || user?.fallback_avatar_id || null;
+  const avatarUrl = resolveAvatarUrl(user, fallbackAvatarId);
   return {
     displayName,
     username,
@@ -172,6 +174,7 @@ export default function AIPracticePage({ user }) {
   const [startingTopicId, setStartingTopicId] = useState(null);
   const [playingMessageId, setPlayingMessageId] = useState(null);
   const [playingProgress, setPlayingProgress] = useState({ currentTime: 0, duration: 0 });
+  const [learnerAvatarFailed, setLearnerAvatarFailed] = useState(false);
   const { play, stop } = usePronunciation();
 
   const scrollRef = useRef(null);
@@ -195,7 +198,16 @@ export default function AIPracticePage({ user }) {
     [dailyScenarios, scenarioId, scenarios]
   );
   const coach = useMemo(() => buildCoachDisplay(scenario, status), [scenario, status]);
-  const learner = useMemo(() => buildUserDisplay(user), [user]);
+  const learner = useMemo(() => {
+    const nextLearner = buildUserDisplay(user);
+    if (learnerAvatarFailed) {
+      return {
+        ...nextLearner,
+        avatarUrl: resolveAvatarUrl({}, user?.fallbackAvatarId || user?.fallback_avatar_id || null),
+      };
+    }
+    return nextLearner;
+  }, [learnerAvatarFailed, user]);
 
   function clearAudioUrls() {
     audioUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -257,6 +269,10 @@ export default function AIPracticePage({ user }) {
     const timer = window.setInterval(() => setRecordSeconds((value) => value + 1), 1000);
     return () => window.clearInterval(timer);
   }, [isRecording]);
+
+  useEffect(() => {
+    setLearnerAvatarFailed(false);
+  }, [user?.avatarUrl, user?.avatar_url]);
 
   useEffect(() => {
     if (!scrollRef.current) return;
@@ -555,7 +571,12 @@ export default function AIPracticePage({ user }) {
                     {!isAssistant && (
                       <div className="tg-message-avatar">
                         {learner.avatarUrl ? (
-                          <img className="tg-peer-avatar image small" src={learner.avatarUrl} alt={learner.displayName} />
+                          <img
+                            className="tg-peer-avatar image small"
+                            src={learner.avatarUrl}
+                            alt={learner.displayName}
+                            onError={() => setLearnerAvatarFailed(true)}
+                          />
                         ) : (
                           <div className="tg-peer-avatar user small">{learner.initial}</div>
                         )}
@@ -617,30 +638,30 @@ export default function AIPracticePage({ user }) {
         .im-shell::-webkit-scrollbar,.tg-chat-stream::-webkit-scrollbar{display:none}
         .tg-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px 8px}
         .tg-chat-peer{display:flex;align-items:center;gap:12px;min-width:0}
-        .tg-peer-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#7ed0ff,#3d7ef4);color:#fff;font-size:18px;font-weight:800;box-shadow:0 10px 24px rgba(9,29,87,.28)}
-        .tg-peer-avatar.user{background:linear-gradient(180deg,#f3d78d,#d0a54a);color:#173b7f}
+        .tg-peer-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--brand-teal),var(--brand-green));color:#fff;font-size:18px;font-weight:800;box-shadow:0 10px 24px rgba(8,20,17,.18)}
+        .tg-peer-avatar.user{background:linear-gradient(180deg,var(--brand-gold),#d0a54a);color:var(--dialog-user-text)}
         .tg-peer-avatar.small{width:34px;height:34px;font-size:13px}
         .tg-peer-avatar.image{object-fit:cover}
         .tg-peer-meta{min-width:0}
-        .tg-peer-name{font-size:17px;font-weight:800;color:#f8fbff;line-height:1.15}
-        .tg-peer-status{margin-top:4px;display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(236,244,255,.7)}
-        .tg-status-dot{width:8px;height:8px;border-radius:50%;background:#59d37c;box-shadow:0 0 0 4px rgba(89,211,124,.14)}
-        .tg-status-dot.error{background:#ff8b73;box-shadow:0 0 0 4px rgba(255,139,115,.14)}
+        .tg-peer-name{font-size:17px;font-weight:800;color:var(--home-title-color);line-height:1.15}
+        .tg-peer-status{margin-top:4px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)}
+        .tg-status-dot{width:8px;height:8px;border-radius:50%;background:var(--brand-teal);box-shadow:0 0 0 4px rgba(142,212,195,.14)}
+        .tg-status-dot.error{background:#d66767;box-shadow:0 0 0 4px rgba(214,103,103,.14)}
         .tg-chat-body{flex:1 1 0%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-        .tg-warning{margin-bottom:10px;padding:10px 12px;border-radius:16px;background:rgba(201,96,80,.18);border:1px solid rgba(255,165,142,.22);font-size:12px;color:#ffd9c7}
-        .tg-chat-stream{flex:1;min-height:0;display:grid;gap:10px;padding:8px 0 212px;overflow-y:auto;align-content:start;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+        .tg-warning{margin-bottom:10px;padding:10px 12px;border-radius:16px;background:rgba(225,191,83,.10);border:1px solid rgba(225,191,83,.22);font-size:12px;color:var(--text-secondary)}
+        .tg-chat-stream{flex:1;min-height:0;display:grid;gap:10px;padding:8px 0 212px;overflow-y:auto;align-content:start;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;background:var(--dialog-shell-bg)}
         .tg-scroll-anchor{height:1px}
-        .tg-date-chip{justify-self:center;max-width:92%;padding:7px 12px;border-radius:999px;background:rgba(18,35,92,.72);color:rgba(241,247,255,.78);font-size:11px;border:1px solid rgba(255,255,255,.08)}
+        .tg-date-chip{justify-self:center;max-width:92%;padding:7px 12px;border-radius:999px;background:var(--dialog-chip-bg);color:var(--dialog-chip-text);font-size:11px;border:1px solid var(--surface-border)}
         .tg-topic-grid-shell{display:grid;align-content:center;gap:16px;min-height:480px;padding:12px 0 24px}
-        .tg-topic-grid-title{justify-self:center;font-size:15px;font-weight:800;color:#f7fbff;letter-spacing:.08em}
+        .tg-topic-grid-title{justify-self:center;font-size:15px;font-weight:800;color:var(--home-title-color);letter-spacing:.08em}
         .tg-topic-grid{display:grid;gap:14px}
-        .tg-topic-card{display:block;width:100%;min-height:124px;padding:20px 18px;border:none;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.1));border:1px solid rgba(255,255,255,.12);text-align:left;color:#f7fbff;box-shadow:0 18px 40px rgba(5,16,53,.2)}
-        .tg-topic-card.loading{transform:scale(.985);background:linear-gradient(180deg,rgba(106,154,255,.28),rgba(74,118,226,.18))}
-        .tg-topic-card-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:rgba(246,216,131,.95);text-transform:uppercase}
+        .tg-topic-card{display:block;width:100%;min-height:124px;padding:20px 18px;border:none;border-radius:28px;background:var(--home-card-bg);border:1px solid var(--home-card-border);text-align:left;color:var(--text-primary);box-shadow:0 18px 40px var(--home-card-shadow)}
+        .tg-topic-card.loading{transform:scale(.985);background:linear-gradient(180deg,rgba(11,106,88,.22),rgba(11,106,88,.12))}
+        .tg-topic-card-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--accent-gold);text-transform:uppercase}
         .tg-topic-card-title{margin-top:10px;font-size:24px;font-weight:900;line-height:1.15}
-        .tg-topic-card-subtitle{margin-top:8px;font-size:13px;line-height:1.65;color:rgba(236,244,255,.78)}
+        .tg-topic-card-subtitle{margin-top:8px;font-size:13px;line-height:1.65;color:var(--text-secondary)}
         .tg-topic-card-loading{margin-top:12px;display:flex;gap:6px}
-        .tg-topic-card-loading i{width:8px;height:8px;border-radius:999px;background:#f8fbff;opacity:.35;animation:tgTopicPulse 1s ease-in-out infinite}
+        .tg-topic-card-loading i{width:8px;height:8px;border-radius:999px;background:var(--brand-green);opacity:.35;animation:tgTopicPulse 1s ease-in-out infinite}
         .tg-topic-card-loading i:nth-child(2){animation-delay:.15s}
         .tg-topic-card-loading i:nth-child(3){animation-delay:.3s}
         .tg-message-row{display:flex;align-items:flex-end;gap:8px}
@@ -648,24 +669,24 @@ export default function AIPracticePage({ user }) {
         .tg-message-row.user{justify-content:flex-end}
         .tg-message-enter{animation:tgMessageIn .22s ease-out}
         .tg-message-avatar{width:34px;display:flex;justify-content:center;flex-shrink:0}
-        .tg-bubble{max-width:min(78%,304px);padding:10px 12px 8px;border-radius:18px;box-shadow:0 10px 28px rgba(5,16,53,.16)}
-        .tg-bubble.assistant{background:rgba(245,248,255,.96);color:#163873;border-top-left-radius:8px}
-        .tg-bubble.user{background:linear-gradient(180deg,#2b69de,#2559c0);color:#fff;border-top-right-radius:8px}
-        .tg-bubble-name{margin-bottom:4px;font-size:11px;font-weight:800;color:#5084df}
+        .tg-bubble{max-width:min(78%,304px);padding:10px 12px 8px;border-radius:18px;box-shadow:0 10px 28px rgba(8,20,17,.12)}
+        .tg-bubble.assistant{background:var(--dialog-assistant-bubble);color:var(--dialog-assistant-text);border-top-left-radius:8px}
+        .tg-bubble.user{background:var(--dialog-user-bubble);color:var(--dialog-user-text);border-top-right-radius:8px}
+        .tg-bubble-name{margin-bottom:4px;font-size:11px;font-weight:800;color:var(--brand-teal)}
         .tg-bubble-text{font-size:14px;line-height:1.65;white-space:pre-wrap}
         .tg-bubble-text:empty{display:none}
-        .tg-bubble-translation{margin-top:6px;font-size:13px;line-height:1.65;white-space:pre-wrap;color:rgba(28,61,123,.72)}
-        .tg-bubble.user .tg-bubble-translation{color:rgba(255,255,255,.78)}
+        .tg-bubble-translation{margin-top:6px;font-size:13px;line-height:1.65;white-space:pre-wrap;color:var(--dialog-assistant-translation)}
+        .tg-bubble.user .tg-bubble-translation{color:var(--dialog-user-translation)}
         .tg-typing-bubble{min-width:88px}
         .tg-typing-indicator{display:inline-flex;align-items:center;gap:6px;padding:6px 2px 2px}
-        .tg-typing-indicator i{width:8px;height:8px;border-radius:999px;background:rgba(80,132,223,.65);animation:tgTypingPulse 1.1s ease-in-out infinite}
+        .tg-typing-indicator i{width:8px;height:8px;border-radius:999px;background:rgba(142,212,195,.7);animation:tgTypingPulse 1.1s ease-in-out infinite}
         .tg-typing-indicator i:nth-child(2){animation-delay:.14s}
         .tg-typing-indicator i:nth-child(3){animation-delay:.28s}
-        .tg-voice-card{position:relative;overflow:hidden;margin-top:8px;width:100%;height:42px;border:none;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 12px;background:rgba(25,85,191,.08);color:inherit}
+        .tg-voice-card{position:relative;overflow:hidden;margin-top:8px;width:100%;height:42px;border:1px solid rgba(255,255,255,.06);border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 12px;background:var(--surface);color:inherit}
         .tg-voice-card.loading{opacity:.65}
-        .tg-voice-card.playing{box-shadow:inset 0 0 0 1px rgba(80,132,223,.24)}
+        .tg-voice-card.playing{box-shadow:inset 0 0 0 1px rgba(142,212,195,.24)}
         .tg-voice-play{width:20px;text-align:center;font-size:12px;font-weight:900}
-        .tg-voice-progress{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(102,173,255,.22),rgba(80,132,223,.14));border-radius:999px;transition:width .08s linear}
+        .tg-voice-progress{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(142,212,195,.22),rgba(225,191,83,.16));border-radius:999px;transition:width .08s linear}
         .tg-voice-wave{position:relative;z-index:1;display:inline-flex;align-items:flex-end;gap:3px;flex:1}
         .tg-voice-wave i{width:3px;background:currentColor;border-radius:999px;opacity:.55}
         .tg-voice-card.playing .tg-voice-wave i{animation:tgVoiceWave 1.05s ease-in-out infinite}
@@ -675,20 +696,20 @@ export default function AIPracticePage({ user }) {
         .tg-bubble-meta{margin-top:6px;display:flex;justify-content:flex-end;align-items:center;gap:6px;font-size:11px;opacity:.72}
         .tg-bubble-check{font-size:11px;letter-spacing:-0.08em}
         .tg-composer-wrap{position:fixed;left:0;right:0;bottom:78px;padding:0 12px 10px;z-index:40;display:flex;justify-content:center;pointer-events:none}
-        .tg-composer{width:min(430px,calc(100vw - 24px));padding:12px;border-radius:22px;background:rgba(10,24,70,.94);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);box-shadow:0 18px 42px rgba(5,16,53,.34);pointer-events:auto}
+        .tg-composer{width:min(430px,calc(100vw - 24px));padding:12px;border-radius:22px;background:var(--dialog-composer-bg);border:1px solid var(--surface-border);backdrop-filter:blur(18px);box-shadow:0 18px 42px rgba(8,20,17,.16);pointer-events:auto}
         .tg-composer-actions{display:grid;grid-template-columns:1fr}
-        .tg-record-action{height:56px;border:none;border-radius:18px;font-size:15px;font-weight:800;background:linear-gradient(180deg,#52a2ff,#2e71ea);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px;box-shadow:0 12px 26px rgba(28,82,194,.26)}
+        .tg-record-action{height:56px;border:none;border-radius:18px;font-size:15px;font-weight:800;background:var(--dialog-record-bg);color:var(--dialog-record-text);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px;box-shadow:0 12px 26px rgba(8,20,17,.18)}
         .tg-record-action.full{width:100%}
-        .tg-record-action.recording{background:linear-gradient(180deg,#d56459,#9d2f31)}
+        .tg-record-action.recording{background:var(--dialog-record-bg-active);color:var(--dialog-user-text)}
         .tg-record-action:disabled{opacity:.42;box-shadow:none}
         .tg-record-left{display:flex;align-items:center;gap:10px}
         .tg-record-icon{font-size:16px}
-        .tg-record-timer{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.12);font-size:12px;font-weight:800;color:rgba(255,255,255,.9)}
+        .tg-record-timer{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.12);font-size:12px;font-weight:800;color:var(--dialog-record-text)}
         .tg-record-timer.live{background:rgba(255,255,255,.18)}
         .tg-record-inline-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.4)}
-        .tg-record-timer.live .tg-record-inline-dot{background:#fff3eb;box-shadow:0 0 0 4px rgba(255,255,255,.12)}
+        .tg-record-timer.live .tg-record-inline-dot{background:var(--dialog-record-text);box-shadow:0 0 0 4px rgba(255,255,255,.12)}
         .tg-record-wave-live{display:inline-flex;align-items:flex-end;gap:3px;margin-left:4px}
-        .tg-record-wave-live i{width:3px;border-radius:999px;background:rgba(255,255,255,.9);animation:tgWave 1s ease-in-out infinite}
+        .tg-record-wave-live i{width:3px;border-radius:999px;background:var(--dialog-record-text);animation:tgWave 1s ease-in-out infinite}
         .tg-record-wave-live i:nth-child(1){height:9px;animation-delay:0s}
         .tg-record-wave-live i:nth-child(2){height:15px;animation-delay:.1s}
         .tg-record-wave-live i:nth-child(3){height:20px;animation-delay:.2s}
@@ -701,8 +722,8 @@ export default function AIPracticePage({ user }) {
         @keyframes tgTypingPulse{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-2px);opacity:1}}
         @media (min-width:641px){
           .im-page{background:
-            radial-gradient(circle at top, rgba(255,255,255,.04), transparent 32%),
-            linear-gradient(180deg,#1a2f88 0%,#132872 100%)}
+            radial-gradient(circle at top, rgba(255,255,255,.03), transparent 32%),
+            var(--app-shell-gradient)}
         }
         @media (max-width:640px){
           .im-shell{padding:8px 10px 0}

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { api, storage } from '../utils/api.js';
 import { getTelegramUser } from '../utils/telegram.js';
+import { useAppShell } from '../i18n/index.js';
 
 export default function LoginPage({ onLogin }) {
+  const { t } = useAppShell();
   const [keyCode, setKeyCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ export default function LoginPage({ onLogin }) {
 
   const handleLogin = async () => {
     if (!keyCode || keyCode.length < 10) {
-      setError('សូមបញ្ចូលលេខសម្ងាត់ឱ្យបានត្រឹមត្រូវ');
+      setError(t('login.invalidKey'));
       return;
     }
 
@@ -50,7 +52,7 @@ export default function LoginPage({ onLogin }) {
       localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(data.user));
       onLogin(data.user);
     } catch (err) {
-      setError(err.message || 'បរាជ័យក្នុងការចូល');
+      setError(err.message || t('login.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -85,25 +87,26 @@ export default function LoginPage({ onLogin }) {
         </div>
 
         <div className="app-logo-wrap animate-pop-in">
-          <div className="app-logo">📖</div>
+          <div className="app-logo">
+            <img src="/bunson-teacher.jpg" alt="Bunson老师" className="app-logo-image" />
+          </div>
           <div className="logo-glow"></div>
         </div>
 
-        <div className="app-name-km animate-fade-in-up stagger-1">{'\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793'}</div>
-        <div className="app-name-cn animate-fade-in-up stagger-2">LEARN CHINESE</div>
+        <div className="app-name-km animate-fade-in-up stagger-1">{t('login.title')}</div>
+        <div className="app-name-cn animate-fade-in-up stagger-2">BUNSON TEACHER</div>
         <div className="app-slogan animate-fade-in-up stagger-3">
-          កម្មវិធីរៀនភាសាចិន<br />
-          សម្រាប់អ្នកនិយាយភាសាខ្មែរ<br />
-          <span className="slogan-sub">ជាង ៥០០០ ពាក្យ · សំឡេងស្តង់ដារ</span>
+          {t('login.subtitle')}<br />
+          <span className="slogan-sub">5000+ words · standard audio</span>
         </div>
 
         <div className="login-form animate-float-up stagger-4">
-          <div className="input-lbl">🔐 បញ្ចូលលេខសម្ងាត់របស់អ្នក</div>
+          <div className="input-lbl">🔐 {t('login.inputLabel')}</div>
           <div className="input-box">
             <i className="fas fa-key"></i>
             <input
               type="text"
-              placeholder="HYT-XXXX-XXXX-XXXX"
+              placeholder={t('login.placeholder')}
               value={keyCode}
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
@@ -125,16 +128,16 @@ export default function LoginPage({ onLogin }) {
             {loading ? (
               <span className="btn-loading">
                 <span className="btn-spinner"></span>
-                កំពុងផ្ទៀងផ្ទាត់...
+                {t('login.verifying')}
               </span>
-            ) : 'ចាប់ផ្ដើមរៀន'}
+            ) : t('login.startLearning')}
           </button>
 
           <div className="buy-link" onClick={handleContactSupport}>
             <i className="fab fa-telegram"></i>
             <div className="buy-link-text">
-              ទំនាក់ទំនងទិញលេខសម្ងាត់
-              <span>@sotheary92 · 24/7</span>
+              {t('login.contactSupport')}
+              <span>{t('login.supportMeta')}</span>
             </div>
             <i className="fas fa-chevron-right buy-link-arrow"></i>
           </div>
@@ -162,7 +165,7 @@ export default function LoginPage({ onLogin }) {
         .particle {
           position: absolute;
           font-family: 'Noto Serif SC', serif;
-          color: rgba(124,58,237,0.06);
+          color: var(--bg-pattern-a);
           font-size: 48px; font-weight: 700;
         }
         .p1 { top: 8%; left: 5%; animation: particleFloat 15s ease-in-out infinite; }
@@ -179,45 +182,65 @@ export default function LoginPage({ onLogin }) {
           position: relative; margin-bottom: 20px; 
         }
         .app-logo {
-          width: 100px; height: 100px;
-          background: linear-gradient(135deg, #7c3aed, #2563eb);
-          border-radius: 28px;
+          width: 92px; height: 92px;
+          background: var(--login-logo-bg);
+          border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
-          font-size: 48px;
-          box-shadow: 0 20px 45px rgba(124,58,237,0.4);
+          box-shadow: 0 18px 36px var(--login-logo-shadow);
           position: relative; z-index: 2;
-          border: 2px solid rgba(255,255,255,0.1);
+          border: 3px solid rgba(225,191,83,0.62);
+          overflow: hidden;
+        }
+        .app-logo-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
         }
         .logo-glow {
           position: absolute; inset: -20px;
-          background: radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(225,191,83,0.18) 0%, transparent 70%);
           border-radius: 50%;
           z-index: 1;
           animation: breathe 3s ease-in-out infinite;
         }
         .app-name-km {
-          font-size: 22px; font-weight: 700; color: #fff;
+          font-size: 22px; font-weight: 800; color: var(--brand-green);
           text-align: center; line-height: 1.4; margin-bottom: 4px;
           font-family: 'Noto Sans Khmer', sans-serif;
         }
         .app-name-cn {
-          font-size: 13px; color: rgba(255,255,255,0.3);
-          letter-spacing: 4px; margin-bottom: 6px;
+          font-size: 12px; color: var(--accent-gold);
+          letter-spacing: 3px; margin-bottom: 8px;
           font-family: 'Noto Sans SC', sans-serif;
+          font-weight: 700;
         }
         .app-slogan {
-          font-size: 12px; color: rgba(255,255,255,0.38);
+          font-size: 12px; color: var(--text-secondary);
           text-align: center; line-height: 1.9; margin-bottom: 36px;
           font-family: 'Noto Sans Khmer', sans-serif;
         }
         .slogan-sub {
-          color: rgba(255,255,255,0.22); font-size: 11px;
+          color: var(--text-muted); font-size: 11px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
         }
-        .login-form { width: 100%; }
+        .login-form {
+          width: 100%;
+          padding: 24px 20px 18px;
+          border-radius: 34px;
+          background: var(--login-card-bg);
+          border: 1px solid var(--login-card-border);
+          box-shadow: 0 22px 44px rgba(8, 20, 17, 0.12);
+          backdrop-filter: blur(14px);
+        }
         .input-lbl {
-          font-size: 12px; color: var(--text-sub);
-          margin-bottom: 8px;
+          font-size: 11px; color: var(--accent-gold);
+          margin-bottom: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
           font-family: 'Noto Sans Khmer', sans-serif;
+          font-weight: 800;
         }
         .login-error {
           display: flex; align-items: center; gap: 6px;
@@ -230,7 +253,9 @@ export default function LoginPage({ onLogin }) {
         }
         .login-error i { font-size: 12px; flex-shrink: 0; }
         .login-form .btn-grad {
-          margin-top: 14px; margin-bottom: 0;
+          margin-top: 18px; margin-bottom: 0;
+          min-height: 58px;
+          border-radius: 999px;
         }
         .btn-loading {
           display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -246,29 +271,29 @@ export default function LoginPage({ onLogin }) {
         .buy-link {
           margin-top: 14px;
           display: flex; align-items: center; gap: 8px;
-          background: rgba(41,182,246,0.08);
-          border: 1px solid rgba(41,182,246,0.18);
+          background: transparent;
+          border: none;
           border-radius: 14px; padding: 12px 18px;
           width: 100%; cursor: pointer;
           transition: background var(--transition-fast), transform 0.15s ease;
         }
         .buy-link:active { 
-          background: rgba(41,182,246,0.15); 
+          background: rgba(255,255,255,0.04); 
           transform: scale(0.98);
         }
-        .buy-link i.fab { color: #29b6f6; font-size: 18px; }
+        .buy-link i.fab { color: var(--login-support-text); font-size: 18px; }
         .buy-link-text {
-          font-size: 13px; color: #67d8f7;
+          font-size: 13px; color: var(--login-support-text);
           font-family: 'Noto Sans Khmer', sans-serif; font-weight: 500;
           flex: 1;
         }
         .buy-link-text span {
           display: block; font-size: 11px;
-          color: rgba(255,255,255,0.3); font-weight: 400;
+          color: var(--text-muted); font-weight: 400;
           margin-top: 1px;
         }
         .buy-link-arrow {
-          color: rgba(41,182,246,0.4); font-size: 12px;
+          color: var(--text-muted); font-size: 12px;
         }
       `}</style>
     </div>

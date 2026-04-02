@@ -1,9 +1,10 @@
 import crypto from 'crypto';
 import { config } from '../config.js';
+import { resolveTeacherVoice } from './voiceInventoryService.js';
 
-function buildPayload(text) {
+function buildPayload(text, voiceType) {
   const audio = {
-    voice_type: config.doubaoTtsVoiceType,
+    voice_type: resolveTeacherVoice(voiceType),
     encoding: config.doubaoTtsEncoding,
     compression_rate: 1,
     rate: config.doubaoTtsRate,
@@ -42,7 +43,7 @@ function inferMimeType() {
   return 'application/octet-stream';
 }
 
-export async function synthesizeDialogueText(text) {
+export async function synthesizeDialogueText(text, options = {}) {
   const value = String(text || '').trim();
   if (!value) {
     return null;
@@ -54,7 +55,7 @@ export async function synthesizeDialogueText(text) {
       Authorization: `Bearer;${config.doubaoTtsToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(buildPayload(value)),
+    body: JSON.stringify(buildPayload(value, options.voiceType)),
   });
 
   if (!response.ok) {

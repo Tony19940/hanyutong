@@ -3,11 +3,23 @@ import { config } from '../config.js';
 import { query } from '../db.js';
 import { requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
+import {
+  ensureUserSettingsForDialogue,
+  normalizeLanguage,
+  normalizeTheme,
+} from '../services/userSettingsService.js';
+import { buildUserAvatarSeed, resolveFallbackAvatarId } from '../services/avatarService.js';
 import { getVocabularyCount } from '../services/vocabularyService.js';
+import { getTeacherVoiceSettings, resolveTeacherVoice } from '../services/voiceInventoryService.js';
+import { synthesizeDialogueText } from '../services/doubaoTtsService.js';
 
 const router = Router();
 
 router.use(requireUserAuth);
+
+async function ensureUserSettings(userId) {
+  return ensureUserSettingsForDialogue(userId);
+}
 
 function resolveHskLevel(learnedCount, thresholds) {
   for (const threshold of thresholds) {
@@ -106,6 +118,8 @@ router.get('/profile', asyncHandler(async (req, res) => {
   const totalWords = getVocabularyCount();
   const mastery = totalWords > 0 ? Math.round((learnedCount / totalWords) * 100) : 0;
   const hskLevel = resolveHskLevel(learnedCount, config.hskThresholds);
+  const settings = await ensureUserSettings(req.user);
+  const voiceSettings = getTeacherVoiceSettings();
 
   res.json({
     user: {
@@ -122,6 +136,76 @@ router.get('/profile', asyncHandler(async (req, res) => {
       last7Days,
       vocabularyCount: totalWords,
     },
+    settings,
+    voiceSettings,
+  });
+}));
+
+router.get('/settings', asyncHandler(async (req, res) => {
+  const settings = await ensureUserSettings(req.user);
+  const voiceSettings = getTeacherVoiceSettings();
+
+  res.json({
+    settings,
+    voiceSettings,
+  });
+}));
+
+router.post('/settings', asyncHandler(async (req, res) => {
+  const current = await ensureUserSettings(req.user);
+  const next = {
+    language: req.body.language !== undefined ? normalizeLanguage(req.body.language) : current.language,
+    theme: req.body.theme !== undefined ? normalizeTheme(req.body.theme) : current.theme,
+    voiceType: req.body.voiceType !== undefined ? resolveTeacherVoice(req.body.voiceType) : current.voiceType,
+    fallbackAvatarId: req.body.fallbackAvatarId !== undefined
+      ? resolveFallbackAvatarId(req.body.fallbackAvatarId, buildUserAvatarSeed(req.user))
+      : current.fallbackAvatarId,
+  };
+
+  const result = await query(
+    `
+      UPDATE user_settings
+      SET language = $2,
+          theme = $3,
+          voice_type = $4,
+          fallback_avatar_id = $5,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE user_id = $1
+      RETURNING language, theme, voice_type, fallback_avatar_id
+    `,
+    [req.user.id, next.language, next.theme, next.voiceType, next.fallbackAvatarId]
+  );
+
+  const row = result.rows[0];
+  const voiceSettings = getTeacherVoiceSettings();
+  res.json({
+    settings: {
+      language: row.language,
+      theme: row.theme,
+      voiceType: row.voice_type || '',
+      fallbackAvatarId: row.fallback_avatar_id || null,
+    },
+    voiceSettings,
+  });
+}));
+
+router.post('/tts-preview', asyncHandler(async (req, res) => {
+  const text = String(req.body.text || '').trim();
+  if (!text) {
+    return res.status(400).json({
+      error: 'Text is required',
+      code: 'TEXT_REQUIRED',
+    });
+  }
+
+  const settings = await ensureUserSettings(req.user);
+  const requestedVoiceType = req.body.voiceType !== undefined ? req.body.voiceType : settings.voiceType;
+  const audio = await synthesizeDialogueText(text, {
+    voiceType: resolveTeacherVoice(requestedVoiceType),
+  });
+
+  res.json({
+    audio,
   });
 }));
 
