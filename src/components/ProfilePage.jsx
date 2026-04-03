@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { api, storage } from '../utils/api.js';
 import ShareModal from './ShareModal.jsx';
 import { useAppShell } from '../i18n/index.js';
@@ -44,6 +44,7 @@ export default function ProfilePage({
   const [loading, setLoading] = useState(true);
   const [showShare, setShowShare] = useState(false);
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -57,6 +58,11 @@ export default function ProfilePage({
         setLoading(false);
       }
     })();
+  }, [profileRefreshKey]);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
   }, [profileRefreshKey]);
 
   const membership = profile?.membership || membershipProp || null;
@@ -142,7 +148,7 @@ export default function ProfilePage({
 
   return (
     <div className="profile-page page-enter">
-      <div className="profile-scroll">
+      <div className="profile-scroll" ref={scrollRef}>
         <div className="prof-hero animate-fade-in-up">
           <div className="hero-glow hero-glow-a"></div>
           <div className="hero-glow hero-glow-b"></div>
@@ -286,6 +292,7 @@ export default function ProfilePage({
           flex-direction: column;
           gap: 14px;
           padding: 18px;
+          min-height: 292px;
           border-radius: 28px;
           background: var(--profile-hero-bg);
           border: 2px solid var(--profile-hero-border);
@@ -305,19 +312,14 @@ export default function ProfilePage({
         .hero-glow { position: absolute; border-radius: 50%; filter: blur(36px); pointer-events: none; }
         .hero-glow-a { width: 160px; height: 160px; top: -40px; left: -30px; background: rgba(245,216,143,0.18); }
         .hero-glow-b { width: 150px; height: 150px; right: -20px; bottom: -50px; background: rgba(12,96,62,0.22); }
-        .hero-topline,
-        .hero-identity,
-        .hero-stats-grid,
-        .hero-streak-track {
-          position: relative;
-          z-index: 1;
-        }
         .hero-topline {
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 10px;
           margin-bottom: 4px;
+          position: relative;
+          z-index: 1;
         }
         .hero-title {
           font-size: 14px;
@@ -330,6 +332,8 @@ export default function ProfilePage({
           gap: 14px;
           min-width: 0;
           margin-top: 2px;
+          position: relative;
+          z-index: 1;
         }
         .hero-copy {
           min-width: 0;
@@ -413,6 +417,8 @@ export default function ProfilePage({
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 6px;
+          position: relative;
+          z-index: 1;
         }
         .hero-stat-card {
           border-radius: 16px;
@@ -440,6 +446,8 @@ export default function ProfilePage({
           display: flex;
           gap: 8px;
           justify-content: center;
+          position: relative;
+          z-index: 1;
         }
         .hero-streak-dot {
           width: 10px;
@@ -572,15 +580,15 @@ export default function ProfilePage({
         }
         @media (max-width: 420px) {
           .profile-scroll { padding-left: 12px; padding-right: 12px; }
-          .prof-hero { padding: 16px 14px; gap: 12px; border-radius: 24px; }
+          .prof-hero { padding: 16px 14px; gap: 12px; border-radius: 24px; min-height: 272px; }
           .hero-topline { align-items: flex-start; }
-          .hero-identity { flex-direction: column; align-items: flex-start; gap: 12px; }
-          .hero-copy { width: 100%; }
+          .hero-identity { align-items: center; gap: 12px; }
+          .hero-copy { width: auto; flex: 1; }
           .hero-stats-grid { gap: 6px; }
         }
         @media (max-width: 380px) {
           .profile-scroll { padding-left: 10px; padding-right: 10px; }
-          .prof-hero { padding: 14px 12px; gap: 10px; border-radius: 22px; }
+          .prof-hero { padding: 14px 12px; gap: 10px; border-radius: 22px; min-height: 248px; }
           .av-wrap { width: 62px; height: 62px; border-radius: 31px; border-width: 2px; }
           .prof-name { font-size: 18px; }
           .prof-lv { font-size: 11px; padding: 3px 8px; }
@@ -597,7 +605,7 @@ export default function ProfilePage({
         }
         @media (max-width: 340px) {
           .profile-scroll { padding-left: 8px; padding-right: 8px; }
-          .prof-hero { padding: 12px 8px; gap: 8px; border-radius: 18px; }
+          .prof-hero { padding: 12px 8px; gap: 8px; border-radius: 18px; min-height: 224px; }
           .av-wrap { width: 52px; height: 52px; border-radius: 26px; border-width: 2px; }
           .prof-name { font-size: 16px; }
           .prof-lv { font-size: 10px; padding: 2px 6px; }
