@@ -213,9 +213,6 @@ export default function ProfilePage({
               <div className="invite-card-title">{t('membership.inviteFriends')}</div>
               <div className="invite-card-copy">{t('membership.inviteExplainer')}</div>
             </div>
-            <button className="invite-cta" type="button" onClick={() => setShowShare(true)}>
-              {t('membership.openInvite')}
-            </button>
           </div>
           <div className="invite-stats-grid">
             <div className="invite-stat">
@@ -231,6 +228,10 @@ export default function ProfilePage({
               <strong>{invite?.stats?.rewardDaysEarned || 0}</strong>
             </div>
           </div>
+          <button className="share-main-btn invite-card-action" type="button" onClick={() => setShowShare(true)}>
+            <i className="fas fa-user-plus"></i>
+            <span>{t('membership.inviteFriends')}</span>
+          </button>
         </div>
 
         <button className="profile-entry-card animate-float-up stagger-3" type="button" onClick={onOpenSettings}>
@@ -249,12 +250,7 @@ export default function ProfilePage({
           <i className="fas fa-chevron-right"></i>
         </button>
 
-        <button className="share-main-btn animate-float-up stagger-5" type="button" onClick={() => setShowShare(true)}>
-          <i className="fas fa-user-plus"></i>
-          <span>{t('membership.inviteFriends')}</span>
-        </button>
-
-        <button className="logout-btn animate-float-up stagger-6" type="button" onClick={handleLogout}>
+        <button className="logout-btn animate-float-up stagger-5" type="button" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt"></i>
           <span>{t('common.logout')}</span>
         </button>
@@ -477,7 +473,6 @@ export default function ProfilePage({
         }
         .invite-card-head {
           display: flex;
-          justify-content: space-between;
           align-items: flex-start;
           gap: 12px;
         }
@@ -491,24 +486,13 @@ export default function ProfilePage({
           font-size: 12px;
           line-height: 1.6;
         }
-        .invite-cta {
-          min-height: 42px;
-          min-width: 92px;
-          border-radius: 999px;
-          padding: 0 16px;
-          border: none;
-          background: linear-gradient(90deg, var(--brand-gold) 0%, #f6d35b 100%);
-          color: #173730;
-          font-size: 13px;
-          font-weight: 800;
-          white-space: nowrap;
-          flex-shrink: 0;
-          box-shadow: 0 10px 22px rgba(225,191,83,0.20);
-        }
         .invite-stats-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 8px;
+          margin-top: 12px;
+        }
+        .invite-card-action {
           margin-top: 12px;
         }
         .invite-stat {
@@ -609,7 +593,6 @@ export default function ProfilePage({
           .hero-stat-card span { font-size: 10px; margin-top: 3px; }
           .invite-card { padding: 10px; border-radius: 18px; }
           .invite-card-title { font-size: 12px; }
-          .invite-cta { min-width: 82px; font-size: 12px; padding: 0 12px; }
         }
         @media (max-width: 340px) {
           .profile-scroll {
@@ -635,7 +618,6 @@ export default function ProfilePage({
           .membership-pill { padding: 3px 6px; font-size: 10px; }
           .invite-card { padding: 8px; border-radius: 16px; gap: 8px; }
           .invite-card-head { gap: 8px; }
-          .invite-cta { min-width: 74px; font-size: 11px; padding: 0 10px; min-height: 38px; }
           .invite-stat { padding: 6px 4px 6px; }
           .invite-stat strong { font-size: 16px; }
           .invite-stats-grid { gap: 4px; }
