@@ -49,6 +49,8 @@
   },
   "profile": {
     "title": "我的",
+    "accountStatus": "账户状态",
+    "trialStatus": "试用中",
     "wordsLearned": "已学词数",
     "studyHours": "学习时长",
     "mastery": "掌握度",
@@ -56,7 +58,10 @@
     "languageSetting": "界面语言",
     "themeSetting": "外观模式",
     "voiceSetting": "老师音色",
-    "voiceDefault": "默认音色"
+    "voiceDefault": "默认音色",
+    "settingsEntrySubtitle": "管理语言、音色和深浅色模式",
+    "collectionEntrySubtitle": "查看你右滑收藏的词卡",
+    "settingsPageSubtitle": "这些偏好会立即作用到整个应用"
   },
   "membership": {
     "premiumOnly": "Premium Only",

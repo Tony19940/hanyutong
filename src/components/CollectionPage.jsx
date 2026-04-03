@@ -2,12 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import WordCard from './WordCard.jsx';
 import { api } from '../utils/api.js';
 import { usePronunciation } from '../hooks/usePronunciation.js';
+import { useAppShell } from '../i18n/index.js';
 
 export default function CollectionPage({ vocabulary, onBack }) {
   const [bookmarks, setBookmarks] = useState([]);
   const [selectedWord, setSelectedWord] = useState(null);
   const [loading, setLoading] = useState(true);
   const { play } = usePronunciation();
+  const { voiceType } = useAppShell();
+  const shouldUseDynamicVoice = Boolean(voiceType);
 
   const loadCollection = useCallback(async () => {
     try {
@@ -144,7 +147,11 @@ export default function CollectionPage({ vocabulary, onBack }) {
                     className="ci-play"
                     onClick={(e) => {
                       e.stopPropagation();
-                      play({ text: word.chinese, audioSrc: word.audio_word });
+                      play({
+                        text: word.chinese,
+                        audioSrc: shouldUseDynamicVoice ? null : word.audio_word,
+                        voiceType: shouldUseDynamicVoice ? voiceType : '',
+                      });
                     }}
                   >
                     <i className="fas fa-play"></i>

@@ -4,6 +4,7 @@ import { playErrorFeedback, playSuccessFeedback, vibratePattern } from '../utils
 import { createQuestRounds } from '../utils/quest.js';
 import { getPrimaryExample } from '../utils/vocabulary.js';
 import { usePronunciation } from '../hooks/usePronunciation.js';
+import { useAppShell } from '../i18n/index.js';
 
 const QUEST_SIZE = 5;
 const QUEST_POOL_SIZE = 18;
@@ -88,6 +89,8 @@ export default function LegacyQuizPage({ user }) {
   const [answerState, setAnswerState] = useState(null);
   const [gameState, setGameState] = useState('playing');
   const { play } = usePronunciation();
+  const { voiceType } = useAppShell();
+  const shouldUseDynamicVoice = Boolean(voiceType);
 
   const loadQuest = useCallback(async () => {
     try {
@@ -171,21 +174,26 @@ export default function LegacyQuizPage({ user }) {
     if (!currentRound) return;
     if (currentRound.type !== 'listen_to_meaning') return;
     const timer = setTimeout(() => {
-      play({ text: currentWord?.chinese, audioSrc: currentWord?.audio_word });
+      play({
+        text: currentWord?.chinese,
+        audioSrc: shouldUseDynamicVoice ? null : currentWord?.audio_word,
+        voiceType: shouldUseDynamicVoice ? voiceType : '',
+      });
     }, 260);
     return () => clearTimeout(timer);
-  }, [currentRound, currentWord?.audio_word, currentWord?.chinese, play]);
+  }, [currentRound, currentWord?.audio_word, currentWord?.chinese, play, shouldUseDynamicVoice, voiceType]);
 
   useEffect(() => {
     if (!answerState || !currentExample?.chinese) return;
     const timer = setTimeout(() => {
       play({
         text: currentExample.chinese,
-        audioSrc: currentExample.audio ?? currentWord?.audio_example,
+        audioSrc: shouldUseDynamicVoice ? null : currentExample.audio ?? currentWord?.audio_example,
+        voiceType: shouldUseDynamicVoice ? voiceType : '',
       });
     }, 240);
     return () => clearTimeout(timer);
-  }, [answerState, currentExample?.audio, currentExample?.chinese, currentWord?.audio_example, play]);
+  }, [answerState, currentExample?.audio, currentExample?.chinese, currentWord?.audio_example, play, shouldUseDynamicVoice, voiceType]);
 
   const moveToNextRound = useCallback(() => {
     if (currentRoundIndex >= rounds.length - 1) {
@@ -258,7 +266,8 @@ export default function LegacyQuizPage({ user }) {
 
     await play({
       text: promptText,
-      audioSrc: currentRound.type === 'example_to_word' ? exampleAudio : currentWord.audio_word,
+      audioSrc: shouldUseDynamicVoice ? null : currentRound.type === 'example_to_word' ? exampleAudio : currentWord.audio_word,
+      voiceType: shouldUseDynamicVoice ? voiceType : '',
     });
   };
 
@@ -266,7 +275,8 @@ export default function LegacyQuizPage({ user }) {
     if (!currentExample?.chinese) return;
     await play({
       text: currentExample.chinese,
-      audioSrc: currentExample.audio ?? currentWord?.audio_example,
+      audioSrc: shouldUseDynamicVoice ? null : currentExample.audio ?? currentWord?.audio_example,
+      voiceType: shouldUseDynamicVoice ? voiceType : '',
     });
   };
 

@@ -49,6 +49,8 @@
   },
   "profile": {
     "title": "ខ្ញុំ",
+    "accountStatus": "ស្ថានភាពគណនី",
+    "trialStatus": "កំពុងសាកល្បង",
     "wordsLearned": "ពាក្យដែលបានរៀន",
     "studyHours": "ម៉ោងសិក្សា",
     "mastery": "កម្រិតចេះចាំ",
@@ -56,7 +58,10 @@
     "languageSetting": "ភាសាផ្ទាំងកម្មវិធី",
     "themeSetting": "រូបរាងកម្មវិធី",
     "voiceSetting": "សំឡេងគ្រូ",
-    "voiceDefault": "លំនាំដើម"
+    "voiceDefault": "លំនាំដើម",
+    "settingsEntrySubtitle": "គ្រប់គ្រងភាសា សំឡេង និងរបៀបភ្លឺ ឬងងឹត",
+    "collectionEntrySubtitle": "មើលពាក្យដែលអ្នកបានអូសស្តាំរក្សាទុក",
+    "settingsPageSubtitle": "ការកំណត់ទាំងនេះនឹងមានប្រសិទ្ធភាពភ្លាមៗទូទាំងកម្មវិធី"
   },
   "membership": {
     "premiumOnly": "Premium Only",

@@ -15,7 +15,7 @@ export default function WordCard({
   mode = 'home',
   autoplaySequence = false,
 }) {
-  const { voiceType, defaultVoiceType } = useAppShell();
+  const { voiceType } = useAppShell();
   const [overlayDir, setOverlayDir] = useState(null);
   const [animating, setAnimating] = useState(false);
   const [showContent, setShowContent] = useState(false);
@@ -28,7 +28,7 @@ export default function WordCard({
   const clearSpeakingTimerRef = useRef(null);
   const autoPlayCancelledRef = useRef(false);
   const { play, stop } = usePronunciation();
-  const shouldUseDynamicVoice = Boolean(voiceType && voiceType !== defaultVoiceType);
+  const shouldUseDynamicVoice = Boolean(voiceType);
 
   useEffect(() => {
     stop();

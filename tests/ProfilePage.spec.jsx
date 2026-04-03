@@ -45,51 +45,59 @@ describe('ProfilePage', () => {
       settings: {
         language: 'zh-CN',
         theme: 'dark',
-        voiceType: 'BV001_streaming',
+        voiceType: 'BV705_streaming',
         fallbackAvatarId: null,
       },
       voiceSettings: {
-        defaultVoiceType: 'BV001_streaming',
+        defaultVoiceType: 'BV705_streaming',
         availableVoices: [
-          { id: 'BV001_streaming', label: '温柔女声' },
-          { id: 'BV002_streaming', label: '活力女声' },
+          { id: 'BV705_streaming', label: '男声老师' },
+          { id: 'BV001_streaming', label: '女声老师' },
         ],
+      },
+      invite: {
+        stats: {
+          invitedCount: 2,
+          convertedCount: 1,
+          rewardDaysEarned: 7,
+        },
       },
     });
   });
 
-  it('renders language, theme, and voice settings and triggers voice selection', async () => {
-    const setVoiceType = vi.fn();
+  it('renders grouped account info and opens settings from the Me page', async () => {
+    const onOpenSettings = vi.fn();
     renderWithShell(
-      <ProfilePage user={{ name: 'Alice', username: 'alice' }} onOpenCollection={() => {}} />,
+      <ProfilePage user={{ name: 'Alice', username: 'alice' }} onOpenCollection={() => {}} onOpenSettings={onOpenSettings} />,
       {
         language: 'zh-CN',
         theme: 'dark',
-        voiceType: 'BV001_streaming',
+        voiceType: 'BV705_streaming',
         availableVoices: [
-          { id: 'BV001_streaming', label: '温柔女声' },
-          { id: 'BV002_streaming', label: '活力女声' },
+          { id: 'BV705_streaming', label: '男声老师' },
+          { id: 'BV001_streaming', label: '女声老师' },
         ],
-        defaultVoiceType: 'BV001_streaming',
-        setVoiceType,
+        defaultVoiceType: 'BV705_streaming',
       }
     );
 
     await waitFor(() => {
-      expect(screen.getByText('老师音色')).toBeInTheDocument();
+      expect(screen.getByText('账户状态')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('温柔女声')).toBeInTheDocument();
-    expect(screen.getByText('活力女声')).toBeInTheDocument();
-    expect(screen.getByText('默认音色')).toBeInTheDocument();
+    expect(screen.getByText('已学词数')).toBeInTheDocument();
+    expect(screen.getByText('学习时长')).toBeInTheDocument();
+    expect(screen.getByText('掌握度')).toBeInTheDocument();
+    expect(screen.getByText(/连续学习 3 天/)).toBeInTheDocument();
+    expect(screen.getByText('管理语言、音色和深浅色模式')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /活力女声/i }));
-    expect(setVoiceType).toHaveBeenCalledWith('BV002_streaming');
+    fireEvent.click(screen.getByRole('button', { name: /设置/i }));
+    expect(onOpenSettings).toHaveBeenCalled();
   });
 
   it('uses the built-in fallback avatar pack when telegram avatar is unavailable', async () => {
     renderWithShell(
-      <ProfilePage user={{ name: 'Alice', username: 'alice' }} onOpenCollection={() => {}} />
+      <ProfilePage user={{ name: 'Alice', username: 'alice' }} onOpenCollection={() => {}} onOpenSettings={() => {}} />
     );
 
     const image = await screen.findByAltText('Alice');
