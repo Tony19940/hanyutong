@@ -266,7 +266,7 @@ export default function ProfilePage({
       ) : null}
 
       <style>{`
-        .profile-page { position: relative; z-index: 10; overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 0; }
+        .profile-page { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; overflow: hidden; display: flex; flex-direction: column; }
         .profile-scroll {
           flex: 1 1 0%;
           min-height: 0;

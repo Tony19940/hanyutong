@@ -259,6 +259,7 @@ export default function App() {
     flex: '1 1 0%',
     minHeight: 0,
     width: '100%',
+    position: 'relative',
   });
 
   const hasPremiumAccess = membership?.accessLevel === 'premium';
