@@ -122,7 +122,7 @@ export default function ShareModal({ invite, onClose }) {
         .share-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(8, 12, 10, 0.72);
+          background: rgba(7, 9, 8, 0.94);
           z-index: 100;
           display: flex;
           align-items: center;
@@ -133,6 +133,11 @@ export default function ShareModal({ invite, onClose }) {
         .share-shell {
           width: 100%;
           max-width: 396px;
+          border-radius: 28px;
+          background: linear-gradient(180deg, rgba(14,17,15,0.98), rgba(11,14,12,1));
+          border: 1px solid rgba(225,191,83,0.12);
+          box-shadow: 0 26px 60px rgba(0,0,0,0.36);
+          padding: 18px;
         }
         .share-head {
           display: flex;
@@ -162,8 +167,8 @@ export default function ShareModal({ invite, onClose }) {
         }
         .invite-panel {
           border-radius: 24px;
-          background: var(--settings-surface);
-          border: 1px solid var(--settings-border);
+          background: linear-gradient(180deg, rgba(26,30,27,0.98), rgba(20,24,22,0.98));
+          border: 1px solid rgba(225,191,83,0.10);
           padding: 16px;
         }
         .invite-panel-copy {
@@ -229,6 +234,10 @@ export default function ShareModal({ invite, onClose }) {
         }
         .sab-copy {
           background: linear-gradient(135deg, rgba(225,191,83,0.16), rgba(142,212,195,0.12));
+        }
+        @media (max-width: 420px) {
+          .share-overlay { padding: 14px; }
+          .share-shell { padding: 14px; border-radius: 22px; }
         }
       `}</style>
     </div>

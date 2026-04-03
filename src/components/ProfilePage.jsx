@@ -270,7 +270,7 @@ export default function ProfilePage({
         .profile-scroll {
           flex: 1 1 0%;
           min-height: 0;
-          padding: 72px 16px 96px;
+          padding: max(56px, env(safe-area-inset-top, 0px) + 12px) 16px calc(96px + env(safe-area-inset-bottom, 0px));
           overflow-y: auto;
           overflow-x: hidden;
           width: 100%;
@@ -484,14 +484,18 @@ export default function ProfilePage({
           line-height: 1.6;
         }
         .invite-cta {
-          min-height: 38px;
+          min-height: 42px;
+          min-width: 92px;
           border-radius: 999px;
-          padding: 0 14px;
+          padding: 0 16px;
           border: none;
           background: linear-gradient(90deg, var(--brand-gold) 0%, #f6d35b 100%);
           color: #173730;
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 800;
+          white-space: nowrap;
+          flex-shrink: 0;
+          box-shadow: 0 10px 22px rgba(225,191,83,0.20);
         }
         .invite-stats-grid {
           display: grid;
@@ -566,14 +570,21 @@ export default function ProfilePage({
           background: var(--settings-surface);
           color: var(--text-primary);
         }
+        @media (max-width: 420px) {
+          .profile-scroll { padding-left: 12px; padding-right: 12px; }
+          .prof-hero { padding: 16px 14px; gap: 12px; border-radius: 24px; }
+          .hero-topline { align-items: flex-start; }
+          .hero-identity { flex-direction: column; align-items: flex-start; gap: 12px; }
+          .hero-copy { width: 100%; }
+          .hero-stats-grid { gap: 6px; }
+        }
         @media (max-width: 380px) {
-          .profile-scroll { padding: 72px 12px 84px; }
-          .prof-hero { padding: 14px 12px; gap: 12px; border-radius: 22px; }
-          .av-wrap { width: 64px; height: 64px; border-radius: 32px; border-width: 2px; }
+          .profile-scroll { padding-left: 10px; padding-right: 10px; }
+          .prof-hero { padding: 14px 12px; gap: 10px; border-radius: 22px; }
+          .av-wrap { width: 62px; height: 62px; border-radius: 31px; border-width: 2px; }
           .prof-name { font-size: 18px; }
           .prof-lv { font-size: 11px; padding: 3px 8px; }
           .prof-handle { font-size: 10px; }
-          .hero-identity { gap: 12px; }
           .hero-membership-line { font-size: 11px; margin-top: 4px; }
           .hero-membership-line.subdued { margin-top: 2px; font-size: 10px; }
           .hero-stats-grid { gap: 5px; }
@@ -582,9 +593,10 @@ export default function ProfilePage({
           .hero-stat-card span { font-size: 10px; margin-top: 3px; }
           .invite-card { padding: 10px; border-radius: 18px; }
           .invite-card-title { font-size: 12px; }
+          .invite-cta { min-width: 82px; font-size: 12px; padding: 0 12px; }
         }
         @media (max-width: 340px) {
-          .profile-scroll { padding: 72px 8px 84px; }
+          .profile-scroll { padding-left: 8px; padding-right: 8px; }
           .prof-hero { padding: 12px 8px; gap: 8px; border-radius: 18px; }
           .av-wrap { width: 52px; height: 52px; border-radius: 26px; border-width: 2px; }
           .prof-name { font-size: 16px; }
@@ -602,6 +614,8 @@ export default function ProfilePage({
           .hero-stat-card span { font-size: 9px; }
           .membership-pill { padding: 3px 6px; font-size: 10px; }
           .invite-card { padding: 8px; border-radius: 16px; gap: 8px; }
+          .invite-card-head { gap: 8px; }
+          .invite-cta { min-width: 74px; font-size: 11px; padding: 0 10px; min-height: 38px; }
           .invite-stat { padding: 6px 4px 6px; }
           .invite-stat strong { font-size: 16px; }
           .invite-stats-grid { gap: 4px; }

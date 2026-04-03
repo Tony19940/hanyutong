@@ -117,8 +117,6 @@ export default function HomePage({ user }) {
               onClick={() => setIsLanguageMenuOpen((current) => !current)}
             >
               <span className="home-language-current-flag">{languageMeta.flag}</span>
-              <span className="home-language-current-label">{languageMeta.label}</span>
-              <i className={`fas fa-chevron-down home-language-chevron ${isLanguageMenuOpen ? 'open' : ''}`}></i>
             </button>
 
             <div className={`home-language-popover ${isLanguageMenuOpen ? 'open' : ''}`} role="listbox">
@@ -231,18 +229,17 @@ export default function HomePage({ user }) {
           z-index: 3;
         }
         .home-language-trigger {
-          min-width: 92px;
-          height: 38px;
-          border-radius: 16px;
-          padding: 0 12px;
+          width: 34px;
+          height: 34px;
+          border-radius: 12px;
+          padding: 0;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
           color: var(--text-primary);
           background: var(--settings-surface);
           border: 1px solid var(--settings-border);
-          box-shadow: 0 8px 18px var(--home-card-shadow);
+          box-shadow: 0 6px 14px rgba(0,0,0,0.16);
           backdrop-filter: blur(14px);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -251,19 +248,8 @@ export default function HomePage({ user }) {
           box-shadow: 0 14px 28px rgba(8, 20, 17, 0.18);
         }
         .home-language-current-flag {
-          font-size: 16px;
-        }
-        .home-language-current-label {
-          font-size: 12px;
-          font-weight: 800;
-        }
-        .home-language-chevron {
-          font-size: 11px;
-          color: var(--text-secondary);
-          transition: transform 0.2s ease;
-        }
-        .home-language-chevron.open {
-          transform: rotate(180deg);
+          font-size: 15px;
+          line-height: 1;
         }
         .home-language-popover {
           position: absolute;

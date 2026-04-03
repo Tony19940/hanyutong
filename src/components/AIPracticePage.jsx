@@ -175,6 +175,7 @@ export default function AIPracticePage({ user }) {
   const [playingMessageId, setPlayingMessageId] = useState(null);
   const [playingProgress, setPlayingProgress] = useState({ currentTime: 0, duration: 0 });
   const [learnerAvatarFailed, setLearnerAvatarFailed] = useState(false);
+  const [microphoneReady, setMicrophoneReady] = useState(false);
   const { play, stop } = usePronunciation();
 
   const scrollRef = useRef(null);
@@ -214,7 +215,25 @@ export default function AIPracticePage({ user }) {
     audioUrlsRef.current.clear();
   }
 
-  function teardownRecording() {
+  async function ensureMicrophoneAccess() {
+    if (mediaStreamRef.current) {
+      return mediaStreamRef.current;
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        channelCount: 1,
+        noiseSuppression: true,
+        echoCancellation: true,
+        autoGainControl: true,
+      },
+    });
+    mediaStreamRef.current = stream;
+    setMicrophoneReady(true);
+    return stream;
+  }
+
+  function teardownRecording({ preserveStream = true } = {}) {
     if (processorRef.current) {
       try {
         processorRef.current.disconnect();
@@ -222,9 +241,10 @@ export default function AIPracticePage({ user }) {
       processorRef.current.onaudioprocess = null;
       processorRef.current = null;
     }
-    if (mediaStreamRef.current) {
+    if (!preserveStream && mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
+      setMicrophoneReady(false);
     }
     if (captureContextRef.current) {
       captureContextRef.current.close().catch(() => {});
@@ -260,7 +280,7 @@ export default function AIPracticePage({ user }) {
       mounted = false;
       clearAudioUrls();
       stop();
-      teardownRecording();
+      teardownRecording({ preserveStream: false });
     };
   }, [stop]);
 
@@ -295,10 +315,11 @@ export default function AIPracticePage({ user }) {
     setPlayingMessageId(null);
     setPlayingProgress({ currentTime: 0, duration: 0 });
     setIsAwaitingReply(false);
+    setMicrophoneReady(Boolean(mediaStreamRef.current));
     setStatus(availability.available ? 'idle' : 'error');
     setStatusDetail(availability.available ? '选择一个今日话题。' : '对话配置还没配齐。');
     stop();
-    teardownRecording();
+    teardownRecording({ preserveStream: false });
   }, [scenarioId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleStartTopic(nextScenarioId = scenario?.id) {
@@ -325,7 +346,7 @@ export default function AIPracticePage({ user }) {
         ...response.messages.map((message) => mapAudio(message, audioUrlsRef)),
       ]);
       setStatus(response.state?.isComplete ? 'complete' : 'active');
-      setStatusDetail('现在可以开始录音了。');
+      setStatusDetail(microphoneReady ? '现在可以开始录音了。' : '点录音按钮后会请求一次麦克风权限。');
     } catch (error) {
       setStatus('error');
       setStatusDetail(error.message || '启动对话失败。');
@@ -341,7 +362,7 @@ export default function AIPracticePage({ user }) {
       return;
     }
 
-    teardownRecording();
+    teardownRecording({ preserveStream: false });
     try {
       await api.stopDialogueSession({ sessionId: session.sessionId });
     } catch {}
@@ -350,6 +371,7 @@ export default function AIPracticePage({ user }) {
     setPlayingMessageId(null);
     setPlayingProgress({ currentTime: 0, duration: 0 });
     setIsAwaitingReply(false);
+    setMicrophoneReady(Boolean(mediaStreamRef.current));
     setStatus(availability.available ? 'idle' : 'error');
     setStatusDetail(availability.available ? '重新选择一个今日话题。' : '对话配置还没配齐。');
   }
@@ -358,9 +380,7 @@ export default function AIPracticePage({ user }) {
     if (isRecording || isSending || status !== 'active') return;
     try {
       stop();
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { channelCount: 1, noiseSuppression: true, echoCancellation: true, autoGainControl: true },
-      });
+      const stream = await ensureMicrophoneAccess();
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (!AudioContextClass) {
         throw new Error('当前浏览器不支持录音。');
@@ -627,6 +647,12 @@ export default function AIPracticePage({ user }) {
                   </span>
                 )}
               </button>
+              {!isRecording && session?.sessionId ? (
+                <div className="tg-mic-hint">
+                  <span className={`tg-mic-status-dot ${microphoneReady ? 'ready' : ''}`}></span>
+                  <span>{microphoneReady ? '麦克风已授权，本轮对话内不会重复请求。' : '首次录音会请求一次麦克风权限。'}</span>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -715,6 +741,9 @@ export default function AIPracticePage({ user }) {
         .tg-record-wave-live i:nth-child(3){height:20px;animation-delay:.2s}
         .tg-record-wave-live i:nth-child(4){height:13px;animation-delay:.3s}
         .tg-record-wave-live i:nth-child(5){height:8px;animation-delay:.4s}
+        .tg-mic-hint{margin-top:10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-secondary);line-height:1.4}
+        .tg-mic-status-dot{width:8px;height:8px;border-radius:999px;background:rgba(225,191,83,.52);flex-shrink:0}
+        .tg-mic-status-dot.ready{background:var(--brand-teal);box-shadow:0 0 0 4px rgba(142,212,195,.14)}
         @keyframes tgWave{0%,100%{transform:scaleY(.55);opacity:.55}50%{transform:scaleY(1.15);opacity:1}}
         @keyframes tgTopicPulse{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-3px);opacity:1}}
         @keyframes tgMessageIn{0%{opacity:0;transform:translateY(10px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
