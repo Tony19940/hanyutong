@@ -266,11 +266,9 @@ export default function ProfilePage({
       ) : null}
 
       <style>{`
-        .profile-page { position: relative; z-index: 10; overflow: hidden; height: 100%; display: flex; flex-direction: column; }
+        .profile-page { position: relative; z-index: 10; overflow: hidden; }
         .profile-scroll {
-          flex: 1 1 auto;
-          min-height: 0;
-          padding: 72px 16px 84px;
+          padding: 72px 16px 96px;
           overflow-y: auto;
           overflow-x: hidden;
           width: 100%;
@@ -280,21 +278,6 @@ export default function ProfilePage({
           gap: 12px;
         }
         .profile-scroll::-webkit-scrollbar { display: none; }
-        @media (max-width: 375px) {
-          .prof-hero { padding: 14px 12px; gap: 12px; border-radius: 24px; }
-          .av-wrap { width: 64px; height: 64px; border-radius: 32px; border-width: 2px; }
-          .prof-name { font-size: 18px; }
-          .prof-lv { font-size: 11px; padding: 3px 8px; }
-          .prof-hero .hero-title { font-size: 12px; }
-          .hero-membership-line { margin-top: 4px; font-size: 11px; }
-          .hero-membership-line.subdued { margin-top: 2px; }
-          .prof-handle { font-size: 11px; }
-          .hero-stat-card { padding: 8px 8px; border-radius: 14px; }
-          .hero-stat-card strong { font-size: 20px; }
-          .hero-stat-card span { font-size: 11px; }
-          .prof-name-row { gap: 6px; }
-          .hero-identity { gap: 12px; }
-        }
         .prof-hero {
           position: relative;
           display: flex;
@@ -584,7 +567,7 @@ export default function ProfilePage({
         @media (max-width: 380px) {
           .profile-scroll { padding: 72px 12px 84px; }
           .prof-hero { padding: 14px 12px; gap: 12px; border-radius: 22px; }
-          .av-wrap { width: 56px; height: 56px; border-radius: 28px; border-width: 2px; }
+          .av-wrap { width: 64px; height: 64px; border-radius: 32px; border-width: 2px; }
           .prof-name { font-size: 18px; }
           .prof-lv { font-size: 11px; padding: 3px 8px; }
           .prof-handle { font-size: 10px; }
@@ -597,6 +580,29 @@ export default function ProfilePage({
           .hero-stat-card span { font-size: 10px; margin-top: 3px; }
           .invite-card { padding: 10px; border-radius: 18px; }
           .invite-card-title { font-size: 12px; }
+        }
+        @media (max-width: 340px) {
+          .profile-scroll { padding: 72px 8px 84px; }
+          .prof-hero { padding: 12px 8px; gap: 8px; border-radius: 18px; }
+          .av-wrap { width: 52px; height: 52px; border-radius: 26px; border-width: 2px; }
+          .prof-name { font-size: 16px; }
+          .prof-lv { font-size: 10px; padding: 2px 6px; }
+          .prof-handle { font-size: 10px; }
+          .hero-identity { gap: 8px; }
+          .hero-topline { gap: 8px; }
+          .hero-title { font-size: 12px; }
+          .hero-membership-line { font-size: 10px; }
+          .hero-membership-line.subdued { font-size: 9px; }
+          .prof-name-row { gap: 4px; }
+          .hero-stats-grid { gap: 4px; }
+          .hero-stat-card { padding: 6px 4px; border-radius: 12px; }
+          .hero-stat-card strong { font-size: 16px; }
+          .hero-stat-card span { font-size: 9px; }
+          .membership-pill { padding: 3px 6px; font-size: 10px; }
+          .invite-card { padding: 8px; border-radius: 16px; gap: 8px; }
+          .invite-stat { padding: 6px 4px 6px; }
+          .invite-stat strong { font-size: 16px; }
+          .invite-stats-grid { gap: 4px; }
         }
       `}</style>
     </div>
