@@ -13,7 +13,7 @@ export default function HomePage({ user }) {
   const loadWords = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.getNextWords(20);
+      const data = await api.getNextWords(20, 'home');
       setWords(data.words);
       setStats({ total: data.total, learned: data.learned, remaining: data.remaining });
       setCurrentIndex(0);

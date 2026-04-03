@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import LoginPage from './components/LoginPage.jsx';
 import HomePage from './components/HomePage.jsx';
@@ -8,6 +8,7 @@ import ProfilePage from './components/ProfilePage.jsx';
 import AIPracticePage from './components/AIPracticePage.jsx';
 import AdminPage from './components/AdminPage.jsx';
 import TabBar from './components/TabBar.jsx';
+import MembershipGate from './components/MembershipGate.jsx';
 import { api, storage } from './utils/api.js';
 import { getTelegramUser, initTelegramApp } from './utils/telegram.js';
 import { AppShellProvider } from './i18n/index.js';
@@ -15,10 +16,24 @@ import { defaultPreferences, normalizePreferences, storageKeys } from './prefere
 import { applyTheme } from './theme/tokens.js';
 import { pickFallbackAvatarId, buildAvatarSeed } from './utils/avatar.js';
 
+function defaultMembership() {
+  return {
+    status: 'free',
+    planType: 'free',
+    accessLevel: 'free',
+    expiresAt: null,
+    startedAt: null,
+    isPremium: false,
+  };
+}
+
 export default function App() {
   const [user, setUser] = useState(null);
+  const [membership, setMembership] = useState(defaultMembership());
+  const [invite, setInvite] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [profileView, setProfileView] = useState('profile');
+  const [profileRefreshKey, setProfileRefreshKey] = useState(0);
   const [vocabulary, setVocabulary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -31,7 +46,6 @@ export default function App() {
     })
   );
 
-  // Check for admin route or preview mode
   useEffect(() => {
     if (window.location.hash === '#admin' || window.location.pathname === '/admin') {
       setIsAdmin(true);
@@ -44,11 +58,18 @@ export default function App() {
         avatar_url: null,
         hskLevel: 1,
       });
+      setMembership({
+        status: 'premium_active',
+        planType: 'month_card',
+        accessLevel: 'premium',
+        expiresAt: null,
+        startedAt: null,
+        isPremium: true,
+      });
       setLoading(false);
     }
   }, []);
 
-  // Initialize Telegram WebApp
   useEffect(() => {
     initTelegramApp();
   }, []);
@@ -72,6 +93,17 @@ export default function App() {
       fallback_avatar_id: fallbackAvatarId,
     };
   }, []);
+
+  const applyAuthResponse = useCallback((authData, { persistUser = true } = {}) => {
+    const mergedUser = mergeTelegramUser(authData?.user);
+    if (persistUser && mergedUser) {
+      localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(mergedUser));
+    }
+    setUser(mergedUser);
+    setMembership(authData?.membership || defaultMembership());
+    setInvite(authData?.invite || null);
+    setProfileRefreshKey((value) => value + 1);
+  }, [mergeTelegramUser]);
 
   useEffect(() => {
     document.title = isAdmin ? 'Bunson老师 Admin' : 'Bunson老师';
@@ -110,43 +142,47 @@ export default function App() {
       .catch(() => {});
   }, [isAdmin, user]);
 
-  // Try to restore session
   useEffect(() => {
     if (isAdmin) return;
 
     const token = localStorage.getItem(storage.USER_TOKEN_KEY);
     const savedUser = localStorage.getItem(storage.USER_STORAGE_KEY);
 
-    if (token && savedUser) {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    if (savedUser) {
       try {
-        const parsed = JSON.parse(savedUser);
-        setUser(mergeTelegramUser(parsed));
-        // Verify session in background
-        api.verify().then((data) => {
-          const mergedUser = mergeTelegramUser(data.user);
-          setUser(mergedUser);
-          localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(mergedUser));
-        }).catch(() => {
-          localStorage.removeItem(storage.USER_TOKEN_KEY);
-          localStorage.removeItem(storage.USER_STORAGE_KEY);
-          setUser(null);
-        });
+        setUser(mergeTelegramUser(JSON.parse(savedUser)));
       } catch {
-        localStorage.removeItem(storage.USER_TOKEN_KEY);
         localStorage.removeItem(storage.USER_STORAGE_KEY);
       }
     }
-    setLoading(false);
-  }, [isAdmin, mergeTelegramUser]);
 
-  // Load vocabulary
+    api.verify()
+      .then((data) => {
+        applyAuthResponse(data);
+      })
+      .catch(() => {
+        localStorage.removeItem(storage.USER_TOKEN_KEY);
+        localStorage.removeItem(storage.USER_STORAGE_KEY);
+        setUser(null);
+        setMembership(defaultMembership());
+        setInvite(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [applyAuthResponse, isAdmin, mergeTelegramUser]);
+
   useEffect(() => {
     if (user) {
       api.getAllWords().then(setVocabulary).catch(console.error);
     }
   }, [user]);
 
-  // Track learning time
   useEffect(() => {
     if (!user) return;
     const interval = setInterval(() => {
@@ -155,11 +191,9 @@ export default function App() {
     return () => clearInterval(interval);
   }, [user]);
 
-  const handleLogin = useCallback((userData) => {
-    const mergedUser = mergeTelegramUser(userData);
-    localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(mergedUser));
-    setUser(mergedUser);
-  }, [mergeTelegramUser]);
+  const handleAuthenticated = useCallback((authData) => {
+    applyAuthResponse(authData);
+  }, [applyAuthResponse]);
 
   const handleTabChange = useCallback((tabId) => {
     setActiveTab(tabId);
@@ -212,6 +246,8 @@ export default function App() {
     width: '100%',
   });
 
+  const hasPremiumAccess = membership?.accessLevel === 'premium';
+
   if (loading) {
     return (
       <AppShellProvider value={shellValue}>
@@ -226,20 +262,20 @@ export default function App() {
             position: 'relative', zIndex: 10,
             height: '100%', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
-            flexDirection: 'column', gap: 12
+            flexDirection: 'column', gap: 12,
           }}>
             <div style={{
               width: 56, height: 56,
               background: 'linear-gradient(135deg, var(--brand-gold), var(--brand-green))',
               borderRadius: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 28
+              fontSize: 28,
             }}>📖</div>
             <div style={{
               width: 30, height: 30,
               border: '3px solid var(--spinner-track)',
               borderTopColor: 'var(--spinner-accent)', borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite'
+              animation: 'spin 0.8s linear infinite',
             }}></div>
           </div>
         </div>
@@ -247,7 +283,6 @@ export default function App() {
     );
   }
 
-  // Admin page
   if (isAdmin) {
     return (
       <AppShellProvider value={shellValue}>
@@ -258,18 +293,16 @@ export default function App() {
     );
   }
 
-  // Login page
   if (!user) {
     return (
       <AppShellProvider value={shellValue}>
         <div className="app-container">
-          <LoginPage onLogin={handleLogin} />
+          <LoginPage onAuthenticated={handleAuthenticated} />
         </div>
       </AppShellProvider>
     );
   }
 
-  // Main app
   return (
     <AppShellProvider value={shellValue}>
       <div className="app-container">
@@ -285,20 +318,56 @@ export default function App() {
             <HomePage user={user} />
           </div>
           <div style={tabViewStyle(activeTab === 'quiz')}>
-            <QuizPage user={user} />
+            {hasPremiumAccess ? (
+              <QuizPage user={user} />
+            ) : (
+              <MembershipGate
+                featureNameKey="tabs.quiz"
+                membership={membership}
+                invite={invite}
+                onAuthenticated={handleAuthenticated}
+                onOpenProfile={() => {
+                  setActiveTab('profile');
+                  setProfileView('profile');
+                }}
+              />
+            )}
           </div>
           <div style={tabViewStyle(activeTab === 'practice')}>
-            <AIPracticePage user={user} />
+            {hasPremiumAccess ? (
+              <AIPracticePage user={user} />
+            ) : (
+              <MembershipGate
+                featureNameKey="tabs.practice"
+                membership={membership}
+                invite={invite}
+                onAuthenticated={handleAuthenticated}
+                onOpenProfile={() => {
+                  setActiveTab('profile');
+                  setProfileView('profile');
+                }}
+              />
+            )}
           </div>
           <div style={tabViewStyle(activeTab === 'profile' && profileView === 'profile')}>
-            <ProfilePage user={user} onOpenCollection={() => setProfileView('collection')} />
+            <ProfilePage
+              user={user}
+              membership={membership}
+              invite={invite}
+              profileRefreshKey={profileRefreshKey}
+              onOpenCollection={() => setProfileView('collection')}
+            />
           </div>
           <div style={tabViewStyle(activeTab === 'profile' && profileView === 'collection')}>
             <CollectionPage vocabulary={vocabulary} onBack={() => setProfileView('profile')} />
           </div>
         </div>
 
-        <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+        <TabBar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          lockedTabs={hasPremiumAccess ? [] : ['quiz', 'practice']}
+        />
       </div>
     </AppShellProvider>
   );

@@ -92,7 +92,7 @@ export default function LegacyQuizPage({ user }) {
   const loadQuest = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.getNextWords(QUEST_POOL_SIZE);
+      const data = await api.getNextWords(QUEST_POOL_SIZE, 'quiz');
       const nextQuestWords = data.words.slice(0, QUEST_SIZE);
       setQuestWords(nextQuestWords);
       setRounds(createQuestRounds(nextQuestWords, data.words));

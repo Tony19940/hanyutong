@@ -25,14 +25,20 @@
   "login": {
     "title": "Teacher Bunson",
     "subtitle": "Practical Chinese learning for Khmer speakers",
-    "inputLabel": "Enter your activation code",
     "placeholder": "HYT-XXXX-XXXX-XXXX",
     "invalidKey": "Please enter a valid activation code",
-    "loginFailed": "Login failed. Please try again.",
+    "loginFailed": "Action failed. Please try again.",
     "verifying": "Verifying...",
-    "startLearning": "Start Learning",
-    "contactSupport": "Contact to buy an activation code",
-    "supportMeta": "@sotheary92 · 24/7"
+    "contactSupport": "Contact Telegram support",
+    "supportMeta": "@sotheary92 · offline transfer + activation code",
+    "wordHighlights": "words",
+    "monthCardLabel": "month card",
+    "inviteBanner": "You entered with invite code {code}. Paid activation can unlock extra rewards.",
+    "startTrialTitle": "See the product before paying",
+    "startTrialCopy": "New users can enter immediately and unlock 3 days of Premium trial access.",
+    "startFreeTrial": "Start 3-day free trial",
+    "redeemTitle": "Already have a month-card code",
+    "redeemButton": "Redeem activation code"
   },
   "home": {
     "title": "Swipe to Learn",
@@ -52,8 +58,46 @@
     "voiceSetting": "Teacher Voice",
     "voiceDefault": "Default"
   },
+  "membership": {
+    "premiumOnly": "Premium Only",
+    "gateSubtitle": "Word cards stay free, but AI dialogue and quiz require a month card.",
+    "currentPlan": "Current access",
+    "validUntil": "Valid until",
+    "freeTier": "Free layer",
+    "homeStillAvailable": "You can still keep learning words in the Learn tab.",
+    "valueDialogue": "AI speaking practice with a teacher-like feel",
+    "valueQuiz": "Vocabulary mastery quiz",
+    "valueSupport": "The same code can be extended and used again after renewal",
+    "redeemLabel": "Enter month-card activation code",
+    "redeemFailed": "Activation failed. Check the code or contact support.",
+    "redeeming": "Activating...",
+    "redeemNow": "Unlock month card",
+    "contactTelegram": "Contact Telegram support",
+    "inviteFriends": "Invite friends",
+    "viewInviteCenter": "Open invite center",
+    "invitedCount": "Invited",
+    "convertedCount": "Paid",
+    "rewardDays": "Reward days",
+    "membershipTitle": "Membership",
+    "monthCard": "Premium month card",
+    "freeLayer": "Free layer",
+    "premiumShort": "PREMIUM",
+    "freeShort": "FREE",
+    "profileValueCopy": "AI dialogue and quiz stay inside Premium; word cards remain available.",
+    "inviteExplainer": "When an invited friend pays for the first time, you get 7 extra days.",
+    "openInvite": "Invite now",
+    "freeLayerDescription": "Free learning continues, while high-value practice stays inside Premium."
+  },
   "share": {
     "receipt": "Study Receipt",
-    "saveImage": "Save Image"
+    "saveImage": "Save Image",
+    "inviteTitle": "Share invite link",
+    "inviteCopy": "I am practicing Chinese with Teacher Bunson. Come try it with me.",
+    "noInviteLink": "Generating invite link",
+    "copied": "Copied",
+    "copyLink": "Copy link",
+    "posterLabel": "Progress poster",
+    "posterTip": "The progress poster remains as an optional secondary share asset.",
+    "posterText": "has learned {words} words and kept a {streak}-day streak."
   }
 }

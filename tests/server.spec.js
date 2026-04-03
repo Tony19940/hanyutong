@@ -12,10 +12,18 @@ async function seedKey(keyCode) {
   await dbModule.query('INSERT INTO keys (key_code, serial_number) VALUES ($1, $2)', [keyCode, keyCode.slice(-3)]);
 }
 
-async function loginWithKey(keyCode, telegramId = `tg-${keyCode}`) {
+async function loginWithKey(keyCode, telegramId = `tg-${keyCode}`, extras = {}) {
   const response = await request(app)
     .post('/api/auth/login')
-    .send({ keyCode, telegramId, name: `User ${keyCode}` });
+    .send({ keyCode, telegramId, name: `User ${keyCode}`, ...extras });
+
+  return response.body;
+}
+
+async function startTrial(telegramId, extras = {}) {
+  const response = await request(app)
+    .post('/api/auth/start-trial')
+    .send({ telegramId, name: `Trial ${telegramId}`, ...extras });
 
   return response.body;
 }
@@ -30,6 +38,9 @@ beforeEach(async () => {
   await dbModule.query('DELETE FROM audit_logs');
   await dbModule.query('DELETE FROM admin_sessions');
   await dbModule.query('DELETE FROM sessions');
+  await dbModule.query('DELETE FROM entitlement_events');
+  await dbModule.query('DELETE FROM referrals');
+  await dbModule.query('DELETE FROM membership_access');
   await dbModule.query('DELETE FROM user_progress');
   await dbModule.query('DELETE FROM daily_records');
   await dbModule.query('DELETE FROM user_settings');
@@ -74,6 +85,45 @@ describe('auth and user permissions', () => {
 
     expect(verify.status).toBe(200);
     expect(verify.body.user.name).toBe('Alice');
+    expect(verify.body.membership.accessLevel).toBe('premium');
+    expect(verify.body.invite.code).toBeTruthy();
+  });
+
+  it('starts a 3-day trial and downgrades quiz access after expiry while keeping word cards free', async () => {
+    const trial = await startTrial('trial-user-1');
+    expect(trial.membership.status).toBe('trial_active');
+    expect(trial.membership.accessLevel).toBe('premium');
+
+    await dbModule.query(
+      `
+        UPDATE membership_access
+        SET expires_at = NOW() - INTERVAL '1 day'
+        WHERE user_id = $1
+      `,
+      [trial.user.id]
+    );
+
+    const verify = await request(app)
+      .post('/api/auth/verify')
+      .set('Authorization', `Bearer ${trial.token}`);
+
+    expect(verify.status).toBe(200);
+    expect(verify.body.membership.status).toBe('trial_expired');
+    expect(verify.body.membership.accessLevel).toBe('free');
+
+    const homeWords = await request(app)
+      .get('/api/words/next?mode=home')
+      .set('Authorization', `Bearer ${trial.token}`);
+
+    expect(homeWords.status).toBe(200);
+    expect(Array.isArray(homeWords.body.words)).toBe(true);
+
+    const quizWords = await request(app)
+      .get('/api/words/next?mode=quiz')
+      .set('Authorization', `Bearer ${trial.token}`);
+
+    expect(quizWords.status).toBe(401);
+    expect(quizWords.body.code).toBe('PREMIUM_REQUIRED');
   });
 
   it('ignores spoofed query userId and only returns the authenticated user profile', async () => {
@@ -193,6 +243,36 @@ describe('auth and user permissions', () => {
     expect(update.status).toBe(200);
     expect(update.body.settings.voiceType).toBe('BV001_streaming');
   });
+
+  it('grants a referral reward only once after the invitee first pays', async () => {
+    const inviter = await loginWithKey('HYT-2026-AAAA-0001', 'inviter');
+    const inviteCode = inviter.invite.code;
+
+    const inviteeTrial = await startTrial('invitee-trial-user', { inviteCode });
+    expect(inviteeTrial.membership.planType).toBe('invited_trial');
+
+    const firstPaid = await loginWithKey('HYT-2026-BBBB-0002', 'invitee-trial-user');
+    expect(firstPaid.membership.accessLevel).toBe('premium');
+
+    const inviterInviteAfterFirstPay = await request(app)
+      .get('/api/user/invite')
+      .set('Authorization', `Bearer ${inviter.token}`);
+
+    expect(inviterInviteAfterFirstPay.status).toBe(200);
+    expect(inviterInviteAfterFirstPay.body.invite.stats.convertedCount).toBe(1);
+    expect(inviterInviteAfterFirstPay.body.invite.stats.rewardDaysEarned).toBe(7);
+
+    const renewal = await loginWithKey('HYT-2026-CCCC-0003', 'invitee-trial-user');
+    expect(renewal.membership.accessLevel).toBe('premium');
+
+    const inviterInviteAfterRenewal = await request(app)
+      .get('/api/user/invite')
+      .set('Authorization', `Bearer ${inviter.token}`);
+
+    expect(inviterInviteAfterRenewal.status).toBe(200);
+    expect(inviterInviteAfterRenewal.body.invite.stats.convertedCount).toBe(1);
+    expect(inviterInviteAfterRenewal.body.invite.stats.rewardDaysEarned).toBe(7);
+  });
 });
 
 describe('learning progress idempotency', () => {
@@ -250,7 +330,7 @@ describe('admin auth and key management', () => {
     expect(response.body.code).toBe('MISSING_ADMIN_TOKEN');
   });
 
-  it('supports admin login, generate/list, expire, and delete for non-activated keys', async () => {
+  it('supports admin login, generate/list, delete unused keys, and extend expired bound keys', async () => {
     const login = await request(app)
       .post('/api/admin/login')
       .send({ password: 'secret-admin' });
@@ -263,7 +343,7 @@ describe('admin auth and key management', () => {
     const generated = await request(app)
       .post('/api/admin/generate-key')
       .set(authHeader)
-      .send({ count: 1 });
+      .send({ count: 1, durationDays: 30 });
 
     expect(generated.status).toBe(200);
     expect(generated.body.count).toBe(1);
@@ -275,17 +355,52 @@ describe('admin auth and key management', () => {
     expect(list.status).toBe(200);
     const generatedKey = list.body.keys.find((row) => row.key_code === generated.body.keys[0].keyCode);
     expect(generatedKey).toBeTruthy();
-
-    const expire = await request(app)
-      .post(`/api/admin/keys/${generatedKey.id}/expire`)
-      .set(authHeader);
-
-    expect(expire.status).toBe(200);
+    expect(generatedKey.status).toBe('unused');
 
     const deleteResponse = await request(app)
       .delete(`/api/admin/keys/${generatedKey.id}`)
       .set(authHeader);
 
     expect(deleteResponse.status).toBe(200);
+
+    const userLogin = await request(app)
+      .post('/api/auth/login')
+      .send({ keyCode: 'HYT-2026-AAAA-0001', telegramId: 'bound-user', name: 'Bound User' });
+
+    expect(userLogin.status).toBe(200);
+
+    const boundKey = await dbModule.query('SELECT * FROM keys WHERE key_code = $1', ['HYT-2026-AAAA-0001']);
+    const boundKeyId = boundKey.rows[0].id;
+
+    await dbModule.query(
+      `
+        UPDATE keys
+        SET status = 'expired',
+            expires_at = NOW() - INTERVAL '1 day'
+        WHERE id = $1
+      `,
+      [boundKeyId]
+    );
+
+    const extend = await request(app)
+      .post(`/api/admin/keys/${boundKeyId}/extend`)
+      .set(authHeader)
+      .send({ expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() });
+
+    expect(extend.status).toBe(200);
+    expect(extend.body.key.status).toBe('active');
+
+    const relogin = await request(app)
+      .post('/api/auth/login')
+      .send({ keyCode: 'HYT-2026-AAAA-0001', telegramId: 'bound-user', name: 'Bound User' });
+
+    expect(relogin.status).toBe(200);
+    expect(relogin.body.membership.accessLevel).toBe('premium');
+
+    const expire = await request(app)
+      .post(`/api/admin/keys/${boundKeyId}/expire`)
+      .set(authHeader);
+
+    expect(expire.status).toBe(200);
   });
 });

@@ -25,14 +25,20 @@
   "login": {
     "title": "Bunson老师",
     "subtitle": "适合柬埔寨用户的实用中文学习",
-    "inputLabel": "输入你的激活码",
     "placeholder": "HYT-XXXX-XXXX-XXXX",
     "invalidKey": "请输入正确的激活码",
-    "loginFailed": "登录失败，请稍后再试",
+    "loginFailed": "操作失败，请稍后再试",
     "verifying": "正在验证...",
-    "startLearning": "开始学习",
-    "contactSupport": "联系购买激活码",
-    "supportMeta": "@sotheary92 · 24/7"
+    "contactSupport": "联系 Telegram 客服",
+    "supportMeta": "@sotheary92 · 线下转账后发月卡码",
+    "wordHighlights": "词汇",
+    "monthCardLabel": "月卡会员",
+    "inviteBanner": "通过邀请进入，输入邀请码 {code}。开通后可继续获得权益",
+    "startTrialTitle": "先体验，再决定是否购买",
+    "startTrialCopy": "新用户可直接进入产品，先体验 3 天 Premium 权益。",
+    "startFreeTrial": "免费试用 3 天",
+    "redeemTitle": "已有月卡激活码",
+    "redeemButton": "输入激活码继续"
   },
   "home": {
     "title": "滑卡背词",
@@ -52,8 +58,46 @@
     "voiceSetting": "老师音色",
     "voiceDefault": "默认音色"
   },
+  "membership": {
+    "premiumOnly": "Premium Only",
+    "gateSubtitle": "词卡学习继续免费，但对话陪练和测验需要月卡会员。",
+    "currentPlan": "当前身份",
+    "validUntil": "有效截止",
+    "freeTier": "免费层",
+    "homeStillAvailable": "你仍然可以继续在“学习”页背词。",
+    "valueDialogue": "真人老师感的口语陪练",
+    "valueQuiz": "词汇掌握度测验",
+    "valueSupport": "线下续费后原激活码可继续使用",
+    "redeemLabel": "输入月卡激活码",
+    "redeemFailed": "激活失败，请检查激活码或联系客服",
+    "redeeming": "正在开通...",
+    "redeemNow": "立即开通月卡",
+    "contactTelegram": "联系 Telegram 客服购买",
+    "inviteFriends": "邀请好友",
+    "viewInviteCenter": "查看邀请中心",
+    "invitedCount": "已邀请",
+    "convertedCount": "已付费",
+    "rewardDays": "奖励天数",
+    "membershipTitle": "会员状态",
+    "monthCard": "Premium 月卡",
+    "freeLayer": "免费层",
+    "premiumShort": "PREMIUM",
+    "freeShort": "FREE",
+    "profileValueCopy": "AI 对话和测验属于 Premium 能力，词卡背诵持续可用。",
+    "inviteExplainer": "好友首付成功后，你可获得 7 天额外使用期限。",
+    "openInvite": "去邀请",
+    "freeLayerDescription": "词卡继续免费，核心高价值能力在月卡内开放。"
+  },
   "share": {
     "receipt": "学习小票",
-    "saveImage": "保存图片"
+    "saveImage": "保存图片",
+    "inviteTitle": "分享邀请链接",
+    "inviteCopy": "我在 Bunson老师 练中文口语，你也来试试吧。",
+    "noInviteLink": "邀请链接生成中",
+    "copied": "已复制",
+    "copyLink": "复制链接",
+    "posterLabel": "成果海报",
+    "posterTip": "成果海报保留为辅助分享素材。",
+    "posterText": "已学习 {words} 个词，连续 {streak} 天。"
   }
 }

@@ -53,11 +53,25 @@ export const storage = {
 };
 
 export const api = {
-  login: (keyCode, telegramId, name, avatarUrl) =>
+  startTrial: (telegramId, name, avatarUrl, inviteCode = null) =>
+    request('/auth/start-trial', {
+      method: 'POST',
+      auth: 'none',
+      body: { telegramId, name, avatarUrl, inviteCode },
+    }),
+
+  login: (keyCode, telegramId, name, avatarUrl, inviteCode = null) =>
     request('/auth/login', {
       method: 'POST',
       auth: 'none',
-      body: { keyCode, telegramId, name, avatarUrl },
+      body: { keyCode, telegramId, name, avatarUrl, inviteCode },
+    }),
+
+  redeemActivationCode: (keyCode) =>
+    request('/auth/login', {
+      method: 'POST',
+      auth: 'user',
+      body: { keyCode },
     }),
 
   verify: () =>
@@ -70,8 +84,8 @@ export const api = {
       method: 'POST',
     }),
 
-  getNextWords: (batch = 20) =>
-    request(`/words/next?batch=${batch}`),
+  getNextWords: (batch = 20, mode = 'home') =>
+    request(`/words/next?batch=${batch}&mode=${encodeURIComponent(mode)}`),
 
   recordAction: (wordId, action) =>
     request('/words/action', {
@@ -83,6 +97,7 @@ export const api = {
 
   getProfile: () => request('/user/profile'),
   getUserSettings: () => request('/user/settings'),
+  getInvite: () => request('/user/invite'),
   updateUserSettings: (payload) =>
     request('/user/settings', {
       method: 'POST',
@@ -130,11 +145,11 @@ export const api = {
   verifyAdmin: () => request('/admin/session', { auth: 'admin' }),
   adminLogout: () => request('/admin/logout', { method: 'POST', auth: 'admin' }),
 
-  generateKey: (count = 1) =>
+  generateKey: (count = 1, options = {}) =>
     request('/admin/generate-key', {
       method: 'POST',
       auth: 'admin',
-      body: { count },
+      body: { count, ...options },
     }),
 
   getKeys: (status, page = 1, limit = 50) =>
@@ -151,6 +166,13 @@ export const api = {
     request(`/admin/keys/${id}`, {
       method: 'DELETE',
       auth: 'admin',
+    }),
+
+  extendKey: (id, expiresAt) =>
+    request(`/admin/keys/${id}/extend`, {
+      method: 'POST',
+      auth: 'admin',
+      body: { expiresAt },
     }),
 
   expireKey: (id) =>

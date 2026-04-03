@@ -1,5 +1,35 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { api, storage } from '../utils/api.js';
+
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return '-';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hour}:${minute}`;
+}
+
+function toDateInput(daysAhead = 30) {
+  const date = new Date();
+  date.setDate(date.getDate() + daysAhead);
+  return date.toISOString().slice(0, 10);
+}
+
+function toExpiryIso(dateInput) {
+  if (!dateInput) return null;
+  const date = new Date(`${dateInput}T23:59:59`);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+function statusMeta(status) {
+  if (status === 'active') return { label: '有效中', className: 'bg-act' };
+  if (status === 'expired') return { label: '已过期', className: 'bg-exp' };
+  return { label: '未使用', className: 'bg-new' };
+}
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
@@ -10,6 +40,9 @@ export default function AdminPage() {
   const [filter, setFilter] = useState('');
   const [generating, setGenerating] = useState(false);
   const [genCount, setGenCount] = useState(1);
+  const [durationDays, setDurationDays] = useState(30);
+  const [fixedExpiry, setFixedExpiry] = useState('');
+  const [extendDate, setExtendDate] = useState(toDateInput(30));
   const [error, setError] = useState('');
   const [copiedKey, setCopiedKey] = useState(null);
 
@@ -85,7 +118,10 @@ export default function AdminPage() {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      await api.generateKey(genCount);
+      const payload = fixedExpiry
+        ? { expiresAt: toExpiryIso(fixedExpiry) }
+        : { durationDays };
+      await api.generateKey(genCount, payload);
       await loadData();
     } catch (err) {
       setError(err.message);
@@ -112,8 +148,23 @@ export default function AdminPage() {
     }
   };
 
-  const handleCopyKey = async (keyCode, e) => {
-    if (e) e.stopPropagation();
+  const handleExtend = async (id) => {
+    const expiresAt = toExpiryIso(extendDate);
+    if (!expiresAt) {
+      setError('请选择新的截止日期');
+      return;
+    }
+
+    try {
+      await api.extendKey(id, expiresAt);
+      await loadData();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleCopyKey = async (keyCode, event) => {
+    if (event) event.stopPropagation();
     try {
       await navigator.clipboard.writeText(keyCode);
       setCopiedKey(keyCode);
@@ -129,17 +180,6 @@ export default function AdminPage() {
       setCopiedKey(keyCode);
       setTimeout(() => setCopiedKey(null), 2000);
     }
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
-    const d = new Date(dateStr);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hour = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hour}:${min}`;
   };
 
   if (checkingSession) {
@@ -163,10 +203,10 @@ export default function AdminPage() {
         <div className="admin-login-content">
           <div style={{ fontSize: 40, marginBottom: 16 }}>🔐</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 4, fontFamily: "'Noto Sans SC', sans-serif" }}>
-            密钥管理后台
+            会员月卡后台
           </div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 24, fontFamily: "'Noto Sans SC', sans-serif" }}>
-            {'\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793'} ? Admin
+            Activation Keys Admin
           </div>
           <div className="input-box" style={{ marginBottom: 14 }}>
             <i className="fas fa-lock"></i>
@@ -174,12 +214,12 @@ export default function AdminPage() {
               type="password"
               placeholder="管理员密码"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+              onChange={(event) => setPassword(event.target.value)}
+              onKeyDown={(event) => event.key === 'Enter' && handleLogin()}
               style={{ letterSpacing: 1 }}
             />
           </div>
-          {error && <div style={{ color: '#ef4444', fontSize: 12, marginBottom: 10 }}>{error}</div>}
+          {error ? <div style={{ color: '#ef4444', fontSize: 12, marginBottom: 10 }}>{error}</div> : null}
           <button className="btn-grad" onClick={handleLogin}>进入后台</button>
         </div>
         <style>{`
@@ -206,8 +246,8 @@ export default function AdminPage() {
       <div className="admin-content">
         <div className="admin-tb">
           <div>
-            <div className="adm-ttl">密钥管理</div>
-            <div className="adm-sub">{'\u179A\u17C0\u1793\u1797\u17B6\u179F\u17B6\u1785\u17B7\u1793'} ? Admin</div>
+            <div className="adm-ttl">会员密钥管理</div>
+            <div className="adm-sub">Month Card Admin</div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <div className="adm-av"><i className="fas fa-user-shield"></i></div>
@@ -215,15 +255,15 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {stats && (
+        {stats ? (
           <div className="adm-stats">
             <div className="adm-s">
               <div className="adm-sn" style={{ color: '#a78bfa' }}>{stats.totalKeys}</div>
               <div className="adm-sl">总密钥</div>
             </div>
             <div className="adm-s">
-              <div className="adm-sn" style={{ color: '#34d399' }}>{stats.activatedKeys}</div>
-              <div className="adm-sl">已激活</div>
+              <div className="adm-sn" style={{ color: '#34d399' }}>{stats.activeKeys}</div>
+              <div className="adm-sl">有效中</div>
             </div>
             <div className="adm-s">
               <div className="adm-sn" style={{ color: '#60a5fa' }}>{stats.unusedKeys}</div>
@@ -234,80 +274,116 @@ export default function AdminPage() {
               <div className="adm-sl">已过期</div>
             </div>
           </div>
-        )}
+        ) : null}
 
-        {error && <div className="error-banner">{error}</div>}
+        {error ? <div className="error-banner">{error}</div> : null}
 
-        <div className="gen-row">
-          <select
-            className="gen-select"
-            value={genCount}
-            onChange={(e) => setGenCount(parseInt(e.target.value, 10))}
-          >
-            {[1, 5, 10, 20, 50].map((n) => (
-              <option key={n} value={n}>生成 {n} 个</option>
-            ))}
-          </select>
-          <button className="gen-btn" onClick={handleGenerate} disabled={generating}>
-            <i className="fas fa-plus-circle"></i>
-            {generating ? '生成中...' : '生成新密钥'}
-          </button>
+        <div className="panel">
+          <div className="panel-title">生成新密钥</div>
+          <div className="controls-grid">
+            <select
+              className="gen-select"
+              value={genCount}
+              onChange={(event) => setGenCount(Number.parseInt(event.target.value, 10))}
+            >
+              {[1, 5, 10, 20, 50].map((count) => (
+                <option key={count} value={count}>生成 {count} 个</option>
+              ))}
+            </select>
+
+            <input
+              className="gen-input"
+              type="number"
+              min="1"
+              value={durationDays}
+              onChange={(event) => setDurationDays(Number.parseInt(event.target.value, 10) || 30)}
+              placeholder="有效天数"
+            />
+
+            <input
+              className="gen-input"
+              type="date"
+              value={fixedExpiry}
+              onChange={(event) => setFixedExpiry(event.target.value)}
+            />
+
+            <button className="gen-btn" onClick={handleGenerate} disabled={generating}>
+              <i className="fas fa-plus-circle"></i>
+              {generating ? '生成中...' : '生成月卡密钥'}
+            </button>
+          </div>
+          <div className="panel-hint">填写固定截止日期时优先按截止日期生成；留空时按“有效天数”生成。</div>
+        </div>
+
+        <div className="panel">
+          <div className="panel-title">延期设置</div>
+          <div className="controls-inline">
+            <input
+              className="gen-input"
+              type="date"
+              value={extendDate}
+              onChange={(event) => setExtendDate(event.target.value)}
+            />
+            <span className="panel-hint">选择后方按钮统一延期到该日期</span>
+          </div>
         </div>
 
         <div className="keys-hd">
           <span className="keys-hd-lbl">密钥列表</span>
           <div className="keys-filter">
-            {['', 'unused', 'activated', 'expired'].map((f) => (
+            {['', 'unused', 'active', 'expired'].map((value) => (
               <span
-                key={f}
-                className={`kf ${filter === f ? 'active' : 'inactive'}`}
-                onClick={() => setFilter(f)}
+                key={value}
+                className={`kf ${filter === value ? 'active' : 'inactive'}`}
+                onClick={() => setFilter(value)}
               >
-                {f === '' ? '全部' : f === 'unused' ? '未用' : f === 'activated' ? '已用' : '过期'}
+                {value === '' ? '全部' : value === 'unused' ? '未用' : value === 'active' ? '有效' : '过期'}
               </span>
             ))}
           </div>
         </div>
 
         <div className="keys-list">
-          {keys.map((key) => (
-            <div
-              className={`ki ${key.status === 'activated' ? 'ka' : key.status === 'expired' ? 'ku' : ''}`}
-              key={key.id}
-            >
-              <div className="ki-r1">
-                <div className="ki-val">{key.key_code}</div>
-                <div className="ki-actions">
-                  <button
-                    className={`copy-btn ${copiedKey === key.key_code ? 'copied' : ''}`}
-                    onClick={(e) => handleCopyKey(key.key_code, e)}
-                  >
-                    <i className={`fas ${copiedKey === key.key_code ? 'fa-check' : 'fa-copy'}`}></i>
-                    <span>{copiedKey === key.key_code ? '已复制' : '复制'}</span>
-                  </button>
-                  {key.status === 'unused' && (
-                    <>
-                      <button className="action-btn warn" onClick={() => handleExpire(key.id)}>作废</button>
+          {keys.map((key) => {
+            const meta = statusMeta(key.status);
+            return (
+              <div className={`ki ${key.status === 'active' ? 'ka' : key.status === 'expired' ? 'ku' : ''}`} key={key.id}>
+                <div className="ki-r1">
+                  <div className="ki-val">{key.key_code}</div>
+                  <div className="ki-actions">
+                    <button
+                      className={`copy-btn ${copiedKey === key.key_code ? 'copied' : ''}`}
+                      onClick={(event) => handleCopyKey(key.key_code, event)}
+                    >
+                      <i className={`fas ${copiedKey === key.key_code ? 'fa-check' : 'fa-copy'}`}></i>
+                      <span>{copiedKey === key.key_code ? '已复制' : '复制'}</span>
+                    </button>
+                    {key.status !== 'unused' ? (
+                      <button className="action-btn info" onClick={() => handleExtend(key.id)}>延期</button>
+                    ) : null}
+                    {key.status !== 'expired' ? (
+                      <button className="action-btn warn" onClick={() => handleExpire(key.id)}>失效</button>
+                    ) : null}
+                    {key.status === 'unused' ? (
                       <button className="action-btn danger" onClick={() => handleDelete(key.id)}>删除</button>
-                    </>
-                  )}
-                  <div className={`badge ${key.status === 'unused' ? 'bg-new' :
-                    key.status === 'activated' ? 'bg-act' : 'bg-use'
-                  }`}>
-                    {key.status === 'unused' ? '新建' :
-                      key.status === 'activated' ? '已激活' : '已过期'}
+                    ) : null}
+                    <div className={`badge ${meta.className}`}>{meta.label}</div>
                   </div>
                 </div>
+                <div className="ki-r2">
+                  <div className="ki-m"><i className="fas fa-hashtag"></i><span>#{key.serial_number}</span></div>
+                  <div className="ki-m"><i className="fas fa-calendar-plus"></i><span>{formatDate(key.created_at)}</span></div>
+                  <div className="ki-m"><i className="fas fa-hourglass-end"></i><span>{formatDate(key.expires_at)}</span></div>
+                  {key.last_extended_at ? (
+                    <div className="ki-m"><i className="fas fa-clock-rotate-left"></i><span>{formatDate(key.last_extended_at)}</span></div>
+                  ) : null}
+                  {key.user_name ? (
+                    <div className="ki-m"><i className="fas fa-user"></i><span>{key.user_name}</span></div>
+                  ) : null}
+                </div>
               </div>
-              <div className="ki-r2">
-                <div className="ki-m"><i className="fas fa-hashtag"></i><span>#{key.serial_number}</span></div>
-                <div className="ki-m"><i className="fas fa-calendar"></i><span>{formatDate(key.created_at)}</span></div>
-                {key.user_name && (
-                  <div className="ki-m"><i className="fas fa-user"></i><span>{key.user_name}</span></div>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -324,11 +400,25 @@ export default function AdminPage() {
         .adm-s { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); border-radius: 13px; padding: 12px 10px; text-align: center; }
         .adm-sn { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
         .adm-sl { font-size: 10px; color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; }
+        .panel { margin: 0 22px 14px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); }
+        .panel-title { color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+        .panel-hint { margin-top: 8px; font-size: 11px; color: var(--text-muted); }
+        .controls-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .controls-inline { display: flex; gap: 10px; align-items: center; }
         .error-banner { margin: 0 22px 16px; padding: 10px 12px; border-radius: 12px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; font-size: 12px; }
-        .gen-row { display: flex; gap: 9px; padding: 0 22px 16px; }
-        .gen-select { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 13px; color: #fff; padding: 10px 14px; font-size: 13px; font-family: 'Noto Sans SC', sans-serif; outline: none; flex-shrink: 0; }
+        .gen-select, .gen-input {
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 13px;
+          color: #fff;
+          padding: 10px 14px;
+          font-size: 13px;
+          font-family: 'Noto Sans SC', sans-serif;
+          outline: none;
+          width: 100%;
+        }
         .gen-select option { background: #1a1a3a; color: #fff; }
-        .gen-btn { flex: 1; padding: 13px; background: linear-gradient(135deg, #7c3aed, #2563eb); border: none; border-radius: 13px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; display: flex; align-items: center; justify-content: center; gap: 7px; box-shadow: 0 5px 18px rgba(124,58,237,0.38); transition: transform 0.15s ease; }
+        .gen-btn { padding: 13px; background: linear-gradient(135deg, #7c3aed, #2563eb); border: none; border-radius: 13px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; display: flex; align-items: center; justify-content: center; gap: 7px; box-shadow: 0 5px 18px rgba(124,58,237,0.38); transition: transform 0.15s ease; }
         .gen-btn:active { transform: scale(0.97); }
         .gen-btn:disabled { opacity: 0.6; }
         .keys-hd { padding: 0 22px 8px; display: flex; justify-content: space-between; align-items: center; }
@@ -348,12 +438,13 @@ export default function AdminPage() {
         .copy-btn { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); color: #a78bfa; }
         .copy-btn.copied { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #34d399; }
         .action-btn { border: 1px solid transparent; }
+        .action-btn.info { background: rgba(96,165,250,0.14); border-color: rgba(96,165,250,0.24); color: #93c5fd; }
         .action-btn.warn { background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.24); color: #fbbf24; }
         .action-btn.danger { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.24); color: #fca5a5; }
         .badge { font-size: 10px; padding: 2px 9px; border-radius: 9px; font-weight: 600; }
         .bg-new { background: rgba(124,58,237,0.18); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
         .bg-act { background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.28); }
-        .bg-use { background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.28); }
+        .bg-exp { background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.28); }
         .ki-r2 { display: flex; gap: 14px; font-size: 10px; color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; flex-wrap: wrap; }
         .ki-m { display: flex; align-items: center; gap: 3px; }
         .ki-m i { font-size: 9px; }

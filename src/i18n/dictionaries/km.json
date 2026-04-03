@@ -25,14 +25,20 @@
   "login": {
     "title": "Bunson老师",
     "subtitle": "កម្មវិធីរៀនភាសាចិនសម្រាប់អ្នកនិយាយភាសាខ្មែរ",
-    "inputLabel": "បញ្ចូលលេខកូដបើកប្រើ",
     "placeholder": "HYT-XXXX-XXXX-XXXX",
     "invalidKey": "សូមបញ្ចូលលេខកូដឱ្យត្រឹមត្រូវ",
-    "loginFailed": "ចូលមិនបានទេ សូមព្យាយាមម្ដងទៀត",
+    "loginFailed": "ប្រតិបត្តិការបរាជ័យ សូមព្យាយាមម្ដងទៀត",
     "verifying": "កំពុងផ្ទៀងផ្ទាត់...",
-    "startLearning": "ចាប់ផ្តើមរៀន",
-    "contactSupport": "ទំនាក់ទំនងទិញលេខកូដ",
-    "supportMeta": "@sotheary92 · 24/7"
+    "contactSupport": "ទាក់ទង Telegram Support",
+    "supportMeta": "@sotheary92 · ផ្ទេរប្រាក់ក្រៅប្រព័ន្ធ រួចទទួលលេខកូដ",
+    "wordHighlights": "ពាក្យ",
+    "monthCardLabel": "កាតប្រចាំខែ",
+    "inviteBanner": "អ្នកចូលតាម invite code {code}។ បើបង់លើកដំបូង អាចមានរង្វាន់បន្ថែម។",
+    "startTrialTitle": "មើលផលិតផលមុនសិន ទើបសម្រេចចិត្តបង់",
+    "startTrialCopy": "អ្នកប្រើថ្មីអាចចូលបានភ្លាម ហើយសាកល្បង Premium 3 ថ្ងៃ។",
+    "startFreeTrial": "សាកល្បងឥតគិតថ្លៃ 3 ថ្ងៃ",
+    "redeemTitle": "មានលេខកូដកាតប្រចាំខែរួចហើយ",
+    "redeemButton": "បញ្ចូលលេខកូដដើម្បីបន្ត"
   },
   "home": {
     "title": "រៀនពាក្យដោយស្វាយ",
@@ -52,8 +58,46 @@
     "voiceSetting": "សំឡេងគ្រូ",
     "voiceDefault": "លំនាំដើម"
   },
+  "membership": {
+    "premiumOnly": "Premium Only",
+    "gateSubtitle": "ការរៀនពាក្យនៅតែឥតគិតថ្លៃ ប៉ុន្តែសន្ទនា AI និងតេស្តត្រូវការ month card។",
+    "currentPlan": "ស្ថានភាពបច្ចុប្បន្ន",
+    "validUntil": "មានសុពលភាពដល់",
+    "freeTier": "Free layer",
+    "homeStillAvailable": "អ្នកនៅតែអាចបន្តរៀនពាក្យនៅផ្ទាំង Learn បាន។",
+    "valueDialogue": "ហាត់និយាយជាមួយអារម្មណ៍ដូចគ្រូ",
+    "valueQuiz": "តេស្តកម្រិតចេះចាំពាក្យ",
+    "valueSupport": "បន្តសុពលភាពលើលេខកូដដដែលបាន",
+    "redeemLabel": "បញ្ចូលលេខកូដ month card",
+    "redeemFailed": "បើកប្រើមិនបានទេ សូមពិនិត្យលេខកូដ ឬទាក់ទង support",
+    "redeeming": "កំពុងបើកប្រើ...",
+    "redeemNow": "បើក month card ឥឡូវ",
+    "contactTelegram": "ទាក់ទង Telegram Support",
+    "inviteFriends": "អញ្ជើញមិត្តភក្តិ",
+    "viewInviteCenter": "មើលផ្ទាំងអញ្ជើញ",
+    "invitedCount": "បានអញ្ជើញ",
+    "convertedCount": "បានបង់",
+    "rewardDays": "ថ្ងៃរង្វាន់",
+    "membershipTitle": "សមាជិកភាព",
+    "monthCard": "Premium month card",
+    "freeLayer": "Free layer",
+    "premiumShort": "PREMIUM",
+    "freeShort": "FREE",
+    "profileValueCopy": "AI សន្ទនា និងតេស្តស្ថិតក្នុង Premium ខណៈពាក្យនៅតែអាចរៀនបាន។",
+    "inviteExplainer": "ពេលមិត្តដែលអ្នកអញ្ជើញបង់លើកដំបូង អ្នកទទួលបាន 7 ថ្ងៃបន្ថែម។",
+    "openInvite": "អញ្ជើញឥឡូវ",
+    "freeLayerDescription": "ការរៀនឥតគិតថ្លៃនៅតែមាន ខណៈការហាត់កម្រិតខ្ពស់នៅក្នុង Premium។"
+  },
   "share": {
     "receipt": "បង្កាន់ដៃការរៀន",
-    "saveImage": "រក្សាទុករូបភាព"
+    "saveImage": "រក្សាទុករូបភាព",
+    "inviteTitle": "ចែករំលែកតំណអញ្ជើញ",
+    "inviteCopy": "ខ្ញុំកំពុងហាត់ភាសាចិនជាមួយ Bunson老师 អ្នកក៏អាចសាកបានដែរ។",
+    "noInviteLink": "កំពុងបង្កើតតំណអញ្ជើញ",
+    "copied": "បានចម្លង",
+    "copyLink": "ចម្លងតំណ",
+    "posterLabel": "ផ្ទាំងលទ្ធផល",
+    "posterTip": "ផ្ទាំងលទ្ធផលនៅតែអាចប្រើជាសម្ភារៈចែករំលែកបន្ថែម។",
+    "posterText": "បានរៀន {words} ពាក្យ និងរៀនជាប់ {streak} ថ្ងៃ។"
   }
 }
