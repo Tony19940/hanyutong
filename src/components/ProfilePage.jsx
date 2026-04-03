@@ -268,10 +268,10 @@ export default function ProfilePage({
       <style>{`
         .profile-page { position: relative; z-index: 10; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         .profile-scroll {
+          flex: 1 1 auto;
           padding: 72px 16px 84px;
-          height: 100%;
           overflow-y: auto;
-          overflow-x: clip;
+          overflow-x: hidden;
           width: 100%;
           max-width: 100%;
           margin: 0 auto;
@@ -279,7 +279,7 @@ export default function ProfilePage({
           display: flex;
           flex-direction: column;
           gap: 12px;
-          flex-shrink: 0;
+          min-height: 0;
         }
         .profile-scroll::-webkit-scrollbar { display: none; }
         @media (max-width: 375px) {
