@@ -266,25 +266,44 @@ export default function ProfilePage({
       ) : null}
 
       <style>{`
-        .profile-page { flex: 1; position: relative; z-index: 10; overflow: hidden; }
+        .profile-page { position: relative; z-index: 10; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         .profile-scroll {
-          padding: 64px 18px 84px;
+          padding: 72px 16px 84px;
           height: 100%;
-          overflow: auto;
-          max-width: 390px;
+          overflow-y: auto;
+          overflow-x: clip;
+          width: 100%;
+          max-width: 100%;
           margin: 0 auto;
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 12px;
+          flex-shrink: 0;
         }
         .profile-scroll::-webkit-scrollbar { display: none; }
+        @media (max-width: 375px) {
+          .prof-hero { padding: 14px 12px; gap: 12px; border-radius: 24px; }
+          .av-wrap { width: 64px; height: 64px; border-radius: 32px; border-width: 2px; }
+          .prof-name { font-size: 18px; }
+          .prof-lv { font-size: 11px; padding: 3px 8px; }
+          .prof-hero .hero-title { font-size: 12px; }
+          .hero-membership-line { margin-top: 4px; font-size: 11px; }
+          .hero-membership-line.subdued { margin-top: 2px; }
+          .prof-handle { font-size: 11px; }
+          .hero-stat-card { padding: 8px 8px; border-radius: 14px; }
+          .hero-stat-card strong { font-size: 20px; }
+          .hero-stat-card span { font-size: 11px; }
+          .prof-name-row { gap: 6px; }
+          .hero-identity { gap: 12px; }
+        }
         .prof-hero {
           position: relative;
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          padding: 20px;
-          border-radius: 30px;
+          gap: 14px;
+          padding: 18px;
+          border-radius: 28px;
           background: var(--profile-hero-bg);
           border: 2px solid var(--profile-hero-border);
           overflow: hidden;
@@ -325,20 +344,22 @@ export default function ProfilePage({
         .hero-identity {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 14px;
+          min-width: 0;
+          margin-top: 2px;
         }
         .hero-copy {
           min-width: 0;
           flex: 1;
         }
         .av-wrap {
-          width: 88px;
-          height: 88px;
-          border-radius: 44px;
+          width: 72px;
+          height: 72px;
+          border-radius: 36px;
           overflow: hidden;
           flex-shrink: 0;
-          border: 4px solid rgba(245,216,143,0.82);
-          box-shadow: 0 18px 30px rgba(0,0,0,0.18);
+          border: 3px solid rgba(245,216,143,0.82);
+          box-shadow: 0 14px 24px rgba(0,0,0,0.18);
           background: rgba(255,255,255,0.08);
         }
         .av-img {
@@ -355,7 +376,7 @@ export default function ProfilePage({
           gap: 8px;
         }
         .prof-name {
-          font-size: 22px;
+          font-size: 20px;
           font-weight: 800;
           color: var(--text-primary);
           font-family: 'Manrope', 'Noto Sans SC', sans-serif;
@@ -374,13 +395,14 @@ export default function ProfilePage({
           color: var(--text-secondary);
         }
         .hero-membership-line {
-          margin-top: 8px;
+          margin-top: 6px;
           display: flex;
           flex-wrap: wrap;
-          gap: 6px;
+          gap: 4px;
           align-items: center;
           font-size: 12px;
           color: var(--text-secondary);
+          line-height: 1.5;
         }
         .hero-membership-line strong {
           color: var(--text-primary);
@@ -389,7 +411,7 @@ export default function ProfilePage({
           margin-top: 4px;
         }
         .membership-pill {
-          padding: 6px 10px;
+          padding: 4px 8px;
           border-radius: 999px;
           font-size: 11px;
           font-weight: 800;
@@ -407,18 +429,18 @@ export default function ProfilePage({
         .hero-stats-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 8px;
+          gap: 6px;
         }
         .hero-stat-card {
-          border-radius: 18px;
-          padding: 12px 10px;
+          border-radius: 16px;
+          padding: 10px 8px;
           border: 1.5px solid var(--profile-card-border);
           background: var(--profile-card-bg);
           box-shadow: 0 18px 36px rgba(0,0,0,0.08);
         }
         .hero-stat-card strong {
           display: block;
-          font-size: 24px;
+          font-size: 22px;
           line-height: 1;
           font-weight: 800;
           color: var(--profile-card-text);
@@ -426,8 +448,8 @@ export default function ProfilePage({
         }
         .hero-stat-card span {
           display: block;
-          margin-top: 6px;
-          font-size: 12px;
+          margin-top: 4px;
+          font-size: 11px;
           line-height: 1.45;
           color: var(--profile-secondary-text);
         }
@@ -560,6 +582,23 @@ export default function ProfilePage({
           border: 1.5px solid rgba(245,216,143,0.42);
           background: var(--settings-surface);
           color: var(--text-primary);
+        }
+        @media (max-width: 380px) {
+          .profile-scroll { padding: 72px 12px 84px; }
+          .prof-hero { padding: 14px 12px; gap: 12px; border-radius: 22px; }
+          .av-wrap { width: 56px; height: 56px; border-radius: 28px; border-width: 2px; }
+          .prof-name { font-size: 18px; }
+          .prof-lv { font-size: 11px; padding: 3px 8px; }
+          .prof-handle { font-size: 10px; }
+          .hero-identity { gap: 12px; }
+          .hero-membership-line { font-size: 11px; margin-top: 4px; }
+          .hero-membership-line.subdued { margin-top: 2px; font-size: 10px; }
+          .hero-stats-grid { gap: 5px; }
+          .hero-stat-card { padding: 8px 6px; border-radius: 14px; }
+          .hero-stat-card strong { font-size: 19px; }
+          .hero-stat-card span { font-size: 10px; margin-top: 3px; }
+          .invite-card { padding: 10px; border-radius: 18px; }
+          .invite-card-title { font-size: 12px; }
         }
       `}</style>
     </div>
