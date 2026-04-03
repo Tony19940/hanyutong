@@ -1,14 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import WordCard from './WordCard.jsx';
 import { api } from '../utils/api.js';
 import { useAppShell } from '../i18n/index.js';
 
 export default function HomePage({ user }) {
-  const { t, language, languageOptions, setLanguage } = useAppShell();
+  const { t, language, languageMeta, languageOptions, setLanguage } = useAppShell();
   const [words, setWords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stats, setStats] = useState({ total: 0, learned: 0, remaining: 0 });
   const [loading, setLoading] = useState(true);
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+  const languageMenuRef = useRef(null);
 
   const loadWords = useCallback(async () => {
     try {
@@ -37,6 +39,19 @@ export default function HomePage({ user }) {
   useEffect(() => {
     loadWords();
   }, [loadWords]);
+
+  useEffect(() => {
+    if (!isLanguageMenuOpen) return undefined;
+
+    const handlePointerDown = (event) => {
+      if (!languageMenuRef.current?.contains(event.target)) {
+        setIsLanguageMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [isLanguageMenuOpen]);
 
   const nextCard = () => {
     if (currentIndex < words.length - 1) {
@@ -77,6 +92,11 @@ export default function HomePage({ user }) {
 
   const currentWord = words[currentIndex];
   const progressPercent = stats.total > 0 ? Math.round((stats.learned / stats.total) * 100) : 0;
+  const handleLanguageSelect = useCallback((nextLanguage) => {
+    setIsLanguageMenuOpen(false);
+    if (nextLanguage === language) return;
+    setLanguage(nextLanguage);
+  }, [language, setLanguage]);
 
   return (
     <div className="home-page page-enter">
@@ -87,21 +107,39 @@ export default function HomePage({ user }) {
       <div className="home-layout">
         {/* Header */}
         <header className="home-head">
-          <div className="home-language-switch" role="group" aria-label={t('common.language')}>
-            {languageOptions.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`home-language-btn ${language === item.id ? 'active' : ''}`}
-                onClick={() => setLanguage(item.id)}
-                aria-label={item.englishLabel}
-              >
-                <span>{item.flag}</span>
-              </button>
-            ))}
+          <div className="home-language-switch" ref={languageMenuRef}>
+            <button
+              type="button"
+              className={`home-language-trigger ${isLanguageMenuOpen ? 'open' : ''}`}
+              aria-label={t('common.language')}
+              aria-expanded={isLanguageMenuOpen}
+              aria-haspopup="listbox"
+              onClick={() => setIsLanguageMenuOpen((current) => !current)}
+            >
+              <span className="home-language-current-flag">{languageMeta.flag}</span>
+              <span className="home-language-current-label">{languageMeta.label}</span>
+              <i className={`fas fa-chevron-down home-language-chevron ${isLanguageMenuOpen ? 'open' : ''}`}></i>
+            </button>
+
+            <div className={`home-language-popover ${isLanguageMenuOpen ? 'open' : ''}`} role="listbox">
+              {languageOptions.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`home-language-option ${language === item.id ? 'active' : ''}`}
+                  onClick={() => handleLanguageSelect(item.id)}
+                  aria-label={item.englishLabel}
+                >
+                  <span>{item.flag}</span>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-          <h1 className="home-title">{t('home.title')}</h1>
-          <p className="home-subtitle">{t('home.subtitle')}</p>
+          <div key={language} className="home-copy-block">
+            <h1 className="home-title">{t('home.title')}</h1>
+            <p className="home-subtitle">{t('home.subtitle')}</p>
+          </div>
         </header>
 
         {/* Progress */}
@@ -190,32 +228,87 @@ export default function HomePage({ user }) {
           position: absolute;
           top: 0;
           right: 0;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 5px;
-          border-radius: 16px;
-          border: 1px solid var(--settings-border);
-          background: var(--settings-surface);
-          box-shadow: 0 8px 18px var(--home-card-shadow);
+          z-index: 3;
         }
-        .home-language-btn {
-          width: 34px;
-          height: 34px;
-          border-radius: 12px;
+        .home-language-trigger {
+          min-width: 92px;
+          height: 38px;
+          border-radius: 16px;
+          padding: 0 12px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          font-size: 18px;
+          gap: 8px;
           color: var(--text-primary);
-          background: transparent;
-          border: 1px solid transparent;
-          transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+          background: var(--settings-surface);
+          border: 1px solid var(--settings-border);
+          box-shadow: 0 8px 18px var(--home-card-shadow);
+          backdrop-filter: blur(14px);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .home-language-btn.active {
-          background: rgba(255,255,255,0.08);
-          border-color: rgba(255,255,255,0.14);
+        .home-language-trigger.open {
           transform: translateY(-1px);
+          box-shadow: 0 14px 28px rgba(8, 20, 17, 0.18);
+        }
+        .home-language-current-flag {
+          font-size: 16px;
+        }
+        .home-language-current-label {
+          font-size: 12px;
+          font-weight: 800;
+        }
+        .home-language-chevron {
+          font-size: 11px;
+          color: var(--text-secondary);
+          transition: transform 0.2s ease;
+        }
+        .home-language-chevron.open {
+          transform: rotate(180deg);
+        }
+        .home-language-popover {
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          min-width: 132px;
+          padding: 8px;
+          border-radius: 18px;
+          border: 1px solid var(--settings-border);
+          background: color-mix(in srgb, var(--settings-surface) 88%, transparent);
+          box-shadow: 0 20px 40px rgba(8, 20, 17, 0.16);
+          backdrop-filter: blur(18px);
+          display: grid;
+          gap: 6px;
+          opacity: 0;
+          transform: translateY(-4px) scale(0.98);
+          pointer-events: none;
+          transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+        .home-language-popover.open {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          pointer-events: auto;
+        }
+        .home-language-option {
+          min-height: 38px;
+          padding: 0 10px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: var(--text-primary);
+          font-size: 12px;
+          font-weight: 700;
+          text-align: left;
+        }
+        .home-language-option.active {
+          background: var(--settings-chip-active-bg);
+          color: var(--settings-chip-active-text);
+          border-color: transparent;
+        }
+        .home-copy-block {
+          animation: homeCopySwap 0.3s cubic-bezier(.22,1,.36,1);
         }
         .home-title {
           font-size: clamp(28px, 5vw, 36px);
@@ -230,6 +323,18 @@ export default function HomePage({ user }) {
           margin-top: clamp(4px, 0.6vh, 8px);
           font-size: clamp(12px, 1.8vw, 14px);
           color: var(--home-subtitle-color);
+        }
+        @keyframes homeCopySwap {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+            filter: blur(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
         }
 
         /* Progress */

@@ -49,6 +49,8 @@
   },
   "profile": {
     "title": "Me",
+    "accountStatus": "Account",
+    "trialStatus": "Trial",
     "wordsLearned": "Words",
     "studyHours": "Hours",
     "mastery": "Mastery",
@@ -56,7 +58,10 @@
     "languageSetting": "Interface Language",
     "themeSetting": "Appearance",
     "voiceSetting": "Teacher Voice",
-    "voiceDefault": "Default"
+    "voiceDefault": "Default",
+    "settingsEntrySubtitle": "Manage language, voice, and light or dark mode",
+    "collectionEntrySubtitle": "Open the words you saved from swipe learning",
+    "settingsPageSubtitle": "These preferences apply to the whole app immediately"
   },
   "membership": {
     "premiumOnly": "Premium Only",

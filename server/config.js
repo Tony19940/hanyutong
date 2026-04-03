@@ -43,7 +43,7 @@ export const config = {
   doubaoTtsAppId: process.env.DOUBAO_TTS_APP_ID || '',
   doubaoTtsToken: process.env.DOUBAO_TTS_TOKEN || '',
   doubaoTtsCluster: process.env.DOUBAO_TTS_CLUSTER || 'volcano_tts',
-  doubaoTtsVoiceType: process.env.DOUBAO_TTS_VOICE_TYPE || 'BV001_streaming',
+  doubaoTtsVoiceType: process.env.DOUBAO_TTS_VOICE_TYPE || 'BV705_streaming',
   doubaoTtsEncoding: process.env.DOUBAO_TTS_ENCODING || 'mp3',
   doubaoTtsRate: readInt(process.env.DOUBAO_TTS_RATE, 24000),
   doubaoTtsSpeedRatio: Number.parseFloat(process.env.DOUBAO_TTS_SPEED_RATIO || '1.0') || 1.0,

@@ -2,14 +2,14 @@ import { config } from '../config.js';
 
 const CURATED_VOICES = [
   {
-    id: 'BV001_streaming',
-    label: '女声老师',
-    description: '清晰自然，适合日常教学和口语练习。',
-  },
-  {
     id: 'BV705_streaming',
     label: '男声老师',
     description: '更稳重的老师声音。',
+  },
+  {
+    id: 'BV001_streaming',
+    label: '女声老师',
+    description: '清晰自然，适合日常教学和口语练习。',
   },
 ];
 

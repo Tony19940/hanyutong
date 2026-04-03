@@ -174,9 +174,9 @@ describe('auth and user permissions', () => {
     expect(response.status).toBe(200);
     expect(response.body.settings.language).toBe('zh-CN');
     expect(response.body.settings.theme).toBe('dark');
-    expect(response.body.settings.voiceType).toBe('BV001_streaming');
+    expect(response.body.settings.voiceType).toBe('BV705_streaming');
     expect(response.body.settings.fallbackAvatarId).toMatch(/^avatar-[1-6]$/);
-    expect(response.body.voiceSettings.defaultVoiceType).toBe('BV001_streaming');
+    expect(response.body.voiceSettings.defaultVoiceType).toBe('BV705_streaming');
     expect(Array.isArray(response.body.voiceSettings.availableVoices)).toBe(true);
     expect(response.body.voiceSettings.availableVoices.length).toBeGreaterThan(0);
   });
@@ -213,7 +213,7 @@ describe('auth and user permissions', () => {
       voiceType: 'BV001_streaming',
       fallbackAvatarId: 'avatar-3',
     });
-    expect(profile.body.voiceSettings.defaultVoiceType).toBe('BV001_streaming');
+    expect(profile.body.voiceSettings.defaultVoiceType).toBe('BV705_streaming');
   });
 
   it('falls back to a deterministic built-in avatar when requested avatar id is invalid', async () => {
@@ -241,7 +241,7 @@ describe('auth and user permissions', () => {
       });
 
     expect(update.status).toBe(200);
-    expect(update.body.settings.voiceType).toBe('BV001_streaming');
+    expect(update.body.settings.voiceType).toBe('BV705_streaming');
   });
 
   it('grants a referral reward only once after the invitee first pays', async () => {

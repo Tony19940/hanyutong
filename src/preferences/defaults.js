@@ -7,7 +7,7 @@ export const storageKeys = {
 export const defaultPreferences = {
   language: 'zh-CN',
   theme: 'dark',
-  voiceType: '',
+  voiceType: 'BV705_streaming',
 };
 
 export function normalizeLanguage(value) {

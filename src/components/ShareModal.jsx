@@ -1,18 +1,34 @@
-import React, { useCallback, useRef, useState } from 'react';
-import AchievementPoster from './AchievementPoster.jsx';
+import React, { useCallback, useState } from 'react';
 import { useAppShell } from '../i18n/index.js';
 
 function openExternal(url) {
-  if (window.Telegram?.WebApp?.openLink) {
+  if (window.Telegram?.WebApp?.openLink && /^https?:/i.test(url)) {
     window.Telegram.WebApp.openLink(url);
     return;
   }
+
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
-export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
+function openMessengerShare(inviteUrl, shareText) {
+  const encodedUrl = encodeURIComponent(inviteUrl);
+  const fallbackUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodeURIComponent(shareText)}`;
+
+  try {
+    window.location.assign(`fb-messenger://share/?link=${encodedUrl}`);
+    window.setTimeout(() => {
+      if (document.visibilityState === 'visible') {
+        openExternal(fallbackUrl);
+      }
+    }, 700);
+  } catch (error) {
+    console.error(error);
+    openExternal(fallbackUrl);
+  }
+}
+
+export default function ShareModal({ invite, onClose }) {
   const { t } = useAppShell();
-  const stageRef = useRef(null);
   const [copied, setCopied] = useState(false);
 
   const inviteUrl = invite?.url || '';
@@ -21,50 +37,6 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
     convertedCount: 0,
     rewardDaysEarned: 0,
   };
-
-  const handleSaveImage = useCallback(async () => {
-    try {
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(stageRef.current, {
-        backgroundColor: '#141612',
-        scale: Math.max(window.devicePixelRatio || 1, 4),
-        useCORS: true,
-      });
-
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          return;
-        }
-
-        if (navigator.share && navigator.canShare) {
-          try {
-            const file = new File([blob], 'bunson-teacher-share-card.png', { type: 'image/png' });
-            if (navigator.canShare({ files: [file] })) {
-              await navigator.share({
-                files: [file],
-                title: 'Bunson老师',
-                text: `${user.name} ${t('share.posterText', { words: stats.wordsLearned, streak: stats.streak })}`,
-              });
-              return;
-            }
-          } catch (error) {
-            if (error.name === 'AbortError') return;
-          }
-        }
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'bunson-teacher-share-card.png';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-      }, 'image/png');
-    } catch (err) {
-      console.error('Save failed:', err);
-    }
-  }, [stats.streak, stats.wordsLearned, t, user.name]);
 
   const handleCopy = useCallback(async () => {
     if (!inviteUrl) return;
@@ -77,8 +49,9 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
     }
   }, [inviteUrl]);
 
-  const shareText = encodeURIComponent(t('share.inviteCopy'));
+  const shareText = `${t('share.inviteCopy')} ${inviteUrl}`.trim();
   const encodedUrl = encodeURIComponent(inviteUrl);
+  const encodedText = encodeURIComponent(shareText);
 
   return (
     <div className="share-overlay" onClick={(event) => event.target === event.currentTarget && onClose()}>
@@ -112,38 +85,37 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
           </div>
 
           <div className="share-actions">
-            <button className="sab sab-copy" onClick={handleCopy}>
+            <button type="button" className="sab sab-copy" onClick={handleCopy}>
               <i className={`fas ${copied ? 'fa-check' : 'fa-copy'}`}></i>
               <span>{copied ? t('share.copied') : t('share.copyLink')}</span>
             </button>
-            <button className="sab" onClick={() => openExternal(`https://t.me/share/url?url=${encodedUrl}&text=${shareText}`)}>
+            <button
+              type="button"
+              className="sab"
+              onClick={() => openExternal(`https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`)}
+            >
               <i className="fab fa-telegram"></i>
               <span>Telegram</span>
             </button>
-            <button className="sab" onClick={() => openExternal(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${shareText}`)}>
+            <button
+              type="button"
+              className="sab"
+              onClick={() => openExternal(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`)}
+            >
               <i className="fab fa-facebook"></i>
               <span>Facebook</span>
             </button>
-            <button className="sab" onClick={() => openExternal(`fb-messenger://share?link=${encodedUrl}`)}>
+            <button
+              type="button"
+              className="sab"
+              onClick={() => openMessengerShare(inviteUrl, shareText)}
+              disabled={!inviteUrl}
+            >
               <i className="fab fa-facebook-messenger"></i>
               <span>Messenger</span>
             </button>
           </div>
         </div>
-
-        <div className="receipt-head">
-          <div className="share-kicker">{t('share.posterLabel')}</div>
-          <div className="receipt-tip">{t('share.posterTip')}</div>
-        </div>
-
-        <div className="receipt-wrap" ref={stageRef}>
-          <AchievementPoster user={user} stats={stats} hskLevel={hskLevel} />
-        </div>
-
-        <button className="sab sab-save" onClick={handleSaveImage}>
-          <i className="fas fa-download"></i>
-          <span>{t('share.saveImage')}</span>
-        </button>
       </div>
 
       <style>{`
@@ -161,11 +133,8 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
         .share-shell {
           width: 100%;
           max-width: 396px;
-          max-height: calc(100dvh - 44px);
-          overflow: auto;
         }
-        .share-head,
-        .receipt-head {
+        .share-head {
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -184,7 +153,8 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
           color: var(--text-primary);
         }
         .share-close {
-          width: 38px; height: 38px;
+          width: 38px;
+          height: 38px;
           border-radius: 50%;
           border: 1px solid var(--settings-border);
           background: var(--settings-surface);
@@ -195,7 +165,6 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
           background: var(--settings-surface);
           border: 1px solid var(--settings-border);
           padding: 16px;
-          margin-bottom: 16px;
         }
         .invite-panel-copy {
           color: var(--text-secondary);
@@ -215,12 +184,14 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
         .invite-grid,
         .share-actions {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
           gap: 10px;
           margin-top: 14px;
         }
         .invite-grid {
           grid-template-columns: repeat(3, 1fr);
+        }
+        .share-actions {
+          grid-template-columns: repeat(2, 1fr);
         }
         .invite-grid div {
           border-radius: 16px;
@@ -240,24 +211,6 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
           color: var(--profile-card-text);
           font-size: 20px;
         }
-        .receipt-head {
-          margin-top: 4px;
-          margin-bottom: 10px;
-          display: block;
-        }
-        .receipt-tip {
-          margin-top: 4px;
-          font-size: 12px;
-          color: var(--text-secondary);
-        }
-        .receipt-wrap {
-          min-height: 620px;
-          border-radius: 28px;
-          background: linear-gradient(180deg, #171914 0%, #10120f 100%);
-          border: 1px solid rgba(225,191,83,0.18);
-          overflow: hidden;
-          box-shadow: 0 32px 70px rgba(0,0,0,0.22);
-        }
         .sab {
           min-height: 52px;
           border-radius: 16px;
@@ -271,12 +224,8 @@ export default function ShareModal({ user, stats, hskLevel, invite, onClose }) {
           background: var(--settings-surface);
           color: var(--text-primary);
         }
-        .sab-save {
-          width: 100%;
-          margin-top: 14px;
-          background: linear-gradient(135deg, var(--brand-gold) 0%, #d0a14a 32%, var(--brand-green) 100%);
-          color: #fffef9;
-          border: none;
+        .sab:disabled {
+          opacity: 0.52;
         }
         .sab-copy {
           background: linear-gradient(135deg, rgba(225,191,83,0.16), rgba(142,212,195,0.12));

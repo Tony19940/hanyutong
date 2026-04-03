@@ -5,7 +5,7 @@ import { resolveTeacherVoice } from './voiceInventoryService.js';
 export const DEFAULT_USER_SETTINGS = {
   language: 'zh-CN',
   theme: 'dark',
-  voiceType: '',
+  voiceType: resolveTeacherVoice(''),
   fallbackAvatarId: null,
 };
 

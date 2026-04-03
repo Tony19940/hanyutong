@@ -5,6 +5,7 @@ import HomePage from './components/HomePage.jsx';
 import QuizPage from './components/QuizPage.jsx';
 import CollectionPage from './components/CollectionPage.jsx';
 import ProfilePage from './components/ProfilePage.jsx';
+import ProfileSettingsPage from './components/ProfileSettingsPage.jsx';
 import AIPracticePage from './components/AIPracticePage.jsx';
 import AdminPage from './components/AdminPage.jsx';
 import TabBar from './components/TabBar.jsx';
@@ -25,6 +26,12 @@ function defaultMembership() {
     startedAt: null,
     isPremium: false,
   };
+}
+
+function arePreferencesEqual(left, right) {
+  return left.language === right.language
+    && left.theme === right.theme
+    && left.voiceType === right.voiceType;
 }
 
 export default function App() {
@@ -121,7 +128,10 @@ export default function App() {
     api.getUserSettings()
       .then((data) => {
         if (data?.settings) {
-          setPreferences((current) => normalizePreferences({ ...current, ...data.settings }));
+          setPreferences((current) => {
+            const next = normalizePreferences({ ...current, ...data.settings });
+            return arePreferencesEqual(current, next) ? current : next;
+          });
           if (data.settings.fallbackAvatarId) {
             setUser((current) => {
               if (!current) return current;
@@ -205,6 +215,9 @@ export default function App() {
   const updatePreferences = useCallback(async (patch) => {
     const previous = preferences;
     const optimistic = normalizePreferences({ ...previous, ...patch });
+    if (arePreferencesEqual(previous, optimistic)) {
+      return previous;
+    }
     setPreferences(optimistic);
 
     if (!user) {
@@ -214,7 +227,9 @@ export default function App() {
     try {
       const response = await api.updateUserSettings(patch);
       const merged = normalizePreferences({ ...optimistic, ...response?.settings });
-      setPreferences(merged);
+      if (!arePreferencesEqual(optimistic, merged)) {
+        setPreferences(merged);
+      }
       if (response?.voiceSettings) {
         setVoiceSettings(response.voiceSettings);
       }
@@ -356,7 +371,11 @@ export default function App() {
               invite={invite}
               profileRefreshKey={profileRefreshKey}
               onOpenCollection={() => setProfileView('collection')}
+              onOpenSettings={() => setProfileView('settings')}
             />
+          </div>
+          <div style={tabViewStyle(activeTab === 'profile' && profileView === 'settings')}>
+            <ProfileSettingsPage onBack={() => setProfileView('profile')} />
           </div>
           <div style={tabViewStyle(activeTab === 'profile' && profileView === 'collection')}>
             <CollectionPage vocabulary={vocabulary} onBack={() => setProfileView('profile')} />
