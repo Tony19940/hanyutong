@@ -9,6 +9,8 @@ import {
   normalizeTheme,
 } from '../services/userSettingsService.js';
 import { buildUserAvatarSeed, resolveFallbackAvatarId } from '../services/avatarService.js';
+import { getMembershipAccess } from '../services/membershipService.js';
+import { getInviteSummary } from '../services/referralService.js';
 import { getVocabularyCount } from '../services/vocabularyService.js';
 import { getTeacherVoiceSettings, resolveTeacherVoice } from '../services/voiceInventoryService.js';
 import { synthesizeDialogueText } from '../services/doubaoTtsService.js';
@@ -16,6 +18,13 @@ import { synthesizeDialogueText } from '../services/doubaoTtsService.js';
 const router = Router();
 
 router.use(requireUserAuth);
+
+function buildInviteBaseUrl(req) {
+  if (config.webappUrl) {
+    return config.webappUrl;
+  }
+  return `${req.protocol}://${req.get('host')}`;
+}
 
 async function ensureUserSettings(userId) {
   return ensureUserSettingsForDialogue(userId);
@@ -120,6 +129,8 @@ router.get('/profile', asyncHandler(async (req, res) => {
   const hskLevel = resolveHskLevel(learnedCount, config.hskThresholds);
   const settings = await ensureUserSettings(req.user);
   const voiceSettings = getTeacherVoiceSettings();
+  const membership = await getMembershipAccess(req.user.id);
+  const invite = await getInviteSummary(req.user.id, buildInviteBaseUrl(req));
 
   res.json({
     user: {
@@ -138,6 +149,8 @@ router.get('/profile', asyncHandler(async (req, res) => {
     },
     settings,
     voiceSettings,
+    membership,
+    invite,
   });
 }));
 
@@ -247,6 +260,16 @@ router.post('/time', asyncHandler(async (req, res) => {
   );
 
   return res.json({ success: true, minutesRecorded: normalizedMinutes });
+}));
+
+router.get('/invite', asyncHandler(async (req, res) => {
+  const invite = await getInviteSummary(req.user.id, buildInviteBaseUrl(req));
+  const membership = await getMembershipAccess(req.user.id);
+
+  res.json({
+    invite,
+    membership,
+  });
 }));
 
 export default router;

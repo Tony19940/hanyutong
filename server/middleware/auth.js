@@ -1,5 +1,6 @@
 import { unauthorized } from '../errors.js';
 import { getAdminSession, getUserSession } from '../services/sessionService.js';
+import { getMembershipAccess } from '../services/membershipService.js';
 
 function readBearerToken(req) {
   const header = req.headers.authorization || '';
@@ -23,17 +24,33 @@ export async function requireUserAuth(req, _res, next) {
 
     req.authToken = token;
     req.session = session;
+    const membership = await getMembershipAccess(session.user.id);
     req.user = {
       id: session.user.id,
       telegramId: session.user.telegram_id,
       name: session.user.name,
       avatarUrl: session.user.avatar_url,
+      membership,
     };
 
     return next();
   } catch (error) {
     return next(error);
   }
+}
+
+export function requirePremiumAccess(_feature = 'premium') {
+  return async function premiumAccessMiddleware(req, _res, next) {
+    try {
+      if (req.user?.membership?.accessLevel === 'premium') {
+        return next();
+      }
+
+      return next(unauthorized('Premium membership is required', 'PREMIUM_REQUIRED'));
+    } catch (error) {
+      return next(error);
+    }
+  };
 }
 
 export async function requireAdminAuth(req, _res, next) {

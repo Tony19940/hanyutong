@@ -1,69 +1,116 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { api, storage } from '../utils/api.js';
 import { getTelegramUser } from '../utils/telegram.js';
 import { useAppShell } from '../i18n/index.js';
 
-export default function LoginPage({ onLogin }) {
+const PENDING_INVITE_KEY = 'hyt_pending_ref';
+
+function formatKey(value) {
+  const clean = String(value || '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9-]/g, '');
+  const noDash = clean.replace(/-/g, '');
+  if (noDash.length <= 3) return noDash;
+  const prefix = noDash.slice(0, 3);
+  const rest = noDash.slice(3);
+  const segments = [prefix];
+  for (let index = 0; index < rest.length; index += 4) {
+    segments.push(rest.slice(index, index + 4));
+  }
+  return segments.slice(0, 4).join('-');
+}
+
+function persistAuth(response) {
+  localStorage.setItem(storage.USER_TOKEN_KEY, response.token);
+  localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(response.user));
+  localStorage.removeItem(PENDING_INVITE_KEY);
+}
+
+function openSupport() {
+  const tgUrl = 'https://t.me/sotheary92';
+  if (window.Telegram?.WebApp?.openTelegramLink) {
+    window.Telegram.WebApp.openTelegramLink(tgUrl);
+    return;
+  }
+  if (window.Telegram?.WebApp?.openLink) {
+    window.Telegram.WebApp.openLink(tgUrl);
+    return;
+  }
+  window.open(tgUrl, '_blank', 'noopener,noreferrer');
+}
+
+export default function LoginPage({ onAuthenticated }) {
   const { t } = useAppShell();
   const [keyCode, setKeyCode] = useState('');
+  const [loadingAction, setLoadingAction] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
 
-  const formatKey = (value) => {
-    const clean = value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-    const noDash = clean.replace(/-/g, '');
-    if (noDash.length <= 3) return noDash;
-    const prefix = noDash.slice(0, 3);
-    const rest = noDash.slice(3);
-    const segments = [prefix];
-    for (let i = 0; i < rest.length; i += 4) {
-      segments.push(rest.slice(i, i + 4));
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const ref = String(url.searchParams.get('ref') || '').trim().toUpperCase();
+    const cached = String(localStorage.getItem(PENDING_INVITE_KEY) || '').trim().toUpperCase();
+    const nextInviteCode = ref || cached;
+    if (nextInviteCode) {
+      localStorage.setItem(PENDING_INVITE_KEY, nextInviteCode);
+      setInviteCode(nextInviteCode);
     }
-    return segments.slice(0, 4).join('-');
+
+    if (ref) {
+      url.searchParams.delete('ref');
+      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+  }, []);
+
+  const inviteBanner = useMemo(() => (
+    inviteCode
+      ? t('login.inviteBanner', { code: inviteCode, days: 3 })
+      : ''
+  ), [inviteCode, t]);
+
+  const handleStartTrial = async () => {
+    setLoadingAction('trial');
+    setError('');
+    try {
+      const tgUser = getTelegramUser();
+      const response = await api.startTrial(
+        tgUser?.id || null,
+        tgUser?.name || 'User',
+        tgUser?.avatarUrl || null,
+        inviteCode || null
+      );
+      persistAuth(response);
+      onAuthenticated?.(response);
+    } catch (err) {
+      setError(err.message || t('login.loginFailed'));
+    } finally {
+      setLoadingAction('');
+    }
   };
 
-  const handleInputChange = (e) => {
-    const formatted = formatKey(e.target.value);
-    if (formatted.length <= 19) {
-      setKeyCode(formatted);
-      setError('');
-    }
-  };
-
-  const handleLogin = async () => {
+  const handleRedeem = async () => {
     if (!keyCode || keyCode.length < 10) {
       setError(t('login.invalidKey'));
       return;
     }
 
-    setLoading(true);
+    setLoadingAction('redeem');
     setError('');
-
     try {
       const tgUser = getTelegramUser();
-      const data = await api.login(
+      const response = await api.login(
         keyCode,
         tgUser?.id || null,
         tgUser?.name || 'User',
-        tgUser?.avatarUrl || null
+        tgUser?.avatarUrl || null,
+        inviteCode || null
       );
-
-      localStorage.setItem(storage.USER_TOKEN_KEY, data.token);
-      localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(data.user));
-      onLogin(data.user);
+      persistAuth(response);
+      onAuthenticated?.(response);
     } catch (err) {
       setError(err.message || t('login.loginFailed'));
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleContactSupport = () => {
-    const tgUrl = 'https://t.me/sotheary92';
-    if (window.Telegram?.WebApp?.openTelegramLink) {
-      window.Telegram.WebApp.openTelegramLink(tgUrl);
-    } else {
-      window.open(tgUrl, '_blank');
+      setLoadingAction('');
     }
   };
 
@@ -77,117 +124,123 @@ export default function LoginPage({ onLogin }) {
       </div>
 
       <div className="login-content">
-        {/* Decorative particles */}
-        <div className="particles">
-          <div className="particle p1">汉</div>
-          <div className="particle p2">语</div>
-          <div className="particle p3">通</div>
-          <div className="particle p4">学</div>
-          <div className="particle p5">中</div>
-        </div>
-
-        <div className="app-logo-wrap animate-pop-in">
-          <div className="app-logo">
-            <img src="/bunson-teacher.jpg" alt="Bunson老师" className="app-logo-image" />
+        <div className="login-hero animate-pop-in">
+          <div className="app-logo-wrap">
+            <div className="app-logo">
+              <img src="/bunson-teacher.jpg" alt="Bunson老师" className="app-logo-image" />
+            </div>
+            <div className="logo-glow"></div>
           </div>
-          <div className="logo-glow"></div>
+          <div className="app-name-km">{t('login.title')}</div>
+          <div className="app-name-cn">BUNSON TEACHER</div>
+          <div className="app-slogan">
+            {t('login.subtitle')}
+          </div>
+          <div className="hero-highlights">
+            <span>5000+ {t('login.wordHighlights')}</span>
+            <span>AI {t('tabs.practice')}</span>
+            <span>{t('login.monthCardLabel')}</span>
+          </div>
         </div>
 
-        <div className="app-name-km animate-fade-in-up stagger-1">{t('login.title')}</div>
-        <div className="app-name-cn animate-fade-in-up stagger-2">BUNSON TEACHER</div>
-        <div className="app-slogan animate-fade-in-up stagger-3">
-          {t('login.subtitle')}<br />
-          <span className="slogan-sub">5000+ words · standard audio</span>
+        {inviteBanner ? <div className="invite-banner">{inviteBanner}</div> : null}
+
+        <div className="entry-card animate-float-up stagger-2">
+          <div className="entry-title">{t('login.startTrialTitle')}</div>
+          <div className="entry-copy">{t('login.startTrialCopy')}</div>
+          <button
+            className="btn-grad trial-btn"
+            type="button"
+            onClick={handleStartTrial}
+            disabled={loadingAction === 'trial'}
+          >
+            {loadingAction === 'trial' ? t('login.verifying') : t('login.startFreeTrial')}
+          </button>
         </div>
 
-        <div className="login-form animate-float-up stagger-4">
-          <div className="input-lbl">🔐 {t('login.inputLabel')}</div>
+        <div className="entry-card animate-float-up stagger-3">
+          <div className="input-lbl">{t('login.redeemTitle')}</div>
           <div className="input-box">
             <i className="fas fa-key"></i>
             <input
               type="text"
               placeholder={t('login.placeholder')}
               value={keyCode}
-              onChange={handleInputChange}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+              onChange={(event) => {
+                setKeyCode(formatKey(event.target.value).slice(0, 19));
+                setError('');
+              }}
+              onKeyDown={(event) => event.key === 'Enter' && handleRedeem()}
             />
           </div>
 
-          {error && (
+          {error ? (
             <div className="login-error animate-fade-in">
               <i className="fas fa-exclamation-circle"></i>
               <span>{error}</span>
             </div>
-          )}
+          ) : null}
 
           <button
-            className="btn-grad"
-            onClick={handleLogin}
-            disabled={loading}
+            className="outline-btn"
+            type="button"
+            onClick={handleRedeem}
+            disabled={loadingAction === 'redeem'}
           >
-            {loading ? (
-              <span className="btn-loading">
-                <span className="btn-spinner"></span>
-                {t('login.verifying')}
-              </span>
-            ) : t('login.startLearning')}
+            {loadingAction === 'redeem' ? t('membership.redeeming') : t('login.redeemButton')}
           </button>
-
-          <div className="buy-link" onClick={handleContactSupport}>
-            <i className="fab fa-telegram"></i>
-            <div className="buy-link-text">
-              {t('login.contactSupport')}
-              <span>{t('login.supportMeta')}</span>
-            </div>
-            <i className="fas fa-chevron-right buy-link-arrow"></i>
-          </div>
         </div>
+
+        <button className="support-card animate-float-up stagger-4" type="button" onClick={openSupport}>
+          <div className="support-card-icon">
+            <i className="fab fa-telegram"></i>
+          </div>
+          <div className="support-card-copy">
+            <strong>{t('login.contactSupport')}</strong>
+            <span>{t('login.supportMeta')}</span>
+          </div>
+          <i className="fas fa-chevron-right"></i>
+        </button>
       </div>
 
       <style>{`
         .login-page {
-          width: 100%; height: 100%;
-          position: relative; overflow: hidden;
-        }
-        .login-content {
-          position: relative; z-index: 10;
-          height: 100%; display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          padding: 36px 28px;
-        }
-
-        /* Floating particles */
-        .particles {
-          position: absolute; inset: 0;
-          pointer-events: none; z-index: 0;
+          width: 100%;
+          height: 100%;
+          position: relative;
           overflow: hidden;
         }
-        .particle {
-          position: absolute;
-          font-family: 'Noto Serif SC', serif;
-          color: var(--bg-pattern-a);
-          font-size: 48px; font-weight: 700;
+        .login-content {
+          position: relative;
+          z-index: 10;
+          min-height: 100%;
+          padding: 26px 20px 34px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 14px;
         }
-        .p1 { top: 8%; left: 5%; animation: particleFloat 15s ease-in-out infinite; }
-        .p2 { top: 15%; right: 8%; animation: particleFloat 18s ease-in-out infinite 2s; font-size: 36px; }
-        .p3 { bottom: 25%; left: 10%; animation: particleFloat 20s ease-in-out infinite 4s; font-size: 52px; }
-        .p4 { top: 40%; right: 5%; animation: particleFloat 14s ease-in-out infinite 1s; font-size: 32px; }
-        .p5 { bottom: 12%; right: 15%; animation: particleFloat 16s ease-in-out infinite 3s; font-size: 40px; }
-        @keyframes particleFloat {
-          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
-          50% { transform: translateY(-20px) rotate(8deg); opacity: 0.7; }
+        .login-hero {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
         }
-
-        .app-logo-wrap { 
-          position: relative; margin-bottom: 20px; 
+        .app-logo-wrap {
+          position: relative;
+          margin-bottom: 18px;
         }
         .app-logo {
-          width: 92px; height: 92px;
+          width: 92px;
+          height: 92px;
           background: var(--login-logo-bg);
           border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           box-shadow: 0 18px 36px var(--login-logo-shadow);
-          position: relative; z-index: 2;
+          position: relative;
+          z-index: 2;
           border: 3px solid rgba(225,191,83,0.62);
           overflow: hidden;
         }
@@ -195,105 +248,137 @@ export default function LoginPage({ onLogin }) {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          display: block;
         }
         .logo-glow {
-          position: absolute; inset: -20px;
+          position: absolute;
+          inset: -20px;
           background: radial-gradient(circle, rgba(225,191,83,0.18) 0%, transparent 70%);
           border-radius: 50%;
           z-index: 1;
           animation: breathe 3s ease-in-out infinite;
         }
         .app-name-km {
-          font-size: 22px; font-weight: 800; color: var(--brand-green);
-          text-align: center; line-height: 1.4; margin-bottom: 4px;
-          font-family: 'Noto Sans Khmer', sans-serif;
+          font-size: 24px;
+          font-weight: 800;
+          color: var(--brand-green);
+          line-height: 1.3;
         }
         .app-name-cn {
-          font-size: 12px; color: var(--accent-gold);
-          letter-spacing: 3px; margin-bottom: 8px;
-          font-family: 'Noto Sans SC', sans-serif;
+          font-size: 12px;
+          color: var(--accent-gold);
+          letter-spacing: 3px;
+          margin-top: 4px;
           font-weight: 700;
         }
         .app-slogan {
-          font-size: 12px; color: var(--text-secondary);
-          text-align: center; line-height: 1.9; margin-bottom: 36px;
-          font-family: 'Noto Sans Khmer', sans-serif;
+          margin-top: 10px;
+          color: var(--text-secondary);
+          font-size: 13px;
+          line-height: 1.7;
+          max-width: 320px;
         }
-        .slogan-sub {
-          color: var(--text-muted); font-size: 11px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
+        .hero-highlights {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 8px;
+          margin-top: 14px;
         }
-        .login-form {
+        .hero-highlights span,
+        .invite-banner {
+          padding: 8px 12px;
+          border-radius: 999px;
+          background: var(--settings-surface);
+          border: 1px solid var(--settings-border);
+          color: var(--text-primary);
+          font-size: 12px;
+          font-weight: 700;
+        }
+        .invite-banner {
+          text-align: center;
+        }
+        .entry-card {
           width: 100%;
-          padding: 24px 20px 18px;
-          border-radius: 34px;
+          padding: 18px;
+          border-radius: 26px;
           background: var(--login-card-bg);
           border: 1px solid var(--login-card-border);
-          box-shadow: 0 22px 44px rgba(8, 20, 17, 0.12);
+          box-shadow: 0 20px 40px rgba(8, 20, 17, 0.10);
           backdrop-filter: blur(14px);
         }
+        .entry-title,
         .input-lbl {
-          font-size: 11px; color: var(--accent-gold);
-          margin-bottom: 10px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          font-family: 'Noto Sans Khmer', sans-serif;
+          font-size: 14px;
+          color: var(--text-primary);
+          font-weight: 800;
+          margin-bottom: 6px;
+        }
+        .entry-copy {
+          font-size: 12px;
+          color: var(--text-secondary);
+          line-height: 1.6;
+          margin-bottom: 14px;
+        }
+        .trial-btn,
+        .outline-btn {
+          width: 100%;
+          min-height: 52px;
+          border-radius: 18px;
           font-weight: 800;
         }
+        .outline-btn {
+          margin-top: 14px;
+          border: 1px solid var(--settings-border);
+          background: var(--settings-chip-bg);
+          color: var(--text-primary);
+        }
         .login-error {
-          display: flex; align-items: center; gap: 6px;
-          font-size: 12px; color: #ef4444;
-          margin: 10px 0;
-          font-family: 'Noto Sans Khmer', sans-serif;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          color: #ef4444;
+          margin-top: 12px;
+          padding: 8px 12px;
+          border-radius: 10px;
           background: rgba(239,68,68,0.08);
-          padding: 8px 12px; border-radius: 10px;
           border: 1px solid rgba(239,68,68,0.15);
         }
-        .login-error i { font-size: 12px; flex-shrink: 0; }
-        .login-form .btn-grad {
-          margin-top: 18px; margin-bottom: 0;
-          min-height: 58px;
-          border-radius: 999px;
+        .support-card {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 18px;
+          border-radius: 22px;
+          border: 1px solid var(--settings-border);
+          background: var(--settings-surface);
+          color: var(--text-primary);
         }
-        .btn-loading {
-          display: flex; align-items: center; justify-content: center; gap: 8px;
+        .support-card-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
+          background: rgba(36, 185, 129, 0.16);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--login-support-text);
+          font-size: 20px;
         }
-        .btn-spinner {
-          width: 16px; height: 16px;
-          border: 2px solid rgba(255,255,255,0.2);
-          border-top-color: #fff;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-          flex-shrink: 0;
-        }
-        .buy-link {
-          margin-top: 14px;
-          display: flex; align-items: center; gap: 8px;
-          background: transparent;
-          border: none;
-          border-radius: 14px; padding: 12px 18px;
-          width: 100%; cursor: pointer;
-          transition: background var(--transition-fast), transform 0.15s ease;
-        }
-        .buy-link:active { 
-          background: rgba(255,255,255,0.04); 
-          transform: scale(0.98);
-        }
-        .buy-link i.fab { color: var(--login-support-text); font-size: 18px; }
-        .buy-link-text {
-          font-size: 13px; color: var(--login-support-text);
-          font-family: 'Noto Sans Khmer', sans-serif; font-weight: 500;
+        .support-card-copy {
           flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          text-align: left;
         }
-        .buy-link-text span {
-          display: block; font-size: 11px;
-          color: var(--text-muted); font-weight: 400;
-          margin-top: 1px;
+        .support-card-copy strong {
+          font-size: 14px;
         }
-        .buy-link-arrow {
-          color: var(--text-muted); font-size: 12px;
+        .support-card-copy span {
+          color: var(--text-secondary);
+          font-size: 12px;
         }
       `}</style>
     </div>

@@ -1,7 +1,7 @@
 import multer from 'multer';
 import { Router } from 'express';
 import { badRequest, notFound } from '../errors.js';
-import { requireUserAuth } from '../middleware/auth.js';
+import { requirePremiumAccess, requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import {
   buildDialogueSession,
@@ -26,6 +26,7 @@ const upload = multer({
 });
 
 router.use(requireUserAuth);
+router.use(requirePremiumAccess('dialogue'));
 
 router.get('/scenarios', asyncHandler(async (_req, res) => {
   res.json({

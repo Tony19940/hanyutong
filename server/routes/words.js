@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { config } from '../config.js';
 import { query, withTransaction } from '../db.js';
-import { badRequest } from '../errors.js';
+import { badRequest, unauthorized } from '../errors.js';
 import { requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { getVocabulary } from '../services/vocabularyService.js';
@@ -11,6 +11,11 @@ const router = Router();
 router.use(requireUserAuth);
 
 router.get('/next', asyncHandler(async (req, res) => {
+  const mode = String(req.query.mode || 'home').trim().toLowerCase();
+  if (mode === 'quiz' && req.user.membership?.accessLevel !== 'premium') {
+    throw unauthorized('Premium membership is required for quiz access', 'PREMIUM_REQUIRED');
+  }
+
   const requestedBatch = Number.parseInt(req.query.batch, 10);
   const batchSize = Math.min(
     Number.isFinite(requestedBatch) ? requestedBatch : config.defaultWordBatch,

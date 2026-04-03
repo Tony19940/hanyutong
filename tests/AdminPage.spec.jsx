@@ -11,6 +11,7 @@ const generateKeyMock = vi.fn();
 const adminLogoutMock = vi.fn();
 const deleteKeyMock = vi.fn();
 const expireKeyMock = vi.fn();
+const extendKeyMock = vi.fn();
 
 vi.mock('../src/utils/api.js', () => ({
   api: {
@@ -22,6 +23,7 @@ vi.mock('../src/utils/api.js', () => ({
     adminLogout: (...args) => adminLogoutMock(...args),
     deleteKey: (...args) => deleteKeyMock(...args),
     expireKey: (...args) => expireKeyMock(...args),
+    extendKey: (...args) => extendKeyMock(...args),
   },
   storage: {
     ADMIN_TOKEN_KEY: 'hyt_admin_token',
@@ -40,12 +42,13 @@ describe('AdminPage', () => {
     adminLogoutMock.mockReset();
     deleteKeyMock.mockReset();
     expireKeyMock.mockReset();
+    extendKeyMock.mockReset();
     localStorage.clear();
 
     verifyAdminMock.mockRejectedValue(new Error('no session'));
     getAdminStatsMock.mockResolvedValue({
       totalKeys: 3,
-      activatedKeys: 1,
+      activeKeys: 1,
       unusedKeys: 2,
       expiredKeys: 0,
     });
@@ -65,7 +68,7 @@ describe('AdminPage', () => {
     await waitFor(() => {
       expect(verifyAdminMock).toHaveBeenCalled();
       expect(getAdminStatsMock).toHaveBeenCalled();
-      expect(screen.getByText('密钥管理')).toBeInTheDocument();
+      expect(screen.getByText('会员密钥管理')).toBeInTheDocument();
     });
   });
 
@@ -89,10 +92,10 @@ describe('AdminPage', () => {
       expect(getAdminStatsMock).toHaveBeenCalled();
     });
 
-    fireEvent.click(screen.getByText('生成新密钥'));
+    fireEvent.click(screen.getByText('生成月卡密钥'));
 
     await waitFor(() => {
-      expect(generateKeyMock).toHaveBeenCalledWith(1);
+      expect(generateKeyMock).toHaveBeenCalledWith(1, { durationDays: 30 });
     });
   });
 });

@@ -1,11 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { api, storage } from '../utils/api.js';
 import ShareModal from './ShareModal.jsx';
 import { useAppShell } from '../i18n/index.js';
 import { resolveAvatarUrl } from '../utils/avatar.js';
 
-export default function ProfilePage({ user, onOpenCollection }) {
-  const { t, language, setLanguage, languageOptions, theme, setTheme, voiceType, setVoiceType, availableVoices, defaultVoiceType } = useAppShell();
+function formatExpiry(value, fallbackText) {
+  if (!value) return fallbackText;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return fallbackText;
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+export default function ProfilePage({
+  user,
+  membership: membershipProp,
+  invite: inviteProp,
+  profileRefreshKey,
+  onOpenCollection,
+}) {
+  const {
+    t,
+    language,
+    setLanguage,
+    languageOptions,
+    theme,
+    setTheme,
+    voiceType,
+    setVoiceType,
+    availableVoices,
+    defaultVoiceType,
+  } = useAppShell();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showShare, setShowShare] = useState(false);
@@ -23,7 +51,15 @@ export default function ProfilePage({ user, onOpenCollection }) {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [profileRefreshKey]);
+
+  const membership = profile?.membership || membershipProp || null;
+  const invite = profile?.invite || inviteProp || null;
+
+  const expiryText = useMemo(
+    () => formatExpiry(membership?.expiresAt, t('membership.freeTier')),
+    [membership?.expiresAt, t]
+  );
 
   if (loading || !profile) {
     return (
@@ -94,25 +130,70 @@ export default function ProfilePage({ user, onOpenCollection }) {
             <div className="prof-name">{user.name}</div>
             <div className="prof-lv">{hskLabels[profile.user.hskLevel] || hskLabels[1]}</div>
           </div>
-          {username && <div className="prof-handle">{username}</div>}
+          {username ? <div className="prof-handle">{username}</div> : null}
+          <div className="prof-expiry">
+            <span>{t('membership.validUntil')}</span>
+            <strong>{expiryText}</strong>
+          </div>
+        </div>
+
+        <div className="membership-card animate-float-up stagger-1">
+          <div className="membership-card-head">
+            <div>
+              <div className="membership-card-title">{t('membership.membershipTitle')}</div>
+              <div className="membership-card-status">
+                {membership?.accessLevel === 'premium' ? t('membership.monthCard') : t('membership.freeLayer')}
+              </div>
+            </div>
+            <div className={`membership-pill ${membership?.accessLevel === 'premium' ? 'premium' : 'free'}`}>
+              {membership?.accessLevel === 'premium' ? t('membership.premiumShort') : t('membership.freeShort')}
+            </div>
+          </div>
+          <div className="membership-card-copy">{t('membership.profileValueCopy')}</div>
+        </div>
+
+        <div className="invite-card animate-float-up stagger-2">
+          <div className="invite-card-head">
+            <div>
+              <div className="invite-card-title">{t('membership.inviteFriends')}</div>
+              <div className="invite-card-copy">{t('membership.inviteExplainer')}</div>
+            </div>
+            <button className="invite-cta" type="button" onClick={() => setShowShare(true)}>
+              {t('membership.openInvite')}
+            </button>
+          </div>
+          <div className="invite-stats-grid">
+            <div className="invite-stat">
+              <span>{t('membership.invitedCount')}</span>
+              <strong>{invite?.stats?.invitedCount || 0}</strong>
+            </div>
+            <div className="invite-stat">
+              <span>{t('membership.convertedCount')}</span>
+              <strong>{invite?.stats?.convertedCount || 0}</strong>
+            </div>
+            <div className="invite-stat">
+              <span>{t('membership.rewardDays')}</span>
+              <strong>{invite?.stats?.rewardDaysEarned || 0}</strong>
+            </div>
+          </div>
         </div>
 
         <div className="stats-grid">
-          <div className="sc animate-float-up stagger-1 tone-cyan">
+          <div className="sc animate-float-up stagger-3 tone-cyan">
             <div className="sc-num">{stats.wordsLearned.toLocaleString()}</div>
             <div className="sc-lbl">{t('profile.wordsLearned')}</div>
           </div>
-          <div className="sc animate-float-up stagger-2 tone-pink">
+          <div className="sc animate-float-up stagger-4 tone-pink">
             <div className="sc-num">{stats.totalHours}h</div>
             <div className="sc-lbl">{t('profile.studyHours')}</div>
           </div>
-          <div className="sc animate-float-up stagger-3 tone-lime">
+          <div className="sc animate-float-up stagger-5 tone-lime">
             <div className="sc-num">{stats.mastery}%</div>
             <div className="sc-lbl">{t('profile.mastery')}</div>
           </div>
         </div>
 
-        <div className="ach-card animate-float-up stagger-4">
+        <div className="ach-card animate-float-up stagger-5">
           <div className="streak-big">
             <div className="streak-flame">🔥</div>
             <div className="streak-n">{stats.streak}</div>
@@ -127,7 +208,7 @@ export default function ProfilePage({ user, onOpenCollection }) {
           </div>
         </div>
 
-        <div className="settings-card animate-float-up stagger-5">
+        <div className="settings-card animate-float-up stagger-6">
           <div className="settings-title">{t('common.settings')}</div>
           <div className="setting-row">
             <div className="setting-label">{t('profile.languageSetting')}</div>
@@ -177,21 +258,21 @@ export default function ProfilePage({ user, onOpenCollection }) {
                   onClick={() => setVoiceType(item.id)}
                 >
                   <span>{item.label}</span>
-                  {item.id === defaultVoiceType && (
+                  {item.id === defaultVoiceType ? (
                     <span className="voice-chip-meta">{t('profile.voiceDefault')}</span>
-                  )}
+                  ) : null}
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        <button className="share-main-btn animate-float-up stagger-5" onClick={() => setShowShare(true)}>
-          <i className="fas fa-sparkles"></i>
-          <span>{t('common.share')}</span>
+        <button className="share-main-btn animate-float-up stagger-7" onClick={() => setShowShare(true)}>
+          <i className="fas fa-user-plus"></i>
+          <span>{t('membership.inviteFriends')}</span>
         </button>
 
-        <button className="collection-entry animate-float-up stagger-6" onClick={onOpenCollection}>
+        <button className="collection-entry animate-float-up stagger-7" onClick={onOpenCollection}>
           <span>{t('common.collection')}</span>
         </button>
 
@@ -201,14 +282,16 @@ export default function ProfilePage({ user, onOpenCollection }) {
         </button>
       </div>
 
-      {showShare && (
+      {showShare ? (
         <ShareModal
           user={user}
           stats={stats}
           hskLevel={profile.user.hskLevel}
+          invite={invite}
+          membership={membership}
           onClose={() => setShowShare(false)}
         />
-      )}
+      ) : null}
 
       <style>{`
         .profile-page { flex: 1; position: relative; z-index: 10; overflow: hidden; }
@@ -261,20 +344,94 @@ export default function ProfilePage({ user, onOpenCollection }) {
           border: 1px solid rgba(245,216,143,0.56); background: var(--settings-surface);
           font-size: 12px; color: var(--text-secondary);
         }
+        .prof-expiry {
+          margin-top: 12px;
+          position: relative;
+          z-index: 1;
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          padding: 8px 12px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(225,191,83,0.20);
+          color: var(--text-secondary);
+          font-size: 12px;
+        }
+        .prof-expiry strong { color: var(--text-primary); }
+        .membership-card,
+        .invite-card,
+        .ach-card,
+        .settings-card {
+          border-radius: 22px; padding: 14px;
+          background: var(--settings-surface);
+          border: 1px solid var(--settings-border);
+        }
+        .membership-card-head,
+        .invite-card-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 12px;
+        }
+        .membership-card-title,
+        .invite-card-title {
+          font-size: 13px;
+          color: var(--text-secondary);
+        }
+        .membership-card-status {
+          margin-top: 4px;
+          font-size: 18px;
+          font-weight: 800;
+          color: var(--text-primary);
+        }
+        .membership-card-copy,
+        .invite-card-copy {
+          margin-top: 8px;
+          color: var(--text-secondary);
+          font-size: 12px;
+          line-height: 1.6;
+        }
+        .membership-pill {
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 800;
+        }
+        .membership-pill.premium {
+          background: rgba(225,191,83,0.18);
+          border: 1px solid rgba(225,191,83,0.24);
+          color: var(--accent-gold);
+        }
+        .membership-pill.free {
+          background: rgba(11,106,88,0.16);
+          border: 1px solid rgba(11,106,88,0.20);
+          color: var(--brand-green);
+        }
+        .invite-cta {
+          min-height: 38px;
+          border-radius: 999px;
+          padding: 0 14px;
+          border: none;
+          background: linear-gradient(90deg, var(--brand-gold) 0%, #f6d35b 100%);
+          color: #173730;
+          font-size: 12px;
+          font-weight: 800;
+        }
+        .invite-stats-grid,
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .invite-stats-grid { margin-top: 12px; }
+        .invite-stat,
         .sc {
           border-radius: 18px; padding: 12px 8px 10px; text-align: center;
           border: 1.5px solid var(--profile-card-border);
           background: var(--profile-card-bg);
           box-shadow: 0 18px 36px rgba(0,0,0,0.08);
         }
-        .sc-num { font-size: 24px; font-weight: 800; color: var(--profile-card-text); font-family: 'Manrope', 'Noto Sans SC', sans-serif; }
-        .sc-lbl { margin-top: 4px; font-size: 12px; color: var(--profile-secondary-text); }
-        .ach-card {
-          border-radius: 22px; padding: 12px 14px 14px;
-          background: var(--settings-surface);
-          border: 1px solid var(--settings-border);
-        }
+        .invite-stat span,
+        .sc-lbl { font-size: 12px; color: var(--profile-secondary-text); }
+        .invite-stat strong,
+        .sc-num { display: block; margin-top: 4px; font-size: 24px; font-weight: 800; color: var(--profile-card-text); font-family: 'Manrope', 'Noto Sans SC', sans-serif; }
         .streak-big { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 2px; margin-bottom: 10px; }
         .streak-flame { font-size: 30px; line-height: 1; filter: drop-shadow(0 8px 16px rgba(244,184,63,0.28)); }
         .streak-n {
@@ -292,11 +449,6 @@ export default function ProfilePage({ user, onOpenCollection }) {
         }
         .sd.done { color: #fff; background: rgba(245,216,143,0.22); border-color: rgba(245,216,143,0.42); box-shadow: 0 0 18px rgba(245,216,143,0.42); }
         .sd.today { outline: 1px solid rgba(245,216,143,0.56); }
-        .settings-card {
-          border-radius: 22px; padding: 14px;
-          background: var(--settings-surface);
-          border: 1px solid var(--settings-border);
-        }
         .settings-title { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 10px; }
         .setting-row + .setting-row { margin-top: 12px; }
         .setting-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }

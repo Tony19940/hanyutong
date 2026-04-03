@@ -7,6 +7,7 @@ import { requireAdminAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { createRateLimiter } from '../middleware/rateLimit.js';
 import { writeAuditLog } from '../services/auditService.js';
+import { grantMonthCardMembership } from '../services/membershipService.js';
 import { createAdminSession, revokeAdminSession } from '../services/sessionService.js';
 
 const router = Router();
@@ -22,6 +23,46 @@ function generateKeyCode() {
   const part1 = crypto.randomBytes(2).toString('hex').toUpperCase().slice(0, 4);
   const part2 = crypto.randomBytes(2).toString('hex').toUpperCase().slice(0, 4);
   return `HYT-${year}-${part1}-${part2}`;
+}
+
+function parseExpiryDate(value) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw badRequest('Invalid expiry date', 'INVALID_EXPIRY_DATE');
+  }
+
+  return parsed.toISOString();
+}
+
+async function syncAllKeyStatuses() {
+  const nowIso = new Date().toISOString();
+  await query(
+    `
+      UPDATE keys
+      SET status = 'expired',
+          expired_at = COALESCE(expired_at, $1)
+      WHERE status = 'active'
+        AND expires_at IS NOT NULL
+        AND expires_at <= $1
+    `,
+    [nowIso]
+  );
+
+  await query(
+    `
+      UPDATE keys
+      SET status = 'active',
+          expired_at = NULL
+      WHERE status = 'expired'
+        AND expires_at IS NOT NULL
+        AND expires_at > $1
+    `,
+    [nowIso]
+  );
 }
 
 router.post('/login', adminLoginRateLimit, asyncHandler(async (req, res) => {
@@ -73,6 +114,8 @@ router.post('/generate-key', asyncHandler(async (req, res) => {
     Number.parseInt(req.body.count, 10) || 1,
     config.maxKeyGenerationCount
   );
+  const durationDays = Math.max(Number.parseInt(req.body.durationDays, 10) || config.premiumDurationDays, 1);
+  const expiresAt = parseExpiryDate(req.body.expiresAt);
   const keys = [];
 
   await withTransaction(async (client) => {
@@ -88,11 +131,20 @@ router.post('/generate-key', asyncHandler(async (req, res) => {
         const serialNumber = String(serialBase + i).padStart(3, '0');
 
         try {
-          await client.query(
-            'INSERT INTO keys (key_code, serial_number) VALUES ($1, $2)',
-            [keyCode, serialNumber]
+          const insertedKey = await client.query(
+            `
+              INSERT INTO keys (key_code, serial_number, duration_days, expires_at)
+              VALUES ($1, $2, $3, $4)
+              RETURNING *
+            `,
+            [keyCode, serialNumber, durationDays, expiresAt]
           );
-          keys.push({ keyCode, serialNumber });
+          keys.push({
+            keyCode,
+            serialNumber,
+            durationDays,
+            expiresAt: insertedKey.rows[0].expires_at || null,
+          });
           inserted = true;
         } catch (error) {
           if (error.code !== '23505') {
@@ -114,13 +166,15 @@ router.post('/generate-key', asyncHandler(async (req, res) => {
     action: 'keys.generate',
     targetType: 'key',
     targetId: String(keys.length),
-    details: { count: keys.length },
+    details: { count: keys.length, durationDays, expiresAt },
   });
 
   res.json({ keys, count: keys.length });
 }));
 
 router.get('/keys', asyncHandler(async (req, res) => {
+  await syncAllKeyStatuses();
+
   const status = req.query.status;
   const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
   const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 50, 1), 100);
@@ -154,9 +208,9 @@ router.get('/keys', asyncHandler(async (req, res) => {
     params
   );
 
-  const [totalResult, activatedResult, unusedResult, expiredResult] = await Promise.all([
+  const [totalResult, activeResult, unusedResult, expiredResult] = await Promise.all([
     query('SELECT COUNT(*) AS count FROM keys'),
-    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'activated'"),
+    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'active'"),
     query("SELECT COUNT(*) AS count FROM keys WHERE status = 'unused'"),
     query("SELECT COUNT(*) AS count FROM keys WHERE status = 'expired'"),
   ]);
@@ -167,7 +221,7 @@ router.get('/keys', asyncHandler(async (req, res) => {
     keys: keysResult.rows,
     stats: {
       total: Number(totalResult.rows[0]?.count || 0),
-      activated: Number(activatedResult.rows[0]?.count || 0),
+      active: Number(activeResult.rows[0]?.count || 0),
       unused: Number(unusedResult.rows[0]?.count || 0),
       expired: Number(expiredResult.rows[0]?.count || 0),
       filteredTotal,
@@ -188,8 +242,8 @@ router.delete('/keys/:id', asyncHandler(async (req, res) => {
     throw notFound('Key not found', 'KEY_NOT_FOUND');
   }
 
-  if (key.status === 'activated') {
-    throw badRequest('Activated keys cannot be deleted', 'KEY_ALREADY_ACTIVATED');
+  if (key.status !== 'unused') {
+    throw badRequest('Only unused keys can be deleted', 'KEY_NOT_UNUSED');
   }
 
   await query('DELETE FROM keys WHERE id = $1', [id]);
@@ -205,22 +259,105 @@ router.delete('/keys/:id', asyncHandler(async (req, res) => {
   res.json({ success: true });
 }));
 
-router.post('/keys/:id/expire', asyncHandler(async (req, res) => {
+router.post('/keys/:id/extend', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const keyResult = await query('SELECT * FROM keys WHERE id = $1', [id]);
-  const key = keyResult.rows[0];
-  if (!key) {
-    throw notFound('Key not found', 'KEY_NOT_FOUND');
+  const expiresAt = parseExpiryDate(req.body.expiresAt);
+  if (!expiresAt) {
+    throw badRequest('expiresAt is required', 'EXPIRY_REQUIRED');
   }
 
-  await query(
-    `
-      UPDATE keys
-      SET status = 'expired', expired_at = CURRENT_TIMESTAMP
-      WHERE id = $1
-    `,
-    [id]
-  );
+  if (!new Date(expiresAt).getTime() || new Date(expiresAt).getTime() <= Date.now()) {
+    throw badRequest('Expiry date must be in the future', 'INVALID_EXPIRY_DATE');
+  }
+
+  const key = await withTransaction(async (client) => {
+    const keyResult = await client.query('SELECT * FROM keys WHERE id = $1', [id]);
+    const existingKey = keyResult.rows[0];
+    if (!existingKey) {
+      throw notFound('Key not found', 'KEY_NOT_FOUND');
+    }
+
+    const updated = await client.query(
+      `
+        UPDATE keys
+        SET expires_at = $2,
+            status = 'active',
+            expired_at = NULL,
+            last_extended_at = LOCALTIMESTAMP
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id, expiresAt]
+    );
+
+    if (updated.rows[0].user_id) {
+      await grantMonthCardMembership(
+        updated.rows[0].user_id,
+        {
+          expiresAt,
+          sourceKeyId: updated.rows[0].id,
+          eventType: 'key_extended',
+          details: { adminSessionId: req.adminSession.id },
+        },
+        client
+      );
+    }
+
+    return updated.rows[0];
+  });
+
+  await writeAuditLog({
+    actorType: 'admin',
+    actorSessionId: req.adminSession.id,
+    action: 'keys.extend',
+    targetType: 'key',
+    targetId: String(id),
+    details: { keyCode: key.key_code, expiresAt },
+  });
+
+  res.json({ success: true, key });
+}));
+
+router.post('/keys/:id/expire', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const expiresAt = new Date().toISOString();
+  let previousStatus = null;
+
+  const key = await withTransaction(async (client) => {
+    const keyResult = await client.query('SELECT * FROM keys WHERE id = $1', [id]);
+    const existingKey = keyResult.rows[0];
+    if (!existingKey) {
+      throw notFound('Key not found', 'KEY_NOT_FOUND');
+    }
+    previousStatus = existingKey.status;
+
+    const updated = await client.query(
+      `
+        UPDATE keys
+        SET status = 'expired',
+            expired_at = LOCALTIMESTAMP,
+            expires_at = COALESCE(expires_at, LOCALTIMESTAMP)
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id]
+    );
+
+    if (updated.rows[0].user_id) {
+      await grantMonthCardMembership(
+        updated.rows[0].user_id,
+        {
+          expiresAt,
+          sourceKeyId: updated.rows[0].id,
+          eventType: 'manual_adjustment',
+          details: { forcedExpire: true, adminSessionId: req.adminSession.id },
+        },
+        client
+      );
+    }
+
+    return updated.rows[0];
+  });
 
   await writeAuditLog({
     actorType: 'admin',
@@ -228,24 +365,25 @@ router.post('/keys/:id/expire', asyncHandler(async (req, res) => {
     action: 'keys.expire',
     targetType: 'key',
     targetId: String(id),
-    details: { previousStatus: key.status, keyCode: key.key_code },
+    details: { previousStatus, keyCode: key.key_code },
   });
 
   res.json({ success: true });
 }));
 
 router.get('/stats', asyncHandler(async (_req, res) => {
+  await syncAllKeyStatuses();
   const todayDate = new Date().toISOString().split('T')[0];
   const [
     totalKeysResult,
-    activatedKeysResult,
+    activeKeysResult,
     unusedKeysResult,
     expiredKeysResult,
     totalUsersResult,
     activeTodayResult,
   ] = await Promise.all([
     query('SELECT COUNT(*) AS count FROM keys'),
-    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'activated'"),
+    query("SELECT COUNT(*) AS count FROM keys WHERE status = 'active'"),
     query("SELECT COUNT(*) AS count FROM keys WHERE status = 'unused'"),
     query("SELECT COUNT(*) AS count FROM keys WHERE status = 'expired'"),
     query('SELECT COUNT(*) AS count FROM users'),
@@ -261,7 +399,7 @@ router.get('/stats', asyncHandler(async (_req, res) => {
 
   res.json({
     totalKeys: Number(totalKeysResult.rows[0]?.count || 0),
-    activatedKeys: Number(activatedKeysResult.rows[0]?.count || 0),
+    activeKeys: Number(activeKeysResult.rows[0]?.count || 0),
     unusedKeys: Number(unusedKeysResult.rows[0]?.count || 0),
     expiredKeys: Number(expiredKeysResult.rows[0]?.count || 0),
     totalUsers: Number(totalUsersResult.rows[0]?.count || 0),

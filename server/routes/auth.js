@@ -5,7 +5,17 @@ import { badRequest, forbidden, notFound } from '../errors.js';
 import { requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { createRateLimiter } from '../middleware/rateLimit.js';
-import { createUserSession, revokeUserSession } from '../services/sessionService.js';
+import { createUserSession, getUserSession, revokeUserSession } from '../services/sessionService.js';
+import {
+  activateKeyForUser,
+  getActivationKeyByCode,
+  getMembershipAccess,
+  grantMonthCardMembership,
+  grantTrialMembership,
+  hasConsumedTrial,
+  isFutureTimestamp,
+} from '../services/membershipService.js';
+import { awardReferralRewardIfEligible, bindReferralIfEligible, ensureInviteCodeForUser, getInviteSummary } from '../services/referralService.js';
 
 const router = Router();
 const loginRateLimit = createRateLimiter({
@@ -14,100 +24,249 @@ const loginRateLimit = createRateLimiter({
   keyPrefix: 'user-login',
 });
 
-router.post('/login', loginRateLimit, asyncHandler(async (req, res) => {
-  const { keyCode, telegramId, name, avatarUrl } = req.body;
+function readBearerToken(req) {
+  const header = req.headers.authorization || '';
+  if (!header.startsWith('Bearer ')) {
+    return null;
+  }
+  return header.slice(7).trim();
+}
 
+function buildInviteBaseUrl(req) {
+  if (config.webappUrl) {
+    return config.webappUrl;
+  }
+  return `${req.protocol}://${req.get('host')}`;
+}
+
+function toUserPayload(user) {
+  return {
+    id: user.id,
+    telegram_id: user.telegram_id,
+    name: user.name,
+    avatar_url: user.avatar_url,
+  };
+}
+
+async function resolveSessionUser(req) {
+  const token = readBearerToken(req);
+  if (!token) {
+    return null;
+  }
+  return getUserSession(token);
+}
+
+async function findOrCreateUser({
+  client,
+  sessionUserId = null,
+  telegramId = null,
+  name = null,
+  avatarUrl = null,
+}) {
+  if (sessionUserId) {
+    const existingResult = await client.query('SELECT * FROM users WHERE id = $1', [sessionUserId]);
+    const existingUser = existingResult.rows[0];
+    if (!existingUser) {
+      throw notFound('User not found', 'USER_NOT_FOUND');
+    }
+    const updated = await client.query(
+      `
+        UPDATE users
+        SET name = COALESCE($2, name),
+            avatar_url = COALESCE($3, avatar_url)
+        WHERE id = $1
+        RETURNING *
+      `,
+      [sessionUserId, name, avatarUrl]
+    );
+    return updated.rows[0];
+  }
+
+  const telegramIdValue = telegramId ? String(telegramId) : null;
+  if (telegramIdValue) {
+    const existingResult = await client.query('SELECT * FROM users WHERE telegram_id = $1', [telegramIdValue]);
+    const existingUser = existingResult.rows[0];
+    if (existingUser) {
+      const updated = await client.query(
+        `
+          UPDATE users
+          SET name = COALESCE($2, name),
+              avatar_url = COALESCE($3, avatar_url)
+          WHERE id = $1
+          RETURNING *
+        `,
+        [existingUser.id, name, avatarUrl]
+      );
+      return updated.rows[0];
+    }
+  }
+
+  const localTelegramId = telegramIdValue || `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const inserted = await client.query(
+    `
+      INSERT INTO users (telegram_id, name, avatar_url)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `,
+    [localTelegramId, name || 'User', avatarUrl || null]
+  );
+  return inserted.rows[0];
+}
+
+async function buildAuthResponse(user, token, req) {
+  await ensureInviteCodeForUser(user.id);
+  const membership = await getMembershipAccess(user.id);
+  const invite = await getInviteSummary(user.id, buildInviteBaseUrl(req));
+
+  return {
+    user: toUserPayload(user),
+    token,
+    membership,
+    invite,
+  };
+}
+
+router.post('/start-trial', loginRateLimit, asyncHandler(async (req, res) => {
+  const { telegramId, name, avatarUrl, inviteCode } = req.body || {};
+  const session = await resolveSessionUser(req);
+
+  const user = await withTransaction(async (client) => {
+    const userRow = await findOrCreateUser({
+      client,
+      sessionUserId: session?.user?.id || null,
+      telegramId,
+      name,
+      avatarUrl,
+    });
+
+    await ensureInviteCodeForUser(userRow.id, client);
+    const consumedTrial = await hasConsumedTrial(userRow.id, client);
+    if (!consumedTrial) {
+      const referral = await bindReferralIfEligible(
+        {
+          inviteCode,
+          inviteeUserId: userRow.id,
+        },
+        client
+      );
+      await grantTrialMembership(userRow.id, { invited: Boolean(referral) }, client);
+    } else {
+      await getMembershipAccess(userRow.id, client);
+    }
+
+    const refreshed = await client.query('SELECT * FROM users WHERE id = $1', [userRow.id]);
+    return refreshed.rows[0];
+  });
+
+  const token = await createUserSession(user.id);
+  res.json(await buildAuthResponse(user, token, req));
+}));
+
+router.post('/login', loginRateLimit, asyncHandler(async (req, res) => {
+  const { keyCode, telegramId, name, avatarUrl, inviteCode } = req.body || {};
   if (!keyCode) {
     throw badRequest('Key code is required', 'KEY_REQUIRED');
   }
 
-  const keyResult = await query('SELECT * FROM keys WHERE key_code = $1', [String(keyCode).trim()]);
-  const key = keyResult.rows[0];
-  if (!key) {
-    throw notFound('Key not found', 'KEY_NOT_FOUND');
-  }
+  const session = await resolveSessionUser(req);
 
-  if (key.status === 'expired') {
-    throw forbidden('Key has expired', 'KEY_EXPIRED');
-  }
-
-  const telegramIdValue = telegramId ? String(telegramId) : null;
   const user = await withTransaction(async (client) => {
-    if (key.status === 'activated' && key.user_id) {
-      const existingUserResult = await client.query('SELECT * FROM users WHERE id = $1', [key.user_id]);
-      const existingUser = existingUserResult.rows[0];
-      if (!existingUser) {
-        throw notFound('User not found for activated key', 'USER_NOT_FOUND');
-      }
-
-      if (telegramIdValue && existingUser.telegram_id && existingUser.telegram_id !== telegramIdValue) {
-        throw forbidden('Key already belongs to another user', 'KEY_ALREADY_USED');
-      }
-
-      return existingUser;
+    const key = await getActivationKeyByCode(keyCode, client);
+    if (!key) {
+      throw notFound('Key not found', 'KEY_NOT_FOUND');
     }
 
-    let userRow = null;
-    if (telegramIdValue) {
-      const userResult = await client.query('SELECT * FROM users WHERE telegram_id = $1', [telegramIdValue]);
-      userRow = userResult.rows[0] || null;
-    }
+    const userRow = await findOrCreateUser({
+      client,
+      sessionUserId: session?.user?.id || null,
+      telegramId,
+      name,
+      avatarUrl,
+    });
 
-    if (!userRow) {
-      const localTelegramId = telegramIdValue || `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-      const insertResult = await client.query(
-        `
-          INSERT INTO users (telegram_id, name, avatar_url, key_id)
-          VALUES ($1, $2, $3, $4)
-          RETURNING *
-        `,
-        [localTelegramId, name || 'User', avatarUrl || null, key.id]
-      );
-      userRow = insertResult.rows[0];
-    } else if (name || avatarUrl) {
-      const updateResult = await client.query(
-        `
-          UPDATE users
-          SET name = COALESCE($1, name),
-              avatar_url = COALESCE($2, avatar_url),
-              key_id = COALESCE(key_id, $3)
-          WHERE id = $4
-          RETURNING *
-        `,
-        [name || null, avatarUrl || null, key.id, userRow.id]
-      );
-      userRow = updateResult.rows[0];
-    }
-
-    await client.query(
-      `
-        UPDATE keys
-        SET status = $1, activated_at = CURRENT_TIMESTAMP, user_id = $2, expired_at = NULL
-        WHERE id = $3
-      `,
-      ['activated', userRow.id, key.id]
+    await ensureInviteCodeForUser(userRow.id, client);
+    await bindReferralIfEligible(
+      {
+        inviteCode,
+        inviteeUserId: userRow.id,
+      },
+      client
     );
 
-    return userRow;
+    if (key.user_id && key.user_id !== userRow.id) {
+      throw forbidden('Key already belongs to another user', 'KEY_ALREADY_USED');
+    }
+
+    let activeKey = key;
+    if (!key.user_id) {
+      activeKey = await activateKeyForUser(key, userRow.id, client);
+      if (!activeKey) {
+        throw forbidden('Key has expired', 'KEY_EXPIRED');
+      }
+    }
+
+    if (!activeKey.expires_at && activeKey.status === 'active') {
+      await grantMonthCardMembership(
+        userRow.id,
+        {
+          expiresAt: null,
+          sourceKeyId: activeKey.id,
+          eventType: 'paid_activation',
+          details: { legacyPermanent: true },
+        },
+        client
+      );
+    } else {
+      if (!isFutureTimestamp(activeKey.expires_at)) {
+        throw forbidden('Key has expired', 'KEY_EXPIRED');
+      }
+
+      const paidStatusBeforeUpdate = await client.query(
+        'SELECT first_paid_at FROM users WHERE id = $1',
+        [userRow.id]
+      );
+      const hadPriorPaidActivation = Boolean(paidStatusBeforeUpdate.rows[0]?.first_paid_at);
+
+      await client.query(
+        `
+          UPDATE users
+          SET first_paid_at = COALESCE(first_paid_at, CURRENT_TIMESTAMP),
+              key_id = $2
+          WHERE id = $1
+        `,
+        [userRow.id, activeKey.id]
+      );
+
+      await grantMonthCardMembership(
+        userRow.id,
+        {
+          expiresAt: activeKey.expires_at,
+          sourceKeyId: activeKey.id,
+          eventType: 'paid_activation',
+          details: { keyCode: activeKey.key_code },
+        },
+        client
+      );
+
+      if (!hadPriorPaidActivation) {
+        await awardReferralRewardIfEligible(userRow.id, client);
+      }
+    }
+
+    const refreshed = await client.query('SELECT * FROM users WHERE id = $1', [userRow.id]);
+    return refreshed.rows[0];
   });
 
   const token = await createUserSession(user.id);
 
-  res.json({
-    user,
-    token,
-  });
+  res.json(await buildAuthResponse(user, token, req));
 }));
 
 router.post('/verify', requireUserAuth, asyncHandler(async (req, res) => {
-  res.json({
-    user: {
-      id: req.user.id,
-      telegram_id: req.user.telegramId,
-      name: req.user.name,
-      avatar_url: req.user.avatarUrl,
-    },
-  });
+  const userResult = await query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+  const user = userResult.rows[0];
+
+  res.json(await buildAuthResponse(user, req.authToken, req));
 }));
 
 router.post('/logout', requireUserAuth, asyncHandler(async (req, res) => {
