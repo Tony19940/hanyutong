@@ -268,7 +268,7 @@ export default function ProfilePage({
       <style>{`
         .profile-page { flex: 1; position: relative; z-index: 10; overflow: hidden; }
         .profile-scroll {
-          padding: 8px 18px 84px;
+          padding: 64px 18px 84px;
           height: 100%;
           overflow: auto;
           max-width: 390px;
@@ -282,8 +282,8 @@ export default function ProfilePage({
           position: relative;
           display: flex;
           flex-direction: column;
-          gap: 14px;
-          padding: 16px;
+          gap: 16px;
+          padding: 20px;
           border-radius: 30px;
           background: var(--profile-hero-bg);
           border: 2px solid var(--profile-hero-border);
@@ -315,6 +315,7 @@ export default function ProfilePage({
           align-items: center;
           justify-content: space-between;
           gap: 10px;
+          margin-bottom: 4px;
         }
         .hero-title {
           font-size: 14px;
@@ -324,7 +325,7 @@ export default function ProfilePage({
         .hero-identity {
           display: flex;
           align-items: center;
-          gap: 14px;
+          gap: 16px;
         }
         .hero-copy {
           min-width: 0;
