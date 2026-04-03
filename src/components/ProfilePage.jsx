@@ -276,7 +276,7 @@ export default function ProfilePage({
         .profile-scroll {
           flex: 1 1 0%;
           min-height: 0;
-          padding: max(56px, env(safe-area-inset-top, 0px) + 12px) 16px calc(96px + env(safe-area-inset-bottom, 0px));
+          padding: max(44px, env(safe-area-inset-top, 0px) + 6px) 16px calc(96px + env(safe-area-inset-bottom, 0px));
           overflow-y: auto;
           overflow-x: hidden;
           width: 100%;
@@ -579,16 +579,24 @@ export default function ProfilePage({
           color: var(--text-primary);
         }
         @media (max-width: 420px) {
-          .profile-scroll { padding-left: 12px; padding-right: 12px; }
-          .prof-hero { padding: 16px 14px; gap: 12px; border-radius: 24px; min-height: 272px; }
+          .profile-scroll {
+            padding-top: max(38px, env(safe-area-inset-top, 0px) + 4px);
+            padding-left: 12px;
+            padding-right: 12px;
+          }
+          .prof-hero { padding: 16px 14px 18px; gap: 12px; border-radius: 24px; min-height: 304px; }
           .hero-topline { align-items: flex-start; }
           .hero-identity { align-items: center; gap: 12px; }
           .hero-copy { width: auto; flex: 1; }
           .hero-stats-grid { gap: 6px; }
         }
         @media (max-width: 380px) {
-          .profile-scroll { padding-left: 10px; padding-right: 10px; }
-          .prof-hero { padding: 14px 12px; gap: 10px; border-radius: 22px; min-height: 248px; }
+          .profile-scroll {
+            padding-top: max(34px, env(safe-area-inset-top, 0px) + 2px);
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+          .prof-hero { padding: 14px 12px 16px; gap: 10px; border-radius: 22px; min-height: 296px; }
           .av-wrap { width: 62px; height: 62px; border-radius: 31px; border-width: 2px; }
           .prof-name { font-size: 18px; }
           .prof-lv { font-size: 11px; padding: 3px 8px; }
@@ -604,8 +612,12 @@ export default function ProfilePage({
           .invite-cta { min-width: 82px; font-size: 12px; padding: 0 12px; }
         }
         @media (max-width: 340px) {
-          .profile-scroll { padding-left: 8px; padding-right: 8px; }
-          .prof-hero { padding: 12px 8px; gap: 8px; border-radius: 18px; min-height: 224px; }
+          .profile-scroll {
+            padding-top: max(30px, env(safe-area-inset-top, 0px) + 2px);
+            padding-left: 8px;
+            padding-right: 8px;
+          }
+          .prof-hero { padding: 12px 8px 14px; gap: 8px; border-radius: 18px; min-height: 276px; }
           .av-wrap { width: 52px; height: 52px; border-radius: 26px; border-width: 2px; }
           .prof-name { font-size: 16px; }
           .prof-lv { font-size: 10px; padding: 2px 6px; }
