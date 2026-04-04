@@ -10,6 +10,11 @@ function setDialogueEnv() {
   process.env.DOUBAO_TTS_TOKEN = 'tts-token';
   process.env.DOUBAO_TTS_CLUSTER = 'volcano_tts';
   process.env.DOUBAO_TTS_VOICE_TYPE = 'BV001_streaming';
+  process.env.GEMINI_API_KEY = 'gemini-key';
+  process.env.GEMINI_KHMER_MODEL = 'gemini-3.1-flash-live-preview';
+  process.env.XFYUN_APP_ID = 'xf-app';
+  process.env.XFYUN_API_KEY = 'xf-key';
+  process.env.XFYUN_API_SECRET = 'xf-secret';
 }
 
 async function loadDialogueModule() {
@@ -27,12 +32,13 @@ describe('dialogue lesson flow', () => {
     const { applyTranscriptToSession, buildDialogueSession } = await loadDialogueModule();
     const session = buildDialogueSession({ scenarioId: 'greeting', learnerName: 'Tony' });
 
-    const result = applyTranscriptToSession(session, '你好，我叫小豆。');
+    const result = applyTranscriptToSession(session, '你好，我叫小豆。', { overallScore: 88, toneScore: 90, phonemeScore: 84, fluencyScore: 82 });
 
     expect(result.outcome).toBe('passed');
     expect(result.evaluation.passed).toBe(true);
     expect(result.state.lessonIndex).toBe(1);
     expect(result.state.passed).toBe(1);
+    expect(result.evaluation.contentMatched).toBe(true);
   });
 
   it('increments retry count when a lesson does not pass', async () => {
@@ -58,5 +64,6 @@ describe('dialogue lesson flow', () => {
     expect(result.evaluation.skipped).toBe(true);
     expect(result.state.lessonIndex).toBe(1);
     expect(result.state.skipped).toBe(1);
+    expect(result.evaluation.reviewQueued).toBe(true);
   });
 });

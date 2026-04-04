@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
+import { pinyin } from 'pinyin-pro';
 import { config } from '../config.js';
 import { badRequest } from '../errors.js';
 
@@ -631,37 +632,316 @@ function loadKhmerTranslationMap() {
 
 const KHMER_TRANSLATION_MAP = loadKhmerTranslationMap();
 
-function toStage(mode) {
-  if (mode === 'shadow') return '跟我读';
-  if (mode === 'prompt') return '你来说';
-  return '自由聊';
+const HAN_REGEX = /[\u3400-\u9fff]/;
+const KHMER_REGEX = /[\u1780-\u17ff]/;
+const PHASE_LABELS = {
+  phase0_intro: 'Phase 0',
+  phase1_vocab_a: 'Phase 1',
+  phase1_vocab_b: 'Phase 1',
+  phase2a_follow: 'Phase 2a',
+  phase2b_fast: 'Phase 2b',
+  phase2c_recall: 'Phase 2c',
+  phase3_dialogue: 'Phase 3',
+};
+
+function hasHan(value) {
+  return HAN_REGEX.test(String(value || ''));
+}
+
+function hasKhmer(value) {
+  return KHMER_REGEX.test(String(value || ''));
+}
+
+function buildPinyin(value) {
+  if (!hasHan(value)) return '';
+  return pinyin(value, {
+    toneType: 'symbol',
+    nonZh: 'removed',
+    type: 'array',
+  })
+    .filter(Boolean)
+    .join(' ');
+}
+
+function createMessage({
+  id,
+  kind,
+  language,
+  engine,
+  displayText,
+  ttsText = '',
+  pinyinText = '',
+  khmerText = '',
+  audioMode = 'normal',
+  audioSlow = false,
+  delayBeforeShowMs = 600,
+  activatesRecording = false,
+  expectedText = null,
+}) {
+  return {
+    id,
+    sender: 'teacher',
+    kind,
+    language,
+    engine,
+    displayText,
+    ttsText: ttsText || displayText,
+    pinyin: pinyinText,
+    khmerText,
+    audioMode,
+    audioSlow,
+    delayBeforeShowMs,
+    activatesRecording,
+    expectedText,
+  };
+}
+
+function assertSingleLanguageMessage(message, scenarioId) {
+  const display = String(message.displayText || '');
+  const tts = String(message.ttsText || '');
+  const containsMixed = (hasHan(display) && hasKhmer(display)) || (hasHan(tts) && hasKhmer(tts));
+  if (containsMixed) {
+    throw badRequest(`Scenario ${scenarioId} contains a mixed-language teacher message`, 'DIALOGUE_SCRIPT_LANGUAGE_MIXED');
+  }
+  if (message.language === 'zh' && !String(message.pinyin || '').trim()) {
+    throw badRequest(`Scenario ${scenarioId} contains a Chinese message without pinyin`, 'DIALOGUE_SCRIPT_PINYIN_REQUIRED');
+  }
+}
+
+function buildVocabularyStep({ scenarioId, suffix, lesson, translation, phaseKey }) {
+  const displayText = lesson.target;
+  const promptKm = translation.promptKm || 'ស្តាប់ម្តងទៀត ហើយចំណាំសំឡេងអានរបស់គ្រូ។';
+  const focusKm = translation.focusKm || 'សូមអានឱ្យច្បាស់ ហើយស្តាប់សំឡេងឡើងចុះ។';
+  const repeatPromptKm = translation.promptKm || 'ឥឡូវនេះដល់វេនអ្នកហើយ សូមនិយាយតាមមួយដងទៀត។';
+
+  return {
+    id: `${scenarioId}-${suffix}`,
+    phase: phaseKey,
+    stage: '词汇输入',
+    label: lesson.label,
+    mode: 'shadow',
+    focus: lesson.focus,
+    focusKm,
+    expectedText: lesson.target,
+    keywords: lesson.keywords || [],
+    allowPronunciationEval: true,
+    messages: [
+      createMessage({
+        id: `${scenarioId}-${suffix}-guide`,
+        kind: 'guide',
+        language: 'km',
+        engine: 'gemini-khmer',
+        displayText: promptKm,
+        delayBeforeShowMs: 320,
+      }),
+      createMessage({
+        id: `${scenarioId}-${suffix}-demo`,
+        kind: 'demo',
+        language: 'zh',
+        engine: 'doubao-chinese',
+        displayText,
+        pinyinText: buildPinyin(displayText),
+        khmerText: translation.targetKm || '',
+        audioSlow: true,
+        delayBeforeShowMs: 380,
+      }),
+      createMessage({
+        id: `${scenarioId}-${suffix}-prompt`,
+        kind: 'student_prompt',
+        language: 'km',
+        engine: 'gemini-khmer',
+        displayText: repeatPromptKm,
+        ttsText: repeatPromptKm,
+        delayBeforeShowMs: 0,
+        activatesRecording: true,
+        expectedText: lesson.target,
+      }),
+    ],
+  };
+}
+
+function buildRecallStep({ scenarioId, lesson, translation }) {
+  return {
+    id: `${scenarioId}-phase2c-recall`,
+    phase: 'phase2c_recall',
+    stage: '独立复述',
+    label: lesson.label,
+    mode: 'prompt',
+    focus: lesson.focus,
+    focusKm: translation.focusKm || 'សូមនិយាយដោយខ្លួនឯង ហើយប្រើប្រយោគឱ្យពេញលេញ។',
+    expectedText: null,
+    keywords: lesson.keywords || [],
+    allowPronunciationEval: false,
+    messages: [
+      createMessage({
+        id: `${scenarioId}-phase2c-guide`,
+        kind: 'guide',
+        language: 'km',
+        engine: 'gemini-khmer',
+        displayText: translation.promptKm || 'ឥឡូវនេះកុំស្តាប់គំរូទៀត សូមនិយាយដោយខ្លួនឯង។',
+        delayBeforeShowMs: 320,
+      }),
+      createMessage({
+        id: `${scenarioId}-phase2c-prompt`,
+        kind: 'student_prompt',
+        language: 'km',
+        engine: 'gemini-khmer',
+        displayText: translation.promptKm || 'សូមនិយាយដោយខ្លួនឯងឥឡូវនេះ។',
+        ttsText: translation.promptKm || 'សូមនិយាយដោយខ្លួនឯងឥឡូវនេះ។',
+        delayBeforeShowMs: 0,
+        activatesRecording: true,
+      }),
+    ],
+  };
+}
+
+function buildDialoguePartnerStep({ scenarioId, lesson, translation }) {
+  const questionText = lesson.target;
+  const answerPromptKm = translation.promptKm || 'ឥឡូវនេះសូមឆ្លើយតបវិញជាភាសាចិន។';
+  return {
+    id: `${scenarioId}-phase3-dialogue`,
+    phase: 'phase3_dialogue',
+    stage: '情景对话',
+    label: lesson.label,
+    mode: 'free',
+    focus: lesson.focus,
+    focusKm: translation.focusKm || 'ឆ្លើយជាភាសាចិនដូចជាកំពុងនិយាយជាមួយមនុស្សពិត។',
+    expectedText: null,
+    keywords: lesson.keywords || [],
+    allowPronunciationEval: false,
+    messages: [
+      createMessage({
+        id: `${scenarioId}-phase3-guide`,
+        kind: 'guide',
+        language: 'km',
+        engine: 'gemini-khmer',
+        displayText: 'ឥឡូវនេះយើងចូលសន្ទនាខ្លីមួយ។ ស្តាប់សំណួរភាសាចិនរបស់ខ្ញុំ ហើយឆ្លើយតបវិញ។',
+        delayBeforeShowMs: 320,
+      }),
+      createMessage({
+        id: `${scenarioId}-phase3-demo`,
+        kind: 'demo',
+        language: 'zh',
+        engine: 'doubao-chinese',
+        displayText: questionText,
+        pinyinText: buildPinyin(questionText),
+        khmerText: translation.targetKm || '',
+        audioSlow: true,
+        delayBeforeShowMs: 380,
+      }),
+      createMessage({
+        id: `${scenarioId}-phase3-prompt`,
+        kind: 'student_prompt',
+        language: 'km',
+        engine: 'gemini-khmer',
+        displayText: answerPromptKm,
+        ttsText: answerPromptKm,
+        delayBeforeShowMs: 0,
+        activatesRecording: true,
+      }),
+    ],
+  };
+}
+
+function buildIntroMessages(definition) {
+  return [
+    createMessage({
+      id: `${definition.id}-phase0-intro`,
+      kind: 'guide',
+      language: 'km',
+      engine: 'gemini-khmer',
+      displayText: 'សួស្តី! ថ្ងៃនេះយើងនឹងហាត់ប្រយោគចិនសម្រាប់ជីវិតប្រចាំថ្ងៃ។',
+      delayBeforeShowMs: 180,
+    }),
+    createMessage({
+      id: `${definition.id}-phase0-goal`,
+      kind: 'guide',
+      language: 'km',
+      engine: 'gemini-khmer',
+      displayText: 'ស្តាប់ខ្ញុំជាមុនសិន បន្ទាប់មកនិយាយតាម ហើយចុងក្រោយឆ្លើយដោយខ្លួនឯង។',
+      delayBeforeShowMs: 260,
+    }),
+  ];
+}
+
+function buildCompletionMessages(definition) {
+  return [
+    createMessage({
+      id: `${definition.id}-phase4-summary`,
+      kind: 'summary',
+      language: 'km',
+      engine: 'gemini-khmer',
+      displayText: 'ល្អណាស់! មេរៀនថ្ងៃនេះចប់ហើយ។ អ្នកបានហាត់សន្ទនាសំខាន់ៗរួចរាល់។',
+      delayBeforeShowMs: 260,
+    }),
+  ];
 }
 
 function createScenario(definition) {
   const translations = KHMER_TRANSLATION_MAP.get(definition.id) || [];
+  const translationByIndex = new Map(
+    translations.map((item, index) => [Number(item.lessonIndex || index + 1) - 1, item])
+  );
+  const [lessonOne, lessonTwo, lessonThree, lessonFour] = definition.lessons;
+
+  const steps = [
+    buildVocabularyStep({
+      scenarioId: definition.id,
+      suffix: 'phase1-vocab-a',
+      lesson: lessonOne,
+      translation: translationByIndex.get(0) || {},
+      phaseKey: 'phase1_vocab_a',
+    }),
+    buildVocabularyStep({
+      scenarioId: definition.id,
+      suffix: 'phase1-vocab-b',
+      lesson: lessonTwo,
+      translation: translationByIndex.get(1) || {},
+      phaseKey: 'phase1_vocab_b',
+    }),
+    buildVocabularyStep({
+      scenarioId: definition.id,
+      suffix: 'phase2a-follow',
+      lesson: lessonOne,
+      translation: translationByIndex.get(0) || {},
+      phaseKey: 'phase2a_follow',
+    }),
+    buildVocabularyStep({
+      scenarioId: definition.id,
+      suffix: 'phase2b-fast',
+      lesson: lessonTwo,
+      translation: translationByIndex.get(1) || {},
+      phaseKey: 'phase2b_fast',
+    }),
+    buildRecallStep({
+      scenarioId: definition.id,
+      lesson: lessonThree,
+      translation: translationByIndex.get(2) || {},
+    }),
+    buildDialoguePartnerStep({
+      scenarioId: definition.id,
+      lesson: lessonFour,
+      translation: translationByIndex.get(3) || {},
+    }),
+  ];
+
+  const introMessages = buildIntroMessages(definition);
+  const completionMessages = buildCompletionMessages(definition);
+  introMessages.forEach((message) => assertSingleLanguageMessage(message, definition.id));
+  completionMessages.forEach((message) => assertSingleLanguageMessage(message, definition.id));
+  steps.forEach((step) => step.messages.forEach((message) => assertSingleLanguageMessage(message, definition.id)));
+
   return {
     id: definition.id,
     title: definition.title,
     subtitle: definition.subtitle,
     dailyTopic: definition.dailyTopic,
-    coachName: 'Bunson',
-    stages: DIALOGUE_STAGES,
-    lessons: definition.lessons.map((item, index) => {
-      const translation = translations[index] || {};
-      return {
-        id: `${definition.id}-lesson-${index + 1}`,
-        label: item.label,
-        mode: item.mode,
-        stage: toStage(item.mode),
-        target: item.target,
-        targetKm: translation.targetKm || '',
-        focus: item.focus,
-        focusKm: translation.focusKm || '',
-        prompt: item.prompt,
-        promptKm: translation.promptKm || '',
-        keywords: item.keywords || [],
-      };
-    }),
+    coachName: 'Bunson老师',
+    stages: ['Phase 0', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'],
+    introMessages,
+    completionMessages,
+    steps,
+    supportsSlowReplay: true,
   };
 }
 
@@ -676,6 +956,8 @@ function sanitizeScenario(scenario) {
     dailyTopic: scenario.dailyTopic,
     coachName: scenario.coachName,
     stages: scenario.stages,
+    phaseCount: scenario.steps.length + 2,
+    supportsSlowReplay: scenario.supportsSlowReplay,
   };
 }
 
@@ -730,27 +1012,25 @@ function textSimilarity(source, target) {
   return 1 - distance / Math.max(source.length, target.length, 1);
 }
 
-function passesLesson(lessonItem, transcript) {
+function matchesExpectedText(step, transcript) {
   const normalizedTranscript = normalizeText(transcript);
   if (!normalizedTranscript) return false;
 
-  if (lessonItem.mode === 'shadow') {
-    const normalizedTarget = normalizeText(lessonItem.target);
+  if (step.expectedText) {
+    const normalizedTarget = normalizeText(step.expectedText);
     if (normalizedTranscript.includes(normalizedTarget) || normalizedTarget.includes(normalizedTranscript)) {
       return true;
     }
-    return textSimilarity(normalizedTranscript, normalizedTarget) >= 0.7;
+    return textSimilarity(normalizedTranscript, normalizedTarget) >= 0.68;
   }
 
-  const hitCount = (lessonItem.keywords || []).filter((keyword) =>
-    normalizedTranscript.includes(normalizeText(keyword))
-  ).length;
-
-  if (hitCount >= Math.max(1, Math.ceil((lessonItem.keywords || []).length / 2))) {
-    return true;
+  const keywords = Array.isArray(step.keywords) ? step.keywords : [];
+  if (!keywords.length) {
+    return normalizedTranscript.length >= 4;
   }
 
-  return normalizedTranscript.length >= 5;
+  const hitCount = keywords.filter((keyword) => normalizedTranscript.includes(normalizeText(keyword))).length;
+  return hitCount >= Math.max(1, Math.ceil(keywords.length / 2));
 }
 
 export function listDialogueScenarios() {
@@ -773,8 +1053,11 @@ export function getDialogueAvailability() {
     ['ARK_DOUBAO_FLASH_ENDPOINT_ID', config.arkDoubaoFlashEndpointId],
     ['DOUBAO_TTS_APP_ID', config.doubaoTtsAppId],
     ['DOUBAO_TTS_TOKEN', config.doubaoTtsToken],
-    ['DOUBAO_TTS_CLUSTER', config.doubaoTtsCluster],
-    ['DOUBAO_TTS_VOICE_TYPE', config.doubaoTtsVoiceType],
+    ['GEMINI_API_KEY', config.geminiApiKey],
+    ['GEMINI_KHMER_MODEL', config.geminiKhmerModel],
+    ['XFYUN_APP_ID', config.xfyunAppId],
+    ['XFYUN_API_KEY', config.xfyunApiKey],
+    ['XFYUN_API_SECRET', config.xfyunApiSecret],
   ].forEach(([name, value]) => {
     if (!String(value || '').trim()) missing.push(name);
   });
@@ -782,31 +1065,32 @@ export function getDialogueAvailability() {
 }
 
 export function getCurrentLesson(session) {
-  return session?.scenario?.lessons?.[session.lessonIndex] || null;
+  return session?.scenario?.steps?.[session.lessonIndex] || null;
 }
 
-export function buildDialogueState(session) {
+export function buildDialogueState(session, queueState = session.queueState || 'SHOWING_BUBBLE') {
   const currentLesson = getCurrentLesson(session);
   return {
     lessonIndex: session.lessonIndex,
-    totalLessons: session.scenario.lessons.length,
+    totalLessons: session.scenario.steps.length,
     passed: session.passed,
     skipped: session.skipped,
     retryCount: session.retryCount,
     isComplete: session.isComplete,
+    queueState,
     currentLesson: currentLesson
       ? {
           id: currentLesson.id,
           label: currentLesson.label,
           stage: currentLesson.stage,
-          target: currentLesson.target,
-          targetKm: currentLesson.targetKm,
+          phase: PHASE_LABELS[currentLesson.phase] || currentLesson.phase,
+          phaseKey: currentLesson.phase,
           focus: currentLesson.focus,
           focusKm: currentLesson.focusKm,
-          prompt: currentLesson.prompt,
-          promptKm: currentLesson.promptKm,
+          expectedText: currentLesson.expectedText,
         }
       : null,
+    reviewQueue: session.reviewQueue || [],
   };
 }
 
@@ -830,95 +1114,143 @@ export function buildDialogueSession({ scenarioId, learnerName, voiceType = '' }
     passed: 0,
     skipped: 0,
     isComplete: false,
+    queueState: 'SHOWING_BUBBLE',
+    reviewQueue: [],
     voiceType,
     startedAt: new Date().toISOString(),
   };
 }
 
-export function buildLessonIntroSpecs(session, { retrying = false } = {}) {
+export function buildLessonIntroSpecs(session) {
   const lessonItem = getCurrentLesson(session);
   if (!lessonItem) return [];
-
-  if (lessonItem.mode === 'shadow') {
-    return [{
-      role: 'assistant',
-      type: 'audio',
-      text: retrying ? `再试一次：${lessonItem.target}` : lessonItem.target,
-      khmerText: lessonItem.targetKm,
-    }];
-  }
-
-  return [{
-    role: 'assistant',
-    type: 'audio',
-    text: retrying ? `再说一次：${lessonItem.prompt}` : lessonItem.prompt,
-    khmerText: lessonItem.promptKm,
-  }];
+  return lessonItem.messages.map((message) => ({ ...message }));
 }
 
 export function buildStartSpecs(session) {
   return [
-    { role: 'system', type: 'note', text: session.scenario.dailyTopic },
     {
-      role: 'assistant',
-      type: 'audio',
-      text: `我们先练${session.scenario.title}。`,
-      khmerText: `ថ្ងៃនេះយើងហាត់ប្រធានបទ${session.scenario.title}។`,
+      id: `${session.scenario.id}-topic-note`,
+      sender: 'system',
+      kind: 'guide',
+      language: 'km',
+      engine: 'system',
+      displayText: session.scenario.dailyTopic,
+      delayBeforeShowMs: 0,
+      activatesRecording: false,
     },
+    ...session.scenario.introMessages.map((message) => ({ ...message })),
     ...buildLessonIntroSpecs(session),
   ];
 }
 
 export function buildCompletionSpecs(session) {
   return [
-    { role: 'system', type: 'note', text: `完成 · ${session.scenario.title}` },
-    { role: 'assistant', type: 'audio', text: `今天的${session.scenario.title}练完了。你已经完成了这组练习，明天继续。`, khmerText: `មេរៀន${session.scenario.title}ថ្ងៃនេះបានបញ្ចប់ហើយ។ អ្នកបានបញ្ចប់ការហាត់នេះហើយ ថ្ងៃស្អែកបន្តទៀត។` },
+    {
+      id: `${session.scenario.id}-completion-note`,
+      sender: 'system',
+      kind: 'summary',
+      language: 'km',
+      engine: 'system',
+      displayText: `完成 · ${session.scenario.title}`,
+      delayBeforeShowMs: 0,
+      activatesRecording: false,
+    },
+    ...session.scenario.completionMessages.map((message) => ({ ...message })),
   ];
 }
 
-export function applyTranscriptToSession(session, transcript) {
+export function applyTranscriptToSession(session, transcript, evaluation = {}) {
   const lessonItem = getCurrentLesson(session);
+  const recognizedText = String(transcript || '').trim();
+
   if (!lessonItem) {
     session.isComplete = true;
+    session.queueState = 'LESSON_COMPLETE';
     return {
       outcome: 'complete',
       lesson: null,
-      state: buildDialogueState(session),
+      state: buildDialogueState(session, 'LESSON_COMPLETE'),
       evaluation: {
+        recognizedText,
+        contentMatched: true,
+        overallScore: evaluation.overallScore ?? null,
+        toneScore: evaluation.toneScore ?? null,
+        phonemeScore: evaluation.phonemeScore ?? null,
+        fluencyScore: evaluation.fluencyScore ?? null,
+        decision: 'pass',
+        attemptIndex: 0,
+        reviewQueued: false,
         passed: true,
         skipped: false,
         retryCount: session.retryCount,
         lessonIndex: session.lessonIndex,
-        isComplete: session.isComplete,
+        isComplete: true,
       },
     };
   }
 
-  const passed = passesLesson(lessonItem, transcript);
+  const attemptIndex = session.retryCount + 1;
+  const contentMatched = matchesExpectedText(lessonItem, recognizedText);
   let outcome = 'retry';
+  let reviewQueued = false;
 
-  if (passed) {
+  if (recognizedText && contentMatched) {
+    if (!lessonItem.allowPronunciationEval || evaluation?.overallScore == null) {
+      outcome = 'passed';
+    } else if (Number(evaluation.overallScore) >= 75) {
+      outcome = 'passed';
+    } else if (Number(evaluation.overallScore) >= 50) {
+      outcome = 'retry';
+    } else if (attemptIndex >= MAX_DIALOGUE_RETRIES) {
+      outcome = 'skipped';
+      reviewQueued = true;
+    } else {
+      outcome = 'retry';
+    }
+  } else if (attemptIndex >= MAX_DIALOGUE_RETRIES) {
+    outcome = 'skipped';
+    reviewQueued = true;
+  }
+
+  if (outcome === 'passed') {
     session.passed += 1;
     session.lessonIndex += 1;
     session.retryCount = 0;
-    session.isComplete = session.lessonIndex >= session.scenario.lessons.length;
+    session.isComplete = session.lessonIndex >= session.scenario.steps.length;
+    session.queueState = session.isComplete ? 'LESSON_COMPLETE' : 'SHOWING_BUBBLE';
     outcome = session.isComplete ? 'complete' : 'passed';
+  } else if (outcome === 'skipped') {
+    session.skipped += 1;
+    session.lessonIndex += 1;
+    session.retryCount = 0;
+    session.isComplete = session.lessonIndex >= session.scenario.steps.length;
+    session.queueState = session.isComplete ? 'LESSON_COMPLETE' : 'SHOWING_BUBBLE';
+    session.reviewQueue.push({
+      lessonId: lessonItem.id,
+      label: lessonItem.label,
+      expectedText: lessonItem.expectedText,
+      recordedAt: new Date().toISOString(),
+    });
   } else {
     session.retryCount += 1;
-    if (session.retryCount >= MAX_DIALOGUE_RETRIES) {
-      session.skipped += 1;
-      session.lessonIndex += 1;
-      session.retryCount = 0;
-      session.isComplete = session.lessonIndex >= session.scenario.lessons.length;
-      outcome = 'skipped';
-    }
+    session.queueState = 'SHOWING_BUBBLE';
   }
 
   return {
     outcome,
     lesson: lessonItem,
-    state: buildDialogueState(session),
+    state: buildDialogueState(session, session.isComplete ? 'LESSON_COMPLETE' : 'SHOWING_BUBBLE'),
     evaluation: {
+      recognizedText,
+      contentMatched,
+      overallScore: evaluation.overallScore ?? null,
+      toneScore: evaluation.toneScore ?? null,
+      phonemeScore: evaluation.phonemeScore ?? null,
+      fluencyScore: evaluation.fluencyScore ?? null,
+      decision: outcome === 'skipped' ? 'skip' : outcome === 'passed' || outcome === 'complete' ? 'pass' : 'retry',
+      attemptIndex,
+      reviewQueued,
       passed: outcome === 'passed' || outcome === 'complete',
       skipped: outcome === 'skipped',
       retryCount: session.retryCount,

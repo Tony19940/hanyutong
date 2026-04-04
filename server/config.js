@@ -14,6 +14,7 @@ function readInt(value, fallback) {
 
 export const config = {
   rootDir,
+  runtimeDir: path.join(rootDir, 'data', 'runtime'),
   port: readInt(process.env.PORT, 3001),
   adminPassword: process.env.ADMIN_PASSWORD || '',
   botToken: process.env.BOT_TOKEN || '',
@@ -55,6 +56,13 @@ export const config = {
     .split(',')
     .map((value) => value.trim())
     .filter(Boolean),
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
+  geminiKhmerModel: process.env.GEMINI_KHMER_MODEL || 'gemini-3.1-flash-live-preview',
+  xfyunAppId: process.env.XFYUN_APP_ID || '',
+  xfyunApiKey: process.env.XFYUN_API_KEY || '',
+  xfyunApiSecret: process.env.XFYUN_API_SECRET || '',
+  xfyunIseWsUrl: process.env.XFYUN_ISE_WS_URL || 'wss://ise-api.xfyun.cn/v2/open-ise',
+  dialogueAudioCacheDir: process.env.DIALOGUE_AUDIO_CACHE_DIR || path.join(rootDir, 'data', 'runtime', 'dialogue-audio'),
   hskThresholds: [
     { minLearned: 2500, level: 6 },
     { minLearned: 1200, level: 5 },

@@ -48,3 +48,13 @@ services:
         value: volc.speech.dialog
       - key: DOUBAO_DIALOG_WS_URL
         value: wss://openspeech.bytedance.com/api/v3/realtime/dialogue
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_KHMER_MODEL
+        value: gemini-3.1-flash-live-preview
+      - key: XFYUN_APP_ID
+        sync: false
+      - key: XFYUN_API_KEY
+        sync: false
+      - key: XFYUN_API_SECRET
+        sync: false

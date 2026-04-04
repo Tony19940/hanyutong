@@ -1,14 +1,16 @@
+import { Buffer } from 'buffer';
 import crypto from 'crypto';
 import { config } from '../config.js';
 import { resolveTeacherVoice } from './voiceInventoryService.js';
 
-function buildPayload(text, voiceType) {
+function buildPayload(text, options = {}) {
+  const speedRatio = Number.isFinite(options.speedRatio) ? options.speedRatio : config.doubaoTtsSpeedRatio;
   const audio = {
-    voice_type: resolveTeacherVoice(voiceType),
+    voice_type: resolveTeacherVoice(options.voiceType),
     encoding: config.doubaoTtsEncoding,
     compression_rate: 1,
     rate: config.doubaoTtsRate,
-    speed_ratio: config.doubaoTtsSpeedRatio,
+    speed_ratio: speedRatio,
     volume_ratio: config.doubaoTtsVolumeRatio,
     pitch_ratio: config.doubaoTtsPitchRatio,
     language: config.doubaoTtsLanguage,
@@ -43,7 +45,7 @@ function inferMimeType() {
   return 'application/octet-stream';
 }
 
-export async function synthesizeDialogueText(text, options = {}) {
+async function requestDialogueTts(text, options = {}) {
   const value = String(text || '').trim();
   if (!value) {
     return null;
@@ -55,7 +57,7 @@ export async function synthesizeDialogueText(text, options = {}) {
       Authorization: `Bearer;${config.doubaoTtsToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(buildPayload(value, options.voiceType)),
+    body: JSON.stringify(buildPayload(value, options)),
   });
 
   if (!response.ok) {
@@ -67,8 +69,29 @@ export async function synthesizeDialogueText(text, options = {}) {
     throw new Error(`Doubao TTS returned error: ${JSON.stringify(payload)}`);
   }
 
+  return payload.data;
+}
+
+export async function synthesizeDialogueText(text, options = {}) {
+  const base64 = await requestDialogueTts(text, options);
+  if (!base64) {
+    return null;
+  }
+
   return {
-    base64: payload.data,
+    base64,
+    mimeType: inferMimeType(),
+  };
+}
+
+export async function synthesizeDialogueAudioBuffer(text, options = {}) {
+  const base64 = await requestDialogueTts(text, options);
+  if (!base64) {
+    return null;
+  }
+
+  return {
+    buffer: Buffer.from(base64, 'base64'),
     mimeType: inferMimeType(),
   };
 }

@@ -1,4 +1,5 @@
 import multer from 'multer';
+import path from 'path';
 import { Router } from 'express';
 import { badRequest, notFound } from '../errors.js';
 import { requirePremiumAccess, requireUserAuth } from '../middleware/auth.js';
@@ -13,10 +14,11 @@ import {
 import {
   buildDialogueStartResponse,
   buildDialogueTurnResponse,
-  materializeMessageSpecs,
 } from '../services/dialogueTeachingService.js';
 import { getDialogueSession, removeDialogueSession, saveDialogueSession } from '../services/dialogueSessionStore.js';
+import { resolveDialogueAudioAsset } from '../services/audioAssetService.js';
 import { transcribeDialogueAudio } from '../services/doubaoAsrService.js';
+import { buildPronunciationFallback, evaluatePronunciation } from '../services/xfyunPronunciationService.js';
 import { ensureUserSettingsForDialogue } from '../services/userSettingsService.js';
 
 const router = Router();
@@ -24,6 +26,16 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
+
+router.get('/audio/:assetId', asyncHandler(async (req, res) => {
+  const asset = resolveDialogueAudioAsset(String(req.params.assetId || '').trim());
+  if (!asset) {
+    throw notFound('Dialogue audio asset not found', 'DIALOGUE_AUDIO_NOT_FOUND');
+  }
+
+  res.setHeader('Content-Type', asset.mimeType || 'application/octet-stream');
+  res.sendFile(path.resolve(asset.filePath));
+}));
 
 router.use(requireUserAuth);
 router.use(requirePremiumAccess('dialogue'));
@@ -90,20 +102,33 @@ router.post(
     const transcript = transcriptResult.text.trim();
 
     if (!transcript) {
-      const aiMessages = await materializeMessageSpecs([
-        {
-          role: 'assistant',
-          type: 'audio',
-          text: '我刚才没有听清，你再说一次。',
-        },
-      ]);
-
       res.json({
         ok: true,
         userMessage: null,
-        aiMessages,
-        state: buildDialogueState(session),
+        messages: [
+          {
+            id: `empty-audio-${Date.now()}`,
+            sender: 'teacher',
+            kind: 'feedback',
+            language: 'km',
+            engine: 'gemini-khmer',
+            displayText: 'Bunson老师 មិនទាន់ស្តាប់ច្បាស់ទេ សូមនិយាយម្ដងទៀត។',
+            delayBeforeShowMs: 0,
+            activatesRecording: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        state: buildDialogueState(session, 'SHOWING_BUBBLE'),
         evaluation: {
+          recognizedText: '',
+          contentMatched: false,
+          overallScore: null,
+          toneScore: null,
+          phonemeScore: null,
+          fluencyScore: null,
+          decision: 'retry',
+          attemptIndex: session.retryCount + 1,
+          reviewQueued: false,
           passed: false,
           skipped: false,
           retryCount: session.retryCount,
@@ -114,9 +139,20 @@ router.post(
       return;
     }
 
+    const currentLesson = session.scenario.steps[session.lessonIndex];
+    let pronunciationEvaluation = buildPronunciationFallback();
+    if (currentLesson?.allowPronunciationEval && currentLesson.expectedText) {
+      try {
+        pronunciationEvaluation = await evaluatePronunciation(req.file.buffer, currentLesson.expectedText);
+      } catch (error) {
+        console.error('Pronunciation evaluation failed, falling back to content-only pass:', error);
+      }
+    }
+
     const response = await buildDialogueTurnResponse({
       session,
       transcript,
+      evaluation: pronunciationEvaluation,
     });
 
     res.json({
