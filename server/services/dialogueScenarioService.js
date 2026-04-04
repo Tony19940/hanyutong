@@ -708,11 +708,79 @@ function assertSingleLanguageMessage(message, scenarioId) {
   }
 }
 
+function buildShadowLeadInText(phaseKey) {
+  switch (phaseKey) {
+    case 'phase1_vocab_a':
+      return '';
+    case 'phase1_vocab_b':
+      return 'ឥឡូវនេះស្តាប់ឃ្លាថ្មីមួយទៀត។';
+    case 'phase2a_follow':
+      return 'ល្អហើយ។ ឥឡូវនេះស្តាប់ម្ដងទៀត ហើយចំណាំការបញ្ចេញសំឡេង។';
+    case 'phase2b_fast':
+      return 'ចុងក្រោយ ស្តាប់ម្ដងទៀត ហើយត្រៀមអានឱ្យរលូនជាងមុន។';
+    default:
+      return '';
+  }
+}
+
+function buildShadowPromptText(phaseKey) {
+  switch (phaseKey) {
+    case 'phase1_vocab_b':
+      return 'ឥឡូវនេះសូមអានតាមខ្ញុំមួយឃ្លាទៀត។';
+    case 'phase2a_follow':
+      return 'ឥឡូវនេះសូមអានម្ដងទៀតឱ្យច្បាស់។';
+    case 'phase2b_fast':
+      return 'ឥឡូវនេះសូមអានឱ្យរលូន និងលឿនបន្តិច។';
+    case 'phase1_vocab_a':
+    default:
+      return 'ឥឡូវនេះសូមអានតាមខ្ញុំ។';
+  }
+}
+
 function buildVocabularyStep({ scenarioId, suffix, lesson, translation, phaseKey }) {
   const displayText = lesson.target;
-  const promptKm = translation.promptKm || 'ស្តាប់ម្តងទៀត ហើយចំណាំសំឡេងអានរបស់គ្រូ។';
+  const leadInKm = buildShadowLeadInText(phaseKey);
   const focusKm = translation.focusKm || 'សូមអានឱ្យច្បាស់ ហើយស្តាប់សំឡេងឡើងចុះ។';
-  const repeatPromptKm = translation.promptKm || 'ឥឡូវនេះដល់វេនអ្នកហើយ សូមនិយាយតាមមួយដងទៀត។';
+  const repeatPromptKm = buildShadowPromptText(phaseKey);
+  const messages = [];
+
+  if (leadInKm) {
+    messages.push(
+      createMessage({
+        id: `${scenarioId}-${suffix}-guide`,
+        kind: 'guide',
+        language: 'km',
+        engine: 'gemini-khmer',
+        displayText: leadInKm,
+        delayBeforeShowMs: 220,
+      })
+    );
+  }
+
+  messages.push(
+    createMessage({
+      id: `${scenarioId}-${suffix}-demo`,
+      kind: 'demo',
+      language: 'zh',
+      engine: 'doubao-chinese',
+      displayText,
+      pinyinText: buildPinyin(displayText),
+      khmerText: translation.targetKm || '',
+      audioSlow: true,
+      delayBeforeShowMs: 380,
+    }),
+    createMessage({
+      id: `${scenarioId}-${suffix}-prompt`,
+      kind: 'student_prompt',
+      language: 'km',
+      engine: 'gemini-khmer',
+      displayText: repeatPromptKm,
+      ttsText: repeatPromptKm,
+      delayBeforeShowMs: 0,
+      activatesRecording: true,
+      expectedText: lesson.target,
+    })
+  );
 
   return {
     id: `${scenarioId}-${suffix}`,
@@ -725,42 +793,14 @@ function buildVocabularyStep({ scenarioId, suffix, lesson, translation, phaseKey
     expectedText: lesson.target,
     keywords: lesson.keywords || [],
     allowPronunciationEval: true,
-    messages: [
-      createMessage({
-        id: `${scenarioId}-${suffix}-guide`,
-        kind: 'guide',
-        language: 'km',
-        engine: 'gemini-khmer',
-        displayText: promptKm,
-        delayBeforeShowMs: 320,
-      }),
-      createMessage({
-        id: `${scenarioId}-${suffix}-demo`,
-        kind: 'demo',
-        language: 'zh',
-        engine: 'doubao-chinese',
-        displayText,
-        pinyinText: buildPinyin(displayText),
-        khmerText: translation.targetKm || '',
-        audioSlow: true,
-        delayBeforeShowMs: 380,
-      }),
-      createMessage({
-        id: `${scenarioId}-${suffix}-prompt`,
-        kind: 'student_prompt',
-        language: 'km',
-        engine: 'gemini-khmer',
-        displayText: repeatPromptKm,
-        ttsText: repeatPromptKm,
-        delayBeforeShowMs: 0,
-        activatesRecording: true,
-        expectedText: lesson.target,
-      }),
-    ],
+    messages,
   };
 }
 
 function buildRecallStep({ scenarioId, lesson, translation }) {
+  const guideText = 'ឥឡូវនេះកុំស្តាប់គំរូទៀត។ សូមនិយាយដោយខ្លួនឯង។';
+  const promptText = translation.promptKm || 'សូមចាប់ផ្តើមនិយាយដោយខ្លួនឯងឥឡូវនេះ។';
+
   return {
     id: `${scenarioId}-phase2c-recall`,
     phase: 'phase2c_recall',
@@ -778,16 +818,16 @@ function buildRecallStep({ scenarioId, lesson, translation }) {
         kind: 'guide',
         language: 'km',
         engine: 'gemini-khmer',
-        displayText: translation.promptKm || 'ឥឡូវនេះកុំស្តាប់គំរូទៀត សូមនិយាយដោយខ្លួនឯង។',
-        delayBeforeShowMs: 320,
+        displayText: guideText,
+        delayBeforeShowMs: 240,
       }),
       createMessage({
         id: `${scenarioId}-phase2c-prompt`,
         kind: 'student_prompt',
         language: 'km',
         engine: 'gemini-khmer',
-        displayText: translation.promptKm || 'សូមនិយាយដោយខ្លួនឯងឥឡូវនេះ។',
-        ttsText: translation.promptKm || 'សូមនិយាយដោយខ្លួនឯងឥឡូវនេះ។',
+        displayText: promptText,
+        ttsText: promptText,
         delayBeforeShowMs: 0,
         activatesRecording: true,
       }),
@@ -815,8 +855,8 @@ function buildDialoguePartnerStep({ scenarioId, lesson, translation }) {
         kind: 'guide',
         language: 'km',
         engine: 'gemini-khmer',
-        displayText: 'ឥឡូវនេះយើងចូលសន្ទនាខ្លីមួយ។ ស្តាប់សំណួរភាសាចិនរបស់ខ្ញុំ ហើយឆ្លើយតបវិញ។',
-        delayBeforeShowMs: 320,
+        displayText: 'ឥឡូវនេះយើងចូលសន្ទនាខ្លីមួយ។ ស្តាប់សំណួរភាសាចិនរបស់ខ្ញុំសិន។',
+        delayBeforeShowMs: 240,
       }),
       createMessage({
         id: `${scenarioId}-phase3-demo`,
@@ -850,16 +890,8 @@ function buildIntroMessages(definition) {
       kind: 'guide',
       language: 'km',
       engine: 'gemini-khmer',
-      displayText: 'សួស្តី! ថ្ងៃនេះយើងនឹងហាត់ប្រយោគចិនសម្រាប់ជីវិតប្រចាំថ្ងៃ។',
+      displayText: 'ថ្ងៃនេះយើងហាត់សន្ទនាខ្លីមួយ។ ខ្ញុំនឹងអានជាមុន ហើយអ្នកអានតាមបន្ទាប់។',
       delayBeforeShowMs: 180,
-    }),
-    createMessage({
-      id: `${definition.id}-phase0-goal`,
-      kind: 'guide',
-      language: 'km',
-      engine: 'gemini-khmer',
-      displayText: 'ស្តាប់ខ្ញុំជាមុនសិន បន្ទាប់មកនិយាយតាម ហើយចុងក្រោយឆ្លើយដោយខ្លួនឯង។',
-      delayBeforeShowMs: 260,
     }),
   ];
 }

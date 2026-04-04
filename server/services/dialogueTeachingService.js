@@ -8,6 +8,7 @@ import {
   buildStartSpecs,
   getCurrentLesson,
 } from './dialogueScenarioService.js';
+import { config } from '../config.js';
 import { generateDialogueFeedback } from './arkFlashService.js';
 import {
   buildDialogueAudioAssetId,
@@ -89,7 +90,7 @@ async function materializeDoubaoAudio(spec, session, speed = 'normal') {
 async function materializeGeminiAudio(spec) {
   const assetId = buildDialogueAudioAssetId({
     engine: 'gemini-khmer',
-    voice: 'bunson-km',
+    voice: config.geminiKhmerVoiceName || 'Gacrux',
     text: spec.ttsText || spec.displayText,
     speed: 'normal',
   });

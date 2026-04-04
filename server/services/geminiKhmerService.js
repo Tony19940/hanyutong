@@ -12,6 +12,8 @@ const DEFAULT_SYSTEM_INSTRUCTION = [
 ].join(' ');
 
 function buildSetupPayload(systemInstruction) {
+  const voiceName = String(config.geminiKhmerVoiceName || '').trim();
+
   return {
     setup: {
       model: `models/${config.geminiKhmerModel}`,
@@ -19,6 +21,17 @@ function buildSetupPayload(systemInstruction) {
         responseModalities: ['AUDIO'],
         temperature: 0.4,
         maxOutputTokens: 180,
+        ...(voiceName
+          ? {
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: {
+                    voiceName,
+                  },
+                },
+              },
+            }
+          : {}),
       },
       outputAudioTranscription: {},
       systemInstruction: {

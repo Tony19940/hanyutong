@@ -58,6 +58,7 @@ export const config = {
     .filter(Boolean),
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   geminiKhmerModel: process.env.GEMINI_KHMER_MODEL || 'gemini-3.1-flash-live-preview',
+  geminiKhmerVoiceName: process.env.GEMINI_KHMER_VOICE_NAME || 'Gacrux',
   xfyunAppId: process.env.XFYUN_APP_ID || '',
   xfyunApiKey: process.env.XFYUN_API_KEY || '',
   xfyunApiSecret: process.env.XFYUN_API_SECRET || '',

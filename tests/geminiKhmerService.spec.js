@@ -67,6 +67,7 @@ describe('geminiKhmerService', () => {
     wsState.payloads.length = 0;
     process.env.GEMINI_API_KEY = 'gemini-test-key';
     process.env.GEMINI_KHMER_MODEL = 'gemini-3.1-flash-live-preview';
+    process.env.GEMINI_KHMER_VOICE_NAME = 'Gacrux';
     vi.resetModules();
   });
 
@@ -80,6 +81,7 @@ describe('geminiKhmerService', () => {
     expect(result.buffer.subarray(0, 4).toString()).toBe('RIFF');
     expect(wsState.payloads).toHaveLength(2);
     expect(wsState.payloads[0].setup.generationConfig.responseModalities).toEqual(['AUDIO']);
+    expect(wsState.payloads[0].setup.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName).toBe('Gacrux');
     expect(wsState.payloads[0].setup.outputAudioTranscription).toEqual({});
     expect(wsState.payloads[1]).toEqual({
       realtimeInput: {

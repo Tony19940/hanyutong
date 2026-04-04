@@ -12,6 +12,7 @@ function setDialogueEnv() {
   process.env.DOUBAO_TTS_VOICE_TYPE = 'BV001_streaming';
   process.env.GEMINI_API_KEY = 'gemini-key';
   process.env.GEMINI_KHMER_MODEL = 'gemini-3.1-flash-live-preview';
+  process.env.GEMINI_KHMER_VOICE_NAME = 'Gacrux';
   process.env.XFYUN_APP_ID = 'xf-app';
   process.env.XFYUN_API_KEY = 'xf-key';
   process.env.XFYUN_API_SECRET = 'xf-secret';
@@ -50,6 +51,19 @@ describe('dialogue lesson flow', () => {
     expect(result.outcome).toBe('retry');
     expect(result.evaluation.retryCount).toBe(1);
     expect(buildDialogueState(session).lessonIndex).toBe(0);
+  });
+
+  it('builds a concise Khmer start flow before the first Chinese demo', async () => {
+    const { buildDialogueSession, buildStartSpecs } = await loadDialogueModule();
+    const session = buildDialogueSession({ scenarioId: 'greeting', learnerName: 'Tony' });
+
+    const teacherMessages = buildStartSpecs(session).filter((message) => message.sender === 'teacher');
+
+    expect(teacherMessages.map((message) => [message.language, message.displayText])).toEqual([
+      ['km', 'ថ្ងៃនេះយើងហាត់សន្ទនាខ្លីមួយ។ ខ្ញុំនឹងអានជាមុន ហើយអ្នកអានតាមបន្ទាប់។'],
+      ['zh', '你好，我叫小豆。'],
+      ['km', 'ឥឡូវនេះសូមអានតាមខ្ញុំ។'],
+    ]);
   });
 
   it('skips after the third failed attempt', async () => {
