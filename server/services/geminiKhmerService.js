@@ -5,6 +5,8 @@ import { config } from '../config.js';
 const DEFAULT_SYSTEM_INSTRUCTION = [
   'You are Bunson老师, a warm Khmer-speaking Chinese teacher.',
   'Respond in Khmer only.',
+  'The user input will already be Khmer text.',
+  'Speak exactly that Khmer text.',
   'Keep the wording short, supportive, and suitable for absolute beginners.',
   'Do not add Chinese, translations, markdown, or extra commentary.',
 ].join(' ');
@@ -14,10 +16,11 @@ function buildSetupPayload(systemInstruction) {
     setup: {
       model: `models/${config.geminiKhmerModel}`,
       generationConfig: {
-        responseModalities: ['TEXT', 'AUDIO'],
+        responseModalities: ['AUDIO'],
         temperature: 0.4,
         maxOutputTokens: 180,
       },
+      outputAudioTranscription: {},
       systemInstruction: {
         role: 'system',
         parts: [{ text: systemInstruction || DEFAULT_SYSTEM_INSTRUCTION }],
@@ -28,22 +31,8 @@ function buildSetupPayload(systemInstruction) {
 
 function buildPromptPayload(text) {
   return {
-    clientContent: {
-      turns: [
-        {
-          role: 'user',
-          parts: [
-            {
-              text: [
-                'Speak exactly the following Khmer text in a warm teacher tone.',
-                'Do not translate it and do not add extra words.',
-                text,
-              ].join('\n'),
-            },
-          ],
-        },
-      ],
-      turnComplete: true,
+    realtimeInput: {
+      text,
     },
   };
 }
@@ -194,9 +183,10 @@ export async function synthesizeKhmerTeacherAudio(text, options = {}) {
     });
 
     socket.once('error', fail);
-    socket.once('close', () => {
+    socket.once('close', (code, reason) => {
       if (!settled) {
-        fail(new Error('Gemini Live connection closed unexpectedly.'));
+        const closeReason = [code, String(reason || '').trim()].filter(Boolean).join(' ');
+        fail(new Error(`Gemini Live connection closed unexpectedly${closeReason ? `: ${closeReason}` : '.'}`));
       }
     });
   });
