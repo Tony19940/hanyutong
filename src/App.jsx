@@ -8,6 +8,7 @@ import ProfilePage from './components/ProfilePage.jsx';
 import ProfileSettingsPage from './components/ProfileSettingsPage.jsx';
 import AIPracticePage from './components/AIPracticePage.jsx';
 import AdminPage from './components/AdminPage.jsx';
+import InterpreterPage from './components/InterpreterPage.jsx';
 import TabBar from './components/TabBar.jsx';
 import MembershipGate from './components/MembershipGate.jsx';
 import { api, storage } from './utils/api.js';
@@ -39,6 +40,7 @@ export default function App() {
   const [membership, setMembership] = useState(defaultMembership());
   const [invite, setInvite] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
+  const [overlayView, setOverlayView] = useState(null);
   const [profileView, setProfileView] = useState('profile');
   const [profileRefreshKey, setProfileRefreshKey] = useState(0);
   const [vocabulary, setVocabulary] = useState([]);
@@ -86,7 +88,7 @@ export default function App() {
     if (!incomingUser) return incomingUser;
     const merged = {
       ...incomingUser,
-      username: tgUser?.username || incomingUser.username || '',
+      username: tgUser?.username || incomingUser.username || incomingUser.account_username || '',
       avatar_url: tgUser?.avatarUrl || incomingUser.avatar_url || incomingUser.avatarUrl || null,
       avatarUrl: tgUser?.avatarUrl || incomingUser.avatarUrl || incomingUser.avatar_url || null,
       display_name: tgUser?.name || incomingUser.display_name || incomingUser.name,
@@ -206,11 +208,17 @@ export default function App() {
   }, [applyAuthResponse]);
 
   const handleTabChange = useCallback((tabId) => {
+    setOverlayView(null);
     setActiveTab(tabId);
     if (tabId !== 'profile') {
       setProfileView('profile');
     }
   }, []);
+
+  useEffect(() => {
+    if (!user || isAdmin) return;
+    api.trackEvent('app_open').catch(() => {});
+  }, [user?.id, isAdmin]);
 
   const updatePreferences = useCallback(async (patch) => {
     const previous = preferences;
@@ -383,11 +391,50 @@ export default function App() {
           </div>
         </div>
 
-        <TabBar
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          lockedTabs={hasPremiumAccess ? [] : ['quiz', 'practice']}
-        />
+        {overlayView === 'interpreter' ? (
+          hasPremiumAccess ? (
+            <InterpreterPage onBack={() => setOverlayView(null)} />
+          ) : (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 60, background: 'var(--app-shell-gradient)' }}>
+              <button
+                type="button"
+                onClick={() => setOverlayView(null)}
+                style={{
+                  position: 'absolute',
+                  top: 18,
+                  left: 18,
+                  zIndex: 61,
+                  width: 42,
+                  height: 42,
+                  borderRadius: 14,
+                  border: '1px solid var(--settings-border)',
+                  background: 'var(--settings-surface)',
+                  color: 'var(--text-primary)',
+                }}
+              >
+                <i className="fas fa-arrow-left"></i>
+              </button>
+              <MembershipGate
+                featureName="同声传译"
+                membership={membership}
+                invite={invite}
+                onAuthenticated={handleAuthenticated}
+                onOpenProfile={() => {
+                  setOverlayView(null);
+                  setActiveTab('profile');
+                  setProfileView('profile');
+                }}
+              />
+            </div>
+          )
+        ) : (
+          <TabBar
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            lockedTabs={hasPremiumAccess ? [] : ['quiz', 'practice']}
+            onOpenInterpreter={() => setOverlayView('interpreter')}
+          />
+        )}
       </div>
     </AppShellProvider>
   );

@@ -347,6 +347,38 @@ export async function addReferralRewardDays(userId, { days, referralId = null },
   return membership;
 }
 
+export async function setManualMembership(userId, {
+  planType,
+  expiresAt = null,
+  sourceKeyId = null,
+  details = null,
+}, client = null) {
+  const membership = await upsertMembershipAccess(
+    userId,
+    {
+      planType,
+      expiresAt,
+      sourceKeyId,
+    },
+    client
+  );
+
+  await recordEntitlementEvent(
+    {
+      userId,
+      eventType: 'manual_adjustment',
+      planType,
+      daysDelta: 0,
+      expiresAt,
+      relatedKeyId: sourceKeyId,
+      details,
+    },
+    client
+  );
+
+  return membership;
+}
+
 export async function getActivationKeyByCode(keyCode, client = null) {
   const result = await query(
     'SELECT * FROM keys WHERE key_code = $1',

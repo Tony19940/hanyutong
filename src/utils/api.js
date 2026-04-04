@@ -67,6 +67,13 @@ export const api = {
       body: { keyCode, telegramId, name, avatarUrl, inviteCode },
     }),
 
+  passwordLogin: (username, password) =>
+    request('/auth/password-login', {
+      method: 'POST',
+      auth: 'none',
+      body: { username, password },
+    }),
+
   redeemActivationCode: (keyCode) =>
     request('/auth/login', {
       method: 'POST',
@@ -98,11 +105,36 @@ export const api = {
   getProfile: () => request('/user/profile'),
   getUserSettings: () => request('/user/settings'),
   getInvite: () => request('/user/invite'),
+  getHomeSurfaces: () => request('/home/surfaces'),
+  trackEvent: (eventName, metadata = null) =>
+    request('/events/track', {
+      method: 'POST',
+      body: { eventName, metadata },
+    }),
   updateUserSettings: (payload) =>
     request('/user/settings', {
       method: 'POST',
       body: payload,
     }),
+  bindUserCredentials: (username, password) =>
+    request('/user/account/bind-credentials', {
+      method: 'POST',
+      body: { username, password },
+    }),
+  getAvatarOptions: () => request('/user/avatar-options'),
+  selectAvatar: (avatarId) =>
+    request('/user/avatar/select', {
+      method: 'POST',
+      body: { avatarId },
+    }),
+  uploadAvatar: (file) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return request('/user/avatar/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  },
   synthesizePreviewAudio: (text, voiceType) =>
     request('/user/tts-preview', {
       method: 'POST',
@@ -161,6 +193,37 @@ export const api = {
     request('/admin/stats', {
       auth: 'admin',
     }),
+  getAdminBanners: () => request('/admin/banners', { auth: 'admin' }),
+  saveAdminBanner: (payload) =>
+    request('/admin/banners', {
+      method: 'POST',
+      auth: 'admin',
+      body: payload,
+    }),
+  reorderAdminBanners: (items) =>
+    request('/admin/banners/reorder', {
+      method: 'POST',
+      auth: 'admin',
+      body: { items },
+    }),
+  getAdminPopups: () => request('/admin/popups', { auth: 'admin' }),
+  saveAdminPopup: (payload) =>
+    request('/admin/popups', {
+      method: 'POST',
+      auth: 'admin',
+      body: payload,
+    }),
+  getAdminUsers: (search = '', page = 1, limit = 50) =>
+    request(`/admin/users?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
+      auth: 'admin',
+    }),
+  updateAdminUserMembership: (userId, payload) =>
+    request(`/admin/users/${userId}/membership`, {
+      method: 'POST',
+      auth: 'admin',
+      body: payload,
+    }),
+  getAdminAnalyticsOverview: () => request('/admin/analytics/overview', { auth: 'admin' }),
 
   deleteKey: (id) =>
     request(`/admin/keys/${id}`, {

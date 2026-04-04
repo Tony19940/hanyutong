@@ -48,6 +48,7 @@ describe('ProfilePage', () => {
         voiceType: 'BV705_streaming',
         fallbackAvatarId: null,
       },
+      avatarOptions: [],
       voiceSettings: {
         defaultVoiceType: 'BV705_streaming',
         availableVoices: [
@@ -101,6 +102,6 @@ describe('ProfilePage', () => {
     );
 
     const image = await screen.findByAltText('Alice');
-    expect(image.getAttribute('src')).toContain('/avatars/avatar-');
+    expect(image.getAttribute('src')).toContain('/avatars/animal-');
   });
 });

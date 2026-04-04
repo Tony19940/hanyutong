@@ -8,11 +8,15 @@ import wordsRoutes from './routes/words.js';
 import userRoutes from './routes/user.js';
 import adminRoutes from './routes/admin.js';
 import dialogueRoutes from './routes/dialogue.js';
+import homeRoutes from './routes/home.js';
+import eventsRoutes from './routes/events.js';
+import mediaRoutes from './routes/media.js';
 import { setupBot } from './bot.js';
 import { config, validateConfig } from './config.js';
 import { initDb } from './db.js';
 import { errorHandler } from './errors.js';
 import { getVocabulary } from './services/vocabularyService.js';
+import { attachInterpreterGateway } from './services/interpreterGateway.js';
 
 dotenv.config();
 
@@ -37,6 +41,9 @@ export async function createApp() {
   });
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/home', homeRoutes);
+  app.use('/api/events', eventsRoutes);
+  app.use('/api/media', mediaRoutes);
   app.use('/api/words', wordsRoutes);
   app.use('/api/user', userRoutes);
   app.use('/api/admin', adminRoutes);
@@ -71,6 +78,7 @@ export async function startServer() {
     console.log(`Server running on port ${config.port}`);
     setupBot(config.botToken, config.webappUrl);
   });
+  attachInterpreterGateway(server);
   return server;
 }
 

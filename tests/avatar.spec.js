@@ -8,11 +8,11 @@ describe('avatar utilities', () => {
 
   it('returns deterministic fallback avatar ids', () => {
     expect(pickFallbackAvatarId('alice')).toBe(pickFallbackAvatarId('alice'));
-    expect(pickFallbackAvatarId('alice')).toMatch(/^avatar-[1-6]$/);
+    expect(pickFallbackAvatarId('alice')).toMatch(/^animal-/);
   });
 
   it('prefers direct avatar urls and otherwise falls back to local avatar assets', () => {
-    expect(resolveAvatarUrl({ avatarUrl: 'https://example.com/a.jpg' }, 'avatar-2')).toBe('https://example.com/a.jpg');
-    expect(resolveAvatarUrl({ name: 'Alice' }, 'avatar-2')).toBe('/avatars/avatar-2.svg');
+    expect(resolveAvatarUrl({ avatarUrl: 'https://example.com/a.jpg' }, 'animal-cat')).toBe('https://example.com/a.jpg');
+    expect(resolveAvatarUrl({ name: 'Alice' }, 'animal-cat')).toBe('/avatars/animal-cat.svg');
   });
 });

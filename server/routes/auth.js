@@ -16,6 +16,7 @@ import {
   isFutureTimestamp,
 } from '../services/membershipService.js';
 import { awardReferralRewardIfEligible, bindReferralIfEligible, ensureInviteCodeForUser, getInviteSummary } from '../services/referralService.js';
+import { getCredentialByUserId, verifyPasswordCredentials } from '../services/credentialService.js';
 
 const router = Router();
 const loginRateLimit = createRateLimiter({
@@ -39,12 +40,13 @@ function buildInviteBaseUrl(req) {
   return `${req.protocol}://${req.get('host')}`;
 }
 
-function toUserPayload(user) {
+function toUserPayload(user, accountUsername = null) {
   return {
     id: user.id,
     telegram_id: user.telegram_id,
     name: user.name,
     avatar_url: user.avatar_url,
+    account_username: accountUsername,
   };
 }
 
@@ -117,9 +119,10 @@ async function buildAuthResponse(user, token, req) {
   await ensureInviteCodeForUser(user.id);
   const membership = await getMembershipAccess(user.id);
   const invite = await getInviteSummary(user.id, buildInviteBaseUrl(req));
+  const credential = await getCredentialByUserId(user.id);
 
   return {
-    user: toUserPayload(user),
+    user: toUserPayload(user, credential?.username || null),
     token,
     membership,
     invite,
@@ -267,6 +270,23 @@ router.post('/verify', requireUserAuth, asyncHandler(async (req, res) => {
   const user = userResult.rows[0];
 
   res.json(await buildAuthResponse(user, req.authToken, req));
+}));
+
+router.post('/password-login', loginRateLimit, asyncHandler(async (req, res) => {
+  const { username, password } = req.body || {};
+  if (!username || !password) {
+    throw badRequest('Username and password are required', 'CREDENTIALS_REQUIRED');
+  }
+
+  const credential = await verifyPasswordCredentials(username, password);
+  const userResult = await query('SELECT * FROM users WHERE id = $1', [credential.user_id]);
+  const user = userResult.rows[0];
+  if (!user) {
+    throw notFound('User not found', 'USER_NOT_FOUND');
+  }
+
+  const token = await createUserSession(user.id);
+  res.json(await buildAuthResponse(user, token, req));
 }));
 
 router.post('/logout', requireUserAuth, asyncHandler(async (req, res) => {

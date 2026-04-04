@@ -1,10 +1,14 @@
 export const DEFAULT_AVATAR_IDS = [
-  'avatar-1',
-  'avatar-2',
-  'avatar-3',
-  'avatar-4',
-  'avatar-5',
-  'avatar-6',
+  'animal-bear',
+  'animal-bunny',
+  'animal-cat',
+  'animal-chick',
+  'animal-corgi',
+  'animal-fox',
+  'animal-frog',
+  'animal-koala',
+  'animal-panda',
+  'animal-tiger',
 ];
 
 function hashText(input) {
@@ -23,9 +27,14 @@ export function resolveFallbackAvatarId(value, seed) {
   return pickFallbackAvatarId(seed);
 }
 
+export function isBuiltinAvatarId(value) {
+  return DEFAULT_AVATAR_IDS.includes(String(value || ''));
+}
+
 export function buildUserAvatarSeed(user) {
   return user?.telegramId
     || user?.telegram_id
+    || user?.username
     || user?.name
     || user?.id
     || 'user';

@@ -175,7 +175,7 @@ describe('auth and user permissions', () => {
     expect(response.body.settings.language).toBe('zh-CN');
     expect(response.body.settings.theme).toBe('dark');
     expect(response.body.settings.voiceType).toBe('BV705_streaming');
-    expect(response.body.settings.fallbackAvatarId).toMatch(/^avatar-[1-6]$/);
+    expect(response.body.settings.fallbackAvatarId).toMatch(/^animal-/);
     expect(response.body.voiceSettings.defaultVoiceType).toBe('BV705_streaming');
     expect(Array.isArray(response.body.voiceSettings.availableVoices)).toBe(true);
     expect(response.body.voiceSettings.availableVoices.length).toBeGreaterThan(0);
@@ -191,28 +191,28 @@ describe('auth and user permissions', () => {
         language: 'en',
         theme: 'light',
         voiceType: 'BV001_streaming',
-        fallbackAvatarId: 'avatar-3',
+        fallbackAvatarId: 'animal-cat',
       });
 
     expect(update.status).toBe(200);
-    expect(update.body.settings).toEqual({
-      language: 'en',
-      theme: 'light',
-      voiceType: 'BV001_streaming',
-      fallbackAvatarId: 'avatar-3',
-    });
+    expect(update.body.settings.language).toBe('en');
+    expect(update.body.settings.theme).toBe('light');
+    expect(update.body.settings.voiceType).toBe('BV001_streaming');
+    expect(update.body.settings.fallbackAvatarId).toBe('animal-cat');
+    expect(update.body.settings.preferredAvatarId).toBe(null);
+    expect(update.body.settings.avatarAssetId).toBe(null);
 
     const profile = await request(app)
       .get('/api/user/profile')
       .set('Authorization', `Bearer ${login.token}`);
 
     expect(profile.status).toBe(200);
-    expect(profile.body.settings).toEqual({
-      language: 'en',
-      theme: 'light',
-      voiceType: 'BV001_streaming',
-      fallbackAvatarId: 'avatar-3',
-    });
+    expect(profile.body.settings.language).toBe('en');
+    expect(profile.body.settings.theme).toBe('light');
+    expect(profile.body.settings.voiceType).toBe('BV001_streaming');
+    expect(profile.body.settings.fallbackAvatarId).toBe('animal-cat');
+    expect(profile.body.settings.preferredAvatarId).toBe(null);
+    expect(profile.body.settings.avatarAssetId).toBe(null);
     expect(profile.body.voiceSettings.defaultVoiceType).toBe('BV705_streaming');
   });
 
@@ -227,7 +227,7 @@ describe('auth and user permissions', () => {
       });
 
     expect(update.status).toBe(200);
-    expect(update.body.settings.fallbackAvatarId).toMatch(/^avatar-[1-6]$/);
+    expect(update.body.settings.fallbackAvatarId).toMatch(/^animal-/);
   });
 
   it('falls back to the default teacher voice when the requested voice is unavailable', async () => {

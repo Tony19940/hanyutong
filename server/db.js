@@ -40,6 +40,8 @@ const schemaStatements = [
       theme TEXT NOT NULL DEFAULT 'dark',
       voice_type TEXT NOT NULL DEFAULT '',
       fallback_avatar_id TEXT,
+      preferred_avatar_id TEXT,
+      avatar_asset_id UUID,
       created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -140,6 +142,81 @@ const schemaStatements = [
       created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `,
+  `
+    CREATE TABLE IF NOT EXISTS media_assets (
+      id UUID PRIMARY KEY,
+      owner_user_id INTEGER,
+      scope TEXT NOT NULL DEFAULT 'admin' CHECK (scope IN ('admin', 'user')),
+      category TEXT NOT NULL CHECK (category IN ('banner', 'popup', 'avatar')),
+      mime_type TEXT NOT NULL,
+      file_name TEXT,
+      bytes BYTEA NOT NULL,
+      size_bytes INTEGER NOT NULL DEFAULT 0,
+      width INTEGER,
+      height INTEGER,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS home_banners (
+      id SERIAL PRIMARY KEY,
+      asset_id UUID NOT NULL,
+      title TEXT,
+      link_url TEXT,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS app_popups (
+      id SERIAL PRIMARY KEY,
+      asset_id UUID NOT NULL,
+      title TEXT NOT NULL DEFAULT '',
+      body TEXT NOT NULL DEFAULT '',
+      link_url TEXT,
+      priority INTEGER NOT NULL DEFAULT 0,
+      starts_at TIMESTAMPTZ,
+      ends_at TIMESTAMPTZ,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS popup_impressions (
+      id SERIAL PRIMARY KEY,
+      popup_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      impression_date TEXT NOT NULL,
+      clicked_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE (popup_id, user_id, impression_date)
+    )
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS app_events (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER,
+      event_name TEXT NOT NULL,
+      event_date TEXT NOT NULL,
+      metadata TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS user_credentials (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL UNIQUE,
+      username TEXT NOT NULL UNIQUE,
+      username_normalized TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `,
   'ALTER TABLE keys ADD COLUMN IF NOT EXISTS expired_at TIMESTAMPTZ',
   'ALTER TABLE keys ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ',
   'ALTER TABLE keys ADD COLUMN IF NOT EXISTS last_extended_at TIMESTAMPTZ',
@@ -148,6 +225,8 @@ const schemaStatements = [
   'ALTER TABLE users ADD COLUMN IF NOT EXISTS invited_by_user_id INTEGER',
   'ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_bound_at TIMESTAMPTZ',
   'ALTER TABLE users ADD COLUMN IF NOT EXISTS first_paid_at TIMESTAMPTZ',
+  'ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS preferred_avatar_id TEXT',
+  'ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS avatar_asset_id UUID',
   'ALTER TABLE sessions ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP',
   'ALTER TABLE admin_sessions ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP',
   'ALTER TABLE keys DROP CONSTRAINT IF EXISTS keys_status_check',
@@ -167,6 +246,14 @@ const schemaStatements = [
   'ALTER TABLE entitlement_events DROP CONSTRAINT IF EXISTS entitlement_events_user_id_fkey',
   'ALTER TABLE entitlement_events DROP CONSTRAINT IF EXISTS entitlement_events_related_key_id_fkey',
   'ALTER TABLE entitlement_events DROP CONSTRAINT IF EXISTS entitlement_events_related_referral_id_fkey',
+  'ALTER TABLE media_assets DROP CONSTRAINT IF EXISTS media_assets_owner_user_id_fkey',
+  'ALTER TABLE home_banners DROP CONSTRAINT IF EXISTS home_banners_asset_id_fkey',
+  'ALTER TABLE app_popups DROP CONSTRAINT IF EXISTS app_popups_asset_id_fkey',
+  'ALTER TABLE popup_impressions DROP CONSTRAINT IF EXISTS popup_impressions_popup_id_fkey',
+  'ALTER TABLE popup_impressions DROP CONSTRAINT IF EXISTS popup_impressions_user_id_fkey',
+  'ALTER TABLE app_events DROP CONSTRAINT IF EXISTS app_events_user_id_fkey',
+  'ALTER TABLE user_credentials DROP CONSTRAINT IF EXISTS user_credentials_user_id_fkey',
+  'ALTER TABLE user_settings DROP CONSTRAINT IF EXISTS user_settings_avatar_asset_id_fkey',
   'ALTER TABLE keys ADD CONSTRAINT keys_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL',
   'ALTER TABLE users ADD CONSTRAINT users_key_id_fkey FOREIGN KEY (key_id) REFERENCES keys(id) ON DELETE SET NULL',
   'ALTER TABLE users ADD CONSTRAINT users_invited_by_user_id_fkey FOREIGN KEY (invited_by_user_id) REFERENCES users(id) ON DELETE SET NULL',
@@ -181,6 +268,14 @@ const schemaStatements = [
   'ALTER TABLE entitlement_events ADD CONSTRAINT entitlement_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
   'ALTER TABLE entitlement_events ADD CONSTRAINT entitlement_events_related_key_id_fkey FOREIGN KEY (related_key_id) REFERENCES keys(id) ON DELETE SET NULL',
   'ALTER TABLE entitlement_events ADD CONSTRAINT entitlement_events_related_referral_id_fkey FOREIGN KEY (related_referral_id) REFERENCES referrals(id) ON DELETE SET NULL',
+  'ALTER TABLE media_assets ADD CONSTRAINT media_assets_owner_user_id_fkey FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE CASCADE',
+  'ALTER TABLE home_banners ADD CONSTRAINT home_banners_asset_id_fkey FOREIGN KEY (asset_id) REFERENCES media_assets(id) ON DELETE CASCADE',
+  'ALTER TABLE app_popups ADD CONSTRAINT app_popups_asset_id_fkey FOREIGN KEY (asset_id) REFERENCES media_assets(id) ON DELETE CASCADE',
+  'ALTER TABLE popup_impressions ADD CONSTRAINT popup_impressions_popup_id_fkey FOREIGN KEY (popup_id) REFERENCES app_popups(id) ON DELETE CASCADE',
+  'ALTER TABLE popup_impressions ADD CONSTRAINT popup_impressions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
+  'ALTER TABLE app_events ADD CONSTRAINT app_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL',
+  'ALTER TABLE user_credentials ADD CONSTRAINT user_credentials_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
+  'ALTER TABLE user_settings ADD CONSTRAINT user_settings_avatar_asset_id_fkey FOREIGN KEY (avatar_asset_id) REFERENCES media_assets(id) ON DELETE SET NULL',
   'CREATE INDEX IF NOT EXISTS idx_keys_code ON keys(key_code)',
   'CREATE INDEX IF NOT EXISTS idx_keys_status ON keys(status)',
   'CREATE INDEX IF NOT EXISTS idx_keys_user ON keys(user_id)',
@@ -201,6 +296,14 @@ const schemaStatements = [
   'CREATE INDEX IF NOT EXISTS idx_referrals_invitee ON referrals(invitee_user_id)',
   'CREATE INDEX IF NOT EXISTS idx_entitlement_events_user ON entitlement_events(user_id)',
   'CREATE INDEX IF NOT EXISTS idx_entitlement_events_type ON entitlement_events(event_type)',
+  'CREATE INDEX IF NOT EXISTS idx_media_assets_owner ON media_assets(owner_user_id)',
+  'CREATE INDEX IF NOT EXISTS idx_media_assets_category ON media_assets(category)',
+  'CREATE INDEX IF NOT EXISTS idx_home_banners_sort ON home_banners(sort_order, is_active)',
+  'CREATE INDEX IF NOT EXISTS idx_app_popups_window ON app_popups(starts_at, ends_at, is_active)',
+  'CREATE INDEX IF NOT EXISTS idx_popup_impressions_user ON popup_impressions(user_id, impression_date)',
+  'CREATE INDEX IF NOT EXISTS idx_app_events_name_date ON app_events(event_name, event_date)',
+  'CREATE INDEX IF NOT EXISTS idx_app_events_user_date ON app_events(user_id, event_date)',
+  'CREATE UNIQUE INDEX IF NOT EXISTS idx_user_credentials_username_norm ON user_credentials(username_normalized)',
 ];
 
 let pool = null;

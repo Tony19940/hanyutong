@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import WordCard from './WordCard.jsx';
+import AnnouncementPopup from './AnnouncementPopup.jsx';
+import HomeBannerCarousel from './HomeBannerCarousel.jsx';
+import InstallShortcutButton from './InstallShortcutButton.jsx';
 import { api } from '../utils/api.js';
+import { getTelegramWebApp } from '../utils/telegram.js';
 import { useAppShell } from '../i18n/index.js';
 
 export default function HomePage({ user }) {
@@ -10,6 +14,9 @@ export default function HomePage({ user }) {
   const [stats, setStats] = useState({ total: 0, learned: 0, remaining: 0 });
   const [loading, setLoading] = useState(true);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+  const [banners, setBanners] = useState([]);
+  const [popup, setPopup] = useState(null);
+  const [visiblePopup, setVisiblePopup] = useState(null);
   const languageMenuRef = useRef(null);
 
   const loadWords = useCallback(async () => {
@@ -39,6 +46,26 @@ export default function HomePage({ user }) {
   useEffect(() => {
     loadWords();
   }, [loadWords]);
+
+  useEffect(() => {
+    api.getHomeSurfaces()
+      .then((data) => {
+        setBanners(Array.isArray(data?.banners) ? data.banners : []);
+        setPopup(data?.popup || null);
+      })
+      .catch((error) => {
+        console.error('Failed to load home surfaces', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (loading || !popup || visiblePopup) return undefined;
+    const timer = window.setTimeout(() => {
+      setVisiblePopup(popup);
+      api.trackEvent('popup_impression', { popupId: popup.id }).catch(() => {});
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [loading, popup, visiblePopup]);
 
   useEffect(() => {
     if (!isLanguageMenuOpen) return undefined;
@@ -98,6 +125,27 @@ export default function HomePage({ user }) {
     setLanguage(nextLanguage);
   }, [language, setLanguage]);
 
+  const openLink = useCallback((url) => {
+    if (!url) return;
+    const tg = getTelegramWebApp();
+    if (tg?.openLink) {
+      tg.openLink(url);
+      return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, []);
+
+  const handleBannerClick = useCallback((banner) => {
+    api.trackEvent('banner_click', { bannerId: banner.id, linkUrl: banner.linkUrl }).catch(() => {});
+    openLink(banner.linkUrl);
+  }, [openLink]);
+
+  const handlePopupAction = useCallback((currentPopup) => {
+    api.trackEvent('popup_click', { popupId: currentPopup.id, linkUrl: currentPopup.linkUrl }).catch(() => {});
+    setVisiblePopup(null);
+    openLink(currentPopup.linkUrl);
+  }, [openLink]);
+
   return (
     <div className="home-page page-enter">
       {/* Temple silhouette decorations */}
@@ -105,6 +153,7 @@ export default function HomePage({ user }) {
       <div className="home-pattern" aria-hidden="true"></div>
 
       <div className="home-layout">
+        <InstallShortcutButton />
         {/* Header */}
         <header className="home-head">
           <div className="home-language-switch" ref={languageMenuRef}>
@@ -181,7 +230,11 @@ export default function HomePage({ user }) {
             </div>
           )}
         </div>
+
+        <HomeBannerCarousel banners={banners} onBannerClick={handleBannerClick} />
       </div>
+
+      <AnnouncementPopup popup={visiblePopup} onClose={() => setVisiblePopup(null)} onAction={handlePopupAction} />
 
       <style>{`
         .home-page {

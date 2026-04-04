@@ -17,6 +17,7 @@ import {
 } from '../services/dialogueTeachingService.js';
 import { getDialogueSession, removeDialogueSession, saveDialogueSession } from '../services/dialogueSessionStore.js';
 import { resolveDialogueAudioAsset } from '../services/audioAssetService.js';
+import { trackAppEvent } from '../services/analyticsService.js';
 import { transcribeDialogueAudio } from '../services/doubaoAsrService.js';
 import { buildPronunciationFallback, evaluatePronunciation } from '../services/xfyunPronunciationService.js';
 import { ensureUserSettingsForDialogue } from '../services/userSettingsService.js';
@@ -60,6 +61,11 @@ router.post('/session/start', asyncHandler(async (req, res) => {
     voiceType: (await ensureUserSettingsForDialogue(req.user)).voiceType,
   });
   saveDialogueSession(session);
+  await trackAppEvent({
+    userId: req.user.id,
+    eventName: 'dialogue_start',
+    metadata: { scenarioId },
+  });
 
   const startResponse = await buildDialogueStartResponse(session);
   res.json({

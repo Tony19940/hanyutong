@@ -45,6 +45,7 @@ export default function LoginPage({ onAuthenticated }) {
   const [loadingAction, setLoadingAction] = useState('');
   const [error, setError] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [passwordLoginForm, setPasswordLoginForm] = useState({ username: '', password: '' });
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -105,6 +106,25 @@ export default function LoginPage({ onAuthenticated }) {
         tgUser?.avatarUrl || null,
         inviteCode || null
       );
+      persistAuth(response);
+      onAuthenticated?.(response);
+    } catch (err) {
+      setError(err.message || t('login.loginFailed'));
+    } finally {
+      setLoadingAction('');
+    }
+  };
+
+  const handlePasswordLogin = async () => {
+    if (!passwordLoginForm.username || !passwordLoginForm.password) {
+      setError('请输入用户名和密码');
+      return;
+    }
+
+    setLoadingAction('password');
+    setError('');
+    try {
+      const response = await api.passwordLogin(passwordLoginForm.username, passwordLoginForm.password);
       persistAuth(response);
       onAuthenticated?.(response);
     } catch (err) {
@@ -191,7 +211,44 @@ export default function LoginPage({ onAuthenticated }) {
           </button>
         </div>
 
-        <button className="support-card animate-float-up stagger-4" type="button" onClick={openSupport}>
+        <div className="entry-card animate-float-up stagger-4">
+          <div className="input-lbl">用户名登录</div>
+          <div className="input-box" style={{ marginBottom: 10 }}>
+            <i className="fas fa-user"></i>
+            <input
+              type="text"
+              placeholder="用户名"
+              value={passwordLoginForm.username}
+              onChange={(event) => {
+                setPasswordLoginForm((current) => ({ ...current, username: event.target.value }));
+                setError('');
+              }}
+            />
+          </div>
+          <div className="input-box">
+            <i className="fas fa-lock"></i>
+            <input
+              type="password"
+              placeholder="密码"
+              value={passwordLoginForm.password}
+              onChange={(event) => {
+                setPasswordLoginForm((current) => ({ ...current, password: event.target.value }));
+                setError('');
+              }}
+              onKeyDown={(event) => event.key === 'Enter' && handlePasswordLogin()}
+            />
+          </div>
+          <button
+            className="outline-btn"
+            type="button"
+            onClick={handlePasswordLogin}
+            disabled={loadingAction === 'password'}
+          >
+            {loadingAction === 'password' ? t('login.verifying') : '使用用户名登录'}
+          </button>
+        </div>
+
+        <button className="support-card animate-float-up stagger-5" type="button" onClick={openSupport}>
           <div className="support-card-icon">
             <i className="fab fa-telegram"></i>
           </div>

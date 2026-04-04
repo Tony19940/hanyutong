@@ -1,10 +1,14 @@
 export const DEFAULT_AVATAR_IDS = [
-  'avatar-1',
-  'avatar-2',
-  'avatar-3',
-  'avatar-4',
-  'avatar-5',
-  'avatar-6',
+  'animal-bear',
+  'animal-bunny',
+  'animal-cat',
+  'animal-chick',
+  'animal-corgi',
+  'animal-fox',
+  'animal-frog',
+  'animal-koala',
+  'animal-panda',
+  'animal-tiger',
 ];
 
 function hashText(input) {
@@ -31,6 +35,16 @@ export function getAvatarAssetUrl(avatarId) {
 }
 
 export function resolveAvatarUrl(user = {}, fallbackAvatarId = null) {
+  const customAssetId = user.avatarAssetId || user.avatar_asset_id || null;
+  if (customAssetId) {
+    return `/api/media/${customAssetId}`;
+  }
+
+  const preferredAvatarId = user.preferredAvatarId || user.preferred_avatar_id || null;
+  if (preferredAvatarId) {
+    return getAvatarAssetUrl(preferredAvatarId);
+  }
+
   const directUrl = user.avatarUrl || user.avatar_url || null;
   if (directUrl) {
     return directUrl;

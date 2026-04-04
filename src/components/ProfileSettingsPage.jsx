@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { api } from '../utils/api.js';
 import { useAppShell } from '../i18n/index.js';
 
 export default function ProfileSettingsPage({ onBack }) {
@@ -14,6 +15,37 @@ export default function ProfileSettingsPage({ onBack }) {
     availableVoices,
     defaultVoiceType,
   } = useAppShell();
+  const [account, setAccount] = useState({ username: '', hasPassword: false });
+  const [bindForm, setBindForm] = useState({ username: '', password: '' });
+  const [binding, setBinding] = useState(false);
+  const [bindMessage, setBindMessage] = useState('');
+
+  useEffect(() => {
+    api.getUserSettings()
+      .then((data) => {
+        setAccount(data.account || { username: '', hasPassword: false });
+        setBindForm((current) => ({
+          ...current,
+          username: data.account?.username || current.username,
+        }));
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleBindCredentials = async () => {
+    try {
+      setBinding(true);
+      setBindMessage('');
+      const response = await api.bindUserCredentials(bindForm.username, bindForm.password);
+      setAccount(response.account);
+      setBindForm((current) => ({ ...current, password: '' }));
+      setBindMessage('已完成账号绑定，可用用户名和密码登录。');
+    } catch (error) {
+      setBindMessage(error.message || '绑定失败');
+    } finally {
+      setBinding(false);
+    }
+  };
 
   return (
     <div className="settings-page page-enter">
@@ -81,6 +113,35 @@ export default function ProfileSettingsPage({ onBack }) {
                 ) : null}
               </button>
             ))}
+          </div>
+        </section>
+
+        <section className="settings-panel animate-float-up stagger-4">
+          <div className="settings-section-title">账号绑定</div>
+          <div className="settings-account-copy">
+            {account.hasPassword && account.username
+              ? `当前已绑定用户名：${account.username}`
+              : '绑定用户名和密码后，可在没有 Telegram 的环境中继续登录同一个账号。'}
+          </div>
+          <div className="settings-account-form">
+            <input
+              className="settings-account-input"
+              type="text"
+              placeholder="用户名（4-24位字母/数字/下划线）"
+              value={bindForm.username}
+              onChange={(event) => setBindForm((current) => ({ ...current, username: event.target.value }))}
+            />
+            <input
+              className="settings-account-input"
+              type="password"
+              placeholder="密码（至少6位）"
+              value={bindForm.password}
+              onChange={(event) => setBindForm((current) => ({ ...current, password: event.target.value }))}
+            />
+            <button type="button" className="settings-account-btn" onClick={handleBindCredentials} disabled={binding}>
+              {binding ? '保存中...' : account.hasPassword ? '更新登录账号' : '绑定登录账号'}
+            </button>
+            {bindMessage ? <div className="settings-account-message">{bindMessage}</div> : null}
           </div>
         </section>
       </div>
@@ -193,6 +254,39 @@ export default function ProfileSettingsPage({ onBack }) {
         .settings-voice-meta {
           font-size: 11px;
           opacity: 0.74;
+        }
+        .settings-account-copy {
+          margin-top: 10px;
+          color: var(--text-secondary);
+          font-size: 12px;
+          line-height: 1.6;
+        }
+        .settings-account-form {
+          display: grid;
+          gap: 10px;
+          margin-top: 12px;
+        }
+        .settings-account-input {
+          width: 100%;
+          min-height: 44px;
+          border-radius: 14px;
+          border: 1px solid var(--settings-border);
+          background: var(--settings-chip-bg);
+          color: var(--text-primary);
+          padding: 0 14px;
+          font-size: 13px;
+        }
+        .settings-account-btn {
+          min-height: 46px;
+          border-radius: 16px;
+          border: none;
+          background: linear-gradient(90deg, var(--brand-green), #18a184);
+          color: #fff;
+          font-weight: 800;
+        }
+        .settings-account-message {
+          font-size: 12px;
+          color: var(--text-secondary);
         }
       `}</style>
     </div>

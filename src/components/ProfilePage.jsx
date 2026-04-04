@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { api, storage } from '../utils/api.js';
+import AvatarPickerModal from './AvatarPickerModal.jsx';
 import ShareModal from './ShareModal.jsx';
 import { useAppShell } from '../i18n/index.js';
 import { resolveAvatarUrl } from '../utils/avatar.js';
@@ -43,7 +44,9 @@ export default function ProfilePage({
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showShare, setShowShare] = useState(false);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+  const [avatarRefreshKey, setAvatarRefreshKey] = useState(0);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export default function ProfilePage({
         setLoading(false);
       }
     })();
-  }, [profileRefreshKey]);
+  }, [profileRefreshKey, avatarRefreshKey]);
 
   useEffect(() => {
     if (!scrollRef.current) return;
@@ -93,7 +96,11 @@ export default function ProfilePage({
   const { stats } = profile;
   const hskLabels = { 1: 'HSK 1', 2: 'HSK 2', 3: 'HSK 3', 4: 'HSK 4', 5: 'HSK 5', 6: 'HSK 6' };
   const displayName = user.name || profile.user?.name || 'User';
-  const username = user.username ? `@${user.username}` : '';
+  const username = user.username
+    ? `@${user.username}`
+    : profile.account?.username
+      ? `@${profile.account.username}`
+      : '';
   const fallbackAvatarId = user.fallbackAvatarId
     || user.fallback_avatar_id
     || profile.settings?.fallbackAvatarId
@@ -105,6 +112,8 @@ export default function ProfilePage({
           ...profile.user,
           ...user,
           username: user.username || profile.user?.username || '',
+          preferredAvatarId: profile.settings?.preferredAvatarId || profile.settings?.preferred_avatar_id || null,
+          avatarAssetId: profile.settings?.avatarAssetId || profile.settings?.avatar_asset_id || null,
         },
         fallbackAvatarId
       )
@@ -162,13 +171,18 @@ export default function ProfilePage({
 
           <div className="hero-identity">
             <div className="av-wrap">
-              <img
-                className="av-img"
-                src={resolvedAvatarUrl}
-                alt={displayName}
-                referrerPolicy="no-referrer"
-                onError={() => setAvatarLoadFailed(true)}
-              />
+              <button type="button" className="av-btn" onClick={() => setShowAvatarPicker(true)}>
+                <img
+                  className="av-img"
+                  src={resolvedAvatarUrl}
+                  alt={displayName}
+                  referrerPolicy="no-referrer"
+                  onError={() => setAvatarLoadFailed(true)}
+                />
+                <span className="av-edit-badge">
+                  <i className="fas fa-camera"></i>
+                </span>
+              </button>
             </div>
 
             <div className="hero-copy">
@@ -267,6 +281,17 @@ export default function ProfilePage({
         />
       ) : null}
 
+      {showAvatarPicker ? (
+        <AvatarPickerModal
+          avatars={profile.avatarOptions || []}
+          onClose={() => setShowAvatarPicker(false)}
+          onUpdated={() => {
+            setAvatarLoadFailed(false);
+            setAvatarRefreshKey((value) => value + 1);
+          }}
+        />
+      ) : null}
+
       <style>{`
         .profile-page { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; overflow: hidden; display: flex; flex-direction: column; }
         .profile-scroll {
@@ -345,12 +370,35 @@ export default function ProfilePage({
           box-shadow: 0 14px 24px rgba(0,0,0,0.18);
           background: rgba(255,255,255,0.08);
         }
+        .av-btn {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          border: none;
+          background: transparent;
+          padding: 0;
+        }
         .av-img {
           width: 100%;
           height: 100%;
           display: block;
           object-fit: cover;
           background: linear-gradient(135deg, var(--brand-green), var(--brand-teal));
+        }
+        .av-edit-badge {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          width: 24px;
+          height: 24px;
+          border-radius: 999px;
+          background: linear-gradient(180deg, var(--brand-gold), #f5d56b);
+          color: #163a33;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          border: 2px solid rgba(8,14,12,0.85);
         }
         .prof-name-row {
           display: flex;

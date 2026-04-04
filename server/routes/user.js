@@ -1,6 +1,8 @@
+import multer from 'multer';
 import { Router } from 'express';
 import { config } from '../config.js';
 import { query } from '../db.js';
+import { badRequest } from '../errors.js';
 import { requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import {
@@ -8,14 +10,20 @@ import {
   normalizeLanguage,
   normalizeTheme,
 } from '../services/userSettingsService.js';
-import { buildUserAvatarSeed, resolveFallbackAvatarId } from '../services/avatarService.js';
+import { bindUserCredentials, getCredentialByUserId } from '../services/credentialService.js';
+import { buildUserAvatarSeed, DEFAULT_AVATAR_IDS, isBuiltinAvatarId, resolveFallbackAvatarId } from '../services/avatarService.js';
 import { getMembershipAccess } from '../services/membershipService.js';
 import { getInviteSummary } from '../services/referralService.js';
 import { getVocabularyCount } from '../services/vocabularyService.js';
 import { getTeacherVoiceSettings, resolveTeacherVoice } from '../services/voiceInventoryService.js';
 import { synthesizeDialogueText } from '../services/doubaoTtsService.js';
+import { createNormalizedImageAsset, asMediaUrl } from '../services/mediaService.js';
 
 const router = Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 6 * 1024 * 1024 },
+});
 
 router.use(requireUserAuth);
 
@@ -28,6 +36,13 @@ function buildInviteBaseUrl(req) {
 
 async function ensureUserSettings(userId) {
   return ensureUserSettingsForDialogue(userId);
+}
+
+function listAvatarOptions() {
+  return DEFAULT_AVATAR_IDS.map((id) => ({
+    id,
+    url: `/avatars/${id}.svg`,
+  }));
 }
 
 function resolveHskLevel(learnedCount, thresholds) {
@@ -131,6 +146,7 @@ router.get('/profile', asyncHandler(async (req, res) => {
   const voiceSettings = getTeacherVoiceSettings();
   const membership = await getMembershipAccess(req.user.id);
   const invite = await getInviteSummary(req.user.id, buildInviteBaseUrl(req));
+  const credential = await getCredentialByUserId(req.user.id);
 
   res.json({
     user: {
@@ -151,16 +167,26 @@ router.get('/profile', asyncHandler(async (req, res) => {
     voiceSettings,
     membership,
     invite,
+    account: {
+      username: credential?.username || null,
+      hasPassword: Boolean(credential),
+    },
+    avatarOptions: listAvatarOptions(),
   });
 }));
 
 router.get('/settings', asyncHandler(async (req, res) => {
   const settings = await ensureUserSettings(req.user);
   const voiceSettings = getTeacherVoiceSettings();
+  const credential = await getCredentialByUserId(req.user.id);
 
   res.json({
     settings,
     voiceSettings,
+    account: {
+      username: credential?.username || null,
+      hasPassword: Boolean(credential),
+    },
   });
 }));
 
@@ -173,6 +199,10 @@ router.post('/settings', asyncHandler(async (req, res) => {
     fallbackAvatarId: req.body.fallbackAvatarId !== undefined
       ? resolveFallbackAvatarId(req.body.fallbackAvatarId, buildUserAvatarSeed(req.user))
       : current.fallbackAvatarId,
+    preferredAvatarId: req.body.preferredAvatarId !== undefined
+      ? (isBuiltinAvatarId(req.body.preferredAvatarId) ? String(req.body.preferredAvatarId) : null)
+      : current.preferredAvatarId,
+    avatarAssetId: req.body.avatarAssetId !== undefined ? req.body.avatarAssetId : current.avatarAssetId,
   };
 
   const result = await query(
@@ -182,11 +212,21 @@ router.post('/settings', asyncHandler(async (req, res) => {
           theme = $3,
           voice_type = $4,
           fallback_avatar_id = $5,
+          preferred_avatar_id = $6,
+          avatar_asset_id = $7,
           updated_at = CURRENT_TIMESTAMP
       WHERE user_id = $1
-      RETURNING language, theme, voice_type, fallback_avatar_id
+      RETURNING language, theme, voice_type, fallback_avatar_id, preferred_avatar_id, avatar_asset_id
     `,
-    [req.user.id, next.language, next.theme, next.voiceType, next.fallbackAvatarId]
+    [
+      req.user.id,
+      next.language,
+      next.theme,
+      next.voiceType,
+      next.fallbackAvatarId,
+      next.preferredAvatarId,
+      next.avatarAssetId,
+    ]
   );
 
   const row = result.rows[0];
@@ -197,8 +237,92 @@ router.post('/settings', asyncHandler(async (req, res) => {
       theme: row.theme,
       voiceType: row.voice_type || '',
       fallbackAvatarId: row.fallback_avatar_id || null,
+      preferredAvatarId: row.preferred_avatar_id || null,
+      avatarAssetId: row.avatar_asset_id || null,
     },
     voiceSettings,
+  });
+}));
+
+router.post('/account/bind-credentials', asyncHandler(async (req, res) => {
+  const { username, password } = req.body || {};
+  const credential = await bindUserCredentials(req.user.id, { username, password });
+  res.json({
+    account: {
+      username: credential.username,
+      hasPassword: true,
+    },
+  });
+}));
+
+router.get('/avatar-options', asyncHandler(async (_req, res) => {
+  res.json({
+    avatars: listAvatarOptions(),
+  });
+}));
+
+router.post('/avatar/select', asyncHandler(async (req, res) => {
+  const avatarId = String(req.body?.avatarId || '').trim();
+  if (!isBuiltinAvatarId(avatarId)) {
+    throw badRequest('Invalid avatar id', 'INVALID_AVATAR_ID');
+  }
+  await ensureUserSettings(req.user);
+
+  const result = await query(
+    `
+      UPDATE user_settings
+      SET preferred_avatar_id = $2,
+          avatar_asset_id = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE user_id = $1
+      RETURNING preferred_avatar_id, avatar_asset_id, fallback_avatar_id
+    `,
+    [req.user.id, avatarId]
+  );
+
+  res.json({
+    avatar: {
+      preferredAvatarId: result.rows[0]?.preferred_avatar_id || avatarId,
+      avatarAssetId: null,
+      url: `/avatars/${avatarId}.svg`,
+    },
+  });
+}));
+
+router.post('/avatar/upload', upload.single('avatar'), asyncHandler(async (req, res) => {
+  if (!req.file?.buffer?.length) {
+    throw badRequest('Avatar image is required', 'AVATAR_REQUIRED');
+  }
+  await ensureUserSettings(req.user);
+
+  const asset = await createNormalizedImageAsset({
+    ownerUserId: req.user.id,
+    scope: 'user',
+    category: 'avatar',
+    fileName: req.file.originalname || 'avatar',
+    buffer: req.file.buffer,
+    mimeType: req.file.mimetype,
+    square: true,
+    maxWidth: 512,
+    maxHeight: 512,
+    quality: 88,
+  });
+
+  await query(
+    `
+      UPDATE user_settings
+      SET avatar_asset_id = $2,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE user_id = $1
+    `,
+    [req.user.id, asset.id]
+  );
+
+  res.json({
+    avatar: {
+      avatarAssetId: asset.id,
+      url: asMediaUrl(asset.id),
+    },
   });
 }));
 

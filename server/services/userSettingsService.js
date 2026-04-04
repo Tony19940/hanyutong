@@ -7,6 +7,8 @@ export const DEFAULT_USER_SETTINGS = {
   theme: 'dark',
   voiceType: resolveTeacherVoice(''),
   fallbackAvatarId: null,
+  preferredAvatarId: null,
+  avatarAssetId: null,
 };
 
 export function normalizeLanguage(value) {
@@ -22,12 +24,20 @@ export async function ensureUserSettingsForDialogue(user) {
   const fallbackAvatarId = resolveFallbackAvatarId(null, buildUserAvatarSeed(user));
   const result = await query(
     `
-      INSERT INTO user_settings (user_id, language, theme, voice_type, fallback_avatar_id)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO user_settings (user_id, language, theme, voice_type, fallback_avatar_id, preferred_avatar_id, avatar_asset_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       ON CONFLICT (user_id) DO UPDATE SET user_id = EXCLUDED.user_id
-      RETURNING language, theme, voice_type, fallback_avatar_id
+      RETURNING language, theme, voice_type, fallback_avatar_id, preferred_avatar_id, avatar_asset_id
     `,
-    [userId, DEFAULT_USER_SETTINGS.language, DEFAULT_USER_SETTINGS.theme, DEFAULT_USER_SETTINGS.voiceType, fallbackAvatarId]
+    [
+      userId,
+      DEFAULT_USER_SETTINGS.language,
+      DEFAULT_USER_SETTINGS.theme,
+      DEFAULT_USER_SETTINGS.voiceType,
+      fallbackAvatarId,
+      DEFAULT_USER_SETTINGS.preferredAvatarId,
+      DEFAULT_USER_SETTINGS.avatarAssetId,
+    ]
   );
 
   const row = result.rows[0];
@@ -50,5 +60,7 @@ export async function ensureUserSettingsForDialogue(user) {
     theme: row.theme || DEFAULT_USER_SETTINGS.theme,
     voiceType: resolveTeacherVoice(row.voice_type || DEFAULT_USER_SETTINGS.voiceType),
     fallbackAvatarId: resolvedFallbackAvatarId,
+    preferredAvatarId: row.preferred_avatar_id || null,
+    avatarAssetId: row.avatar_asset_id || null,
   };
 }
