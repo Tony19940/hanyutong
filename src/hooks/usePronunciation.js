@@ -35,13 +35,22 @@ export function usePronunciation() {
     }
   }, [stopTts]);
 
-  const play = useCallback(async ({ text, audioSrc, lang = 'zh-CN', onStateChange, voiceType }) => {
+  const play = useCallback(async ({
+    text,
+    audioSrc,
+    lang = 'zh-CN',
+    onStateChange,
+    voiceType,
+    playbackRate = 1,
+    ttsRate = 0.85,
+  }) => {
     stop(onStateChange);
 
     const playAudio = async (src) => {
       try {
         const audio = new Audio(src);
         audio.preload = 'auto';
+        audio.playbackRate = playbackRate;
         audioRef.current = audio;
         let rafId = null;
         const emitProgress = () => {
@@ -118,7 +127,7 @@ export function usePronunciation() {
     }
 
     if (text) {
-      const spoken = speak(text, lang);
+      const spoken = speak(text, lang, ttsRate);
       return { mode: spoken ? 'tts' : 'none' };
     }
 

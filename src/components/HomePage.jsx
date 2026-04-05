@@ -221,6 +221,7 @@ export default function HomePage({ user }) {
               onSwipeRight={handleSwipeRight}
               mode="home"
               autoplaySequence
+              examplePlaybackRate={0.76}
             />
           ) : (
             <div className="empty-state animate-float-up">

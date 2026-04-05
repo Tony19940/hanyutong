@@ -3,7 +3,7 @@
 export function useTTS() {
   const speakingRef = useRef(false);
 
-  const speak = useCallback((text, lang = 'zh-CN') => {
+  const speak = useCallback((text, lang = 'zh-CN', rate = 0.85) => {
     if (!window.speechSynthesis || !text) return false;
     if (speakingRef.current) {
       window.speechSynthesis.cancel();
@@ -11,7 +11,7 @@ export function useTTS() {
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
-    utterance.rate = 0.85;
+    utterance.rate = rate;
     utterance.pitch = 1;
 
     const voices = window.speechSynthesis.getVoices();

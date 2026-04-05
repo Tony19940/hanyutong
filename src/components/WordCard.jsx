@@ -5,6 +5,7 @@ import { useAppShell } from '../i18n/index.js';
 
 const SWIPE_THRESHOLD = 80;
 const TAP_THRESHOLD = 10;
+const DEFAULT_SLOW_EXAMPLE_RATE = 0.76;
 
 export default function WordCard({
   word,
@@ -14,6 +15,7 @@ export default function WordCard({
   onSwipeRight,
   mode = 'home',
   autoplaySequence = false,
+  examplePlaybackRate = 1,
 }) {
   const { voiceType } = useAppShell();
   const [overlayDir, setOverlayDir] = useState(null);
@@ -58,11 +60,13 @@ export default function WordCard({
     const runSequence = async () => {
       setIsAutoPlaying(true);
       const queue = [
-        { target: 'word', text: word.chinese, audioSrc: word.audio_word },
+        { target: 'word', text: word.chinese, audioSrc: word.audio_word, playbackRate: 1, ttsRate: 0.85 },
         ...examples.map((example, position) => ({
           target: position === 0 ? 'example' : example.id,
           text: example.chinese,
           audioSrc: example.audio,
+          playbackRate: examplePlaybackRate,
+          ttsRate: examplePlaybackRate < 1 ? DEFAULT_SLOW_EXAMPLE_RATE : 0.85,
         })),
       ].filter((item) => item.text || item.audioSrc);
 
@@ -73,6 +77,8 @@ export default function WordCard({
           text: item.text,
           audioSrc: shouldUseDynamicVoice ? null : item.audioSrc,
           voiceType: shouldUseDynamicVoice ? voiceType : '',
+          playbackRate: item.playbackRate,
+          ttsRate: item.ttsRate,
         });
         if (!mounted || autoPlayCancelledRef.current) break;
         await new Promise((resolve) => setTimeout(resolve, 220));
@@ -111,9 +117,11 @@ export default function WordCard({
       text,
       audioSrc: shouldUseDynamicVoice ? null : audioSrc,
       voiceType: shouldUseDynamicVoice ? voiceType : '',
+      playbackRate: target === 'word' ? 1 : examplePlaybackRate,
+      ttsRate: target === 'word' ? 0.85 : (examplePlaybackRate < 1 ? DEFAULT_SLOW_EXAMPLE_RATE : 0.85),
     });
     clearSpeakingTimerRef.current = setTimeout(() => setSpeakingTarget(null), 1200);
-  }, [play, shouldUseDynamicVoice, voiceType]);
+  }, [examplePlaybackRate, play, shouldUseDynamicVoice, voiceType]);
 
   const handleStart = useCallback((clientX) => {
     if (animating) return;
