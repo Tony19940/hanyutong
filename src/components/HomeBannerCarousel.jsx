@@ -50,12 +50,12 @@ export default function HomeBannerCarousel({ banners = [], onBannerClick }) {
         }
         .home-banner-card {
           width: 100%;
-          height: 92px;
-          border-radius: 20px;
+          height: 108px;
+          border-radius: 24px;
           overflow: hidden;
           border: 1px solid var(--home-card-border);
           background: var(--settings-surface);
-          box-shadow: 0 18px 32px rgba(0,0,0,0.12);
+          box-shadow: var(--panel-shadow);
         }
         .home-banner-card img {
           width: 100%;
