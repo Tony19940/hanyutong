@@ -145,6 +145,7 @@ export default function LoginPage({ onAuthenticated }) {
 
       <div className="login-content">
         <div className="login-hero animate-pop-in">
+          <div className="hero-kicker">Language Club</div>
           <div className="app-logo-wrap">
             <div className="app-logo">
               <img src="/bunson-teacher.jpg" alt="Bunson老师" className="app-logo-image" />
@@ -271,25 +272,40 @@ export default function LoginPage({ onAuthenticated }) {
           position: relative;
           z-index: 10;
           min-height: 100%;
-          padding: 26px 20px 34px;
+          padding: max(30px, env(safe-area-inset-top, 0px) + 18px) 18px 30px;
           display: flex;
           flex-direction: column;
           justify-content: center;
-          gap: 14px;
+          gap: 12px;
         }
         .login-hero {
           display: flex;
           flex-direction: column;
           align-items: center;
           text-align: center;
+          padding: 22px 20px;
+          border-radius: 28px;
+          background:
+            radial-gradient(circle at top, rgba(30,215,96,0.16), transparent 28%),
+            linear-gradient(180deg, rgba(32,32,32,0.94), rgba(20,20,20,0.98));
+          border: 1px solid var(--login-card-border);
+          box-shadow: var(--panel-shadow);
+        }
+        .hero-kicker {
+          margin-bottom: 14px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: var(--accent-gold);
         }
         .app-logo-wrap {
           position: relative;
           margin-bottom: 18px;
         }
         .app-logo {
-          width: 92px;
-          height: 92px;
+          width: 96px;
+          height: 96px;
           background: var(--login-logo-bg);
           border-radius: 50%;
           display: flex;
@@ -309,29 +325,30 @@ export default function LoginPage({ onAuthenticated }) {
         .logo-glow {
           position: absolute;
           inset: -20px;
-          background: radial-gradient(circle, rgba(225,191,83,0.18) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(30,215,96,0.22) 0%, transparent 70%);
           border-radius: 50%;
           z-index: 1;
           animation: breathe 3s ease-in-out infinite;
         }
         .app-name-km {
-          font-size: 24px;
+          font-size: 28px;
           font-weight: 800;
-          color: var(--brand-green);
-          line-height: 1.3;
+          color: var(--text-primary);
+          line-height: 1.08;
         }
         .app-name-cn {
-          font-size: 12px;
+          font-size: 11px;
           color: var(--accent-gold);
-          letter-spacing: 3px;
-          margin-top: 4px;
+          letter-spacing: 0.32em;
+          margin-top: 8px;
           font-weight: 700;
+          text-transform: uppercase;
         }
         .app-slogan {
-          margin-top: 10px;
+          margin-top: 14px;
           color: var(--text-secondary);
           font-size: 13px;
-          line-height: 1.7;
+          line-height: 1.65;
           max-width: 320px;
         }
         .hero-highlights {
@@ -339,20 +356,23 @@ export default function LoginPage({ onAuthenticated }) {
           flex-wrap: wrap;
           justify-content: center;
           gap: 8px;
-          margin-top: 14px;
+          margin-top: 16px;
         }
         .hero-highlights span,
         .invite-banner {
-          padding: 8px 12px;
+          padding: 9px 12px;
           border-radius: 999px;
-          background: var(--settings-surface);
-          border: 1px solid var(--settings-border);
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.08);
           color: var(--text-primary);
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 700;
+          letter-spacing: 0.06em;
         }
         .invite-banner {
           text-align: center;
+          background: rgba(30,215,96,0.12);
+          color: var(--text-primary);
         }
         .entry-card {
           width: 100%;
@@ -360,34 +380,38 @@ export default function LoginPage({ onAuthenticated }) {
           border-radius: 26px;
           background: var(--login-card-bg);
           border: 1px solid var(--login-card-border);
-          box-shadow: 0 20px 40px rgba(8, 20, 17, 0.10);
+          box-shadow: var(--panel-shadow);
           backdrop-filter: blur(14px);
         }
         .entry-title,
         .input-lbl {
-          font-size: 14px;
+          font-size: 12px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
           color: var(--text-primary);
           font-weight: 800;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
         }
         .entry-copy {
           font-size: 12px;
           color: var(--text-secondary);
-          line-height: 1.6;
+          line-height: 1.65;
           margin-bottom: 14px;
         }
         .trial-btn,
         .outline-btn {
           width: 100%;
           min-height: 52px;
-          border-radius: 18px;
+          border-radius: 999px;
           font-weight: 800;
         }
         .outline-btn {
           margin-top: 14px;
-          border: 1px solid var(--settings-border);
-          background: var(--settings-chip-bg);
+          border: 1px solid rgba(255,255,255,0.14);
+          background: rgba(255,255,255,0.04);
           color: var(--text-primary);
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
         }
         .login-error {
           display: flex;
@@ -407,16 +431,17 @@ export default function LoginPage({ onAuthenticated }) {
           align-items: center;
           gap: 12px;
           padding: 16px 18px;
-          border-radius: 22px;
+          border-radius: 24px;
           border: 1px solid var(--settings-border);
           background: var(--settings-surface);
           color: var(--text-primary);
+          box-shadow: var(--panel-shadow);
         }
         .support-card-icon {
           width: 44px;
           height: 44px;
-          border-radius: 14px;
-          background: rgba(36, 185, 129, 0.16);
+          border-radius: 50%;
+          background: rgba(30,215,96,0.16);
           display: flex;
           align-items: center;
           justify-content: center;

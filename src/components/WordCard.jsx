@@ -300,7 +300,7 @@ export default function WordCard({
           overflow: hidden;
           background: var(--word-shell-bg);
           border: 1.5px solid var(--word-shell-border);
-          box-shadow: 0 20px 48px rgba(8, 20, 17, 0.22);
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
           cursor: grab;
           touch-action: pan-y;
           will-change: transform;
@@ -331,9 +331,9 @@ export default function WordCard({
           z-index: 3;
         }
         .swipe-overlay.left-ov { background: rgba(80, 215, 168, 0.16); }
-        .swipe-overlay.right-ov { background: rgba(246, 199, 104, 0.14); }
+        .swipe-overlay.right-ov { background: rgba(30, 215, 96, 0.14); }
         .swipe-overlay.visible { opacity: 1; }
-        .ov-label { font-size: 18px; font-weight: 700; color: #fff; }
+        .ov-label { font-size: 16px; font-weight: 800; color: #fff; letter-spacing: 0.12em; text-transform: uppercase; }
 
         /* Word stage - cream card */
         .word-stage {
@@ -359,7 +359,7 @@ export default function WordCard({
           font-size: clamp(48px, 12vw, 78px);
           font-weight: 800;
           color: var(--word-stage-title);
-          font-family: 'Manrope', 'Noto Sans SC', serif;
+          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
           letter-spacing: 1px;
           line-height: 1.05;
         }
@@ -497,9 +497,11 @@ export default function WordCard({
           gap: 5px;
           font-size: 11px;
           opacity: 0.72;
-          font-weight: 600;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
         }
-        .sg.lft { color: var(--accent-secondary); }
+        .sg.lft { color: var(--text-secondary); }
         .sg.rgt { color: var(--accent-gold); }
       `}</style>
     </div>

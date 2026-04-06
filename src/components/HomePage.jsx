@@ -119,6 +119,7 @@ export default function HomePage({ user }) {
 
   const currentWord = words[currentIndex];
   const progressPercent = stats.total > 0 ? Math.round((stats.learned / stats.total) * 100) : 0;
+  const displayName = user?.display_name || user?.name || user?.username || 'Listener';
   const handleLanguageSelect = useCallback((nextLanguage) => {
     setIsLanguageMenuOpen(false);
     if (nextLanguage === language) return;
@@ -148,14 +149,16 @@ export default function HomePage({ user }) {
 
   return (
     <div className="home-page page-enter">
-      {/* Temple silhouette decorations */}
-      <div className="temple-deco" aria-hidden="true"></div>
-      <div className="home-pattern" aria-hidden="true"></div>
-
       <div className="home-layout">
         <InstallShortcutButton />
-        {/* Header */}
         <header className="home-head">
+          <div className="home-head-copy">
+            <div className="home-kicker">Daily Mix</div>
+            <div key={language} className="home-copy-block">
+              <h1 className="home-title">{t('home.title')}</h1>
+              <p className="home-subtitle">{t('home.subtitle')}</p>
+            </div>
+          </div>
           <div className="home-language-switch" ref={languageMenuRef}>
             <button
               type="button"
@@ -183,14 +186,16 @@ export default function HomePage({ user }) {
               ))}
             </div>
           </div>
-          <div key={language} className="home-copy-block">
-            <h1 className="home-title">{t('home.title')}</h1>
-            <p className="home-subtitle">{t('home.subtitle')}</p>
-          </div>
         </header>
 
-        {/* Progress */}
         <section className="home-summary">
+          <div className="summary-identity">
+            <div className="summary-avatar">{displayName.slice(0, 1).toUpperCase()}</div>
+            <div className="summary-copy">
+              <span>For {displayName}</span>
+              <strong>{stats.remaining} left to learn</strong>
+            </div>
+          </div>
           <div className="summary-topline">
             <span>{progressPercent}% {t('home.progress')}</span>
             <strong>{stats.learned}/{stats.total || 0}</strong>
@@ -200,7 +205,6 @@ export default function HomePage({ user }) {
           </div>
         </section>
 
-        {/* Card Area */}
         <div className="home-card-area">
           {loading ? (
             <div className="loading-state">
@@ -246,63 +250,61 @@ export default function HomePage({ user }) {
           display: flex;
           flex-direction: column;
         }
-        .home-pattern {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.32;
-          background-image:
-            radial-gradient(circle at 18px 18px, var(--bg-pattern-a) 0 1.2px, transparent 1.6px),
-            radial-gradient(circle at 62px 62px, var(--bg-pattern-b) 0 1.2px, transparent 1.6px);
-          background-size: 80px 80px, 80px 80px;
-          background-position: 0 0, 40px 40px;
-          z-index: 0;
-        }
         .home-layout {
           flex: 1;
           display: flex;
           flex-direction: column;
-          padding: clamp(8px, 1.5vh, 14px) 18px 8px;
+          padding: clamp(12px, 1.5vh, 18px) 16px 8px;
           position: relative;
           z-index: 1;
           min-height: 0;
           overflow: hidden;
         }
-
-        /* Header */
         .home-head {
-          text-align: center;
-          margin-bottom: clamp(6px, 1.2vh, 12px);
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 14px;
+          margin-bottom: clamp(10px, 1.4vh, 16px);
           flex-shrink: 0;
           position: relative;
         }
+        .home-head-copy {
+          min-width: 0;
+        }
+        .home-kicker {
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: var(--accent-gold);
+          margin-bottom: 8px;
+        }
         .home-language-switch {
-          position: absolute;
-          top: 0;
-          right: 0;
+          position: relative;
           z-index: 3;
         }
         .home-language-trigger {
-          width: 34px;
-          height: 34px;
-          border-radius: 12px;
+          width: 42px;
+          height: 42px;
+          border-radius: 999px;
           padding: 0;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           color: var(--text-primary);
-          background: var(--settings-surface);
+          background: rgba(255,255,255,0.06);
           border: 1px solid var(--settings-border);
-          box-shadow: 0 6px 14px rgba(0,0,0,0.16);
+          box-shadow: var(--panel-shadow);
           backdrop-filter: blur(14px);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .home-language-trigger.open {
           transform: translateY(-1px);
-          box-shadow: 0 14px 28px rgba(8, 20, 17, 0.18);
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
         }
         .home-language-current-flag {
-          font-size: 15px;
+          font-size: 18px;
           line-height: 1;
         }
         .home-language-popover {
@@ -311,10 +313,10 @@ export default function HomePage({ user }) {
           right: 0;
           min-width: 132px;
           padding: 8px;
-          border-radius: 18px;
+          border-radius: 20px;
           border: 1px solid var(--settings-border);
-          background: color-mix(in srgb, var(--settings-surface) 88%, transparent);
-          box-shadow: 0 20px 40px rgba(8, 20, 17, 0.16);
+          background: rgba(18,18,18,0.94);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.24);
           backdrop-filter: blur(18px);
           display: grid;
           gap: 6px;
@@ -351,18 +353,19 @@ export default function HomePage({ user }) {
           animation: homeCopySwap 0.3s cubic-bezier(.22,1,.36,1);
         }
         .home-title {
-          font-size: clamp(28px, 5vw, 36px);
+          font-size: clamp(30px, 5vw, 40px);
           line-height: 1.1;
           font-weight: 800;
           color: var(--home-title-color);
-          text-shadow: 0 2px 10px rgba(0,0,0,0.08);
-          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
           margin: 0;
         }
         .home-subtitle {
-          margin-top: clamp(4px, 0.6vh, 8px);
+          margin-top: 6px;
           font-size: clamp(12px, 1.8vw, 14px);
           color: var(--home-subtitle-color);
+          max-width: 220px;
+          line-height: 1.55;
         }
         @keyframes homeCopySwap {
           from {
@@ -377,42 +380,74 @@ export default function HomePage({ user }) {
           }
         }
 
-        /* Progress */
         .home-summary {
-          margin-bottom: clamp(6px, 1vh, 12px);
-          padding: clamp(8px, 1.2vh, 14px) 16px;
-          border-radius: 18px;
-          background: var(--home-card-bg);
+          margin-bottom: clamp(8px, 1.2vh, 14px);
+          padding: 14px 16px;
+          border-radius: 24px;
+          background:
+            radial-gradient(circle at top right, rgba(30,215,96,0.16), transparent 28%),
+            var(--home-card-bg);
           border: 1.5px solid var(--home-card-border);
-          box-shadow: 0 12px 24px var(--home-card-shadow);
+          box-shadow: 0 16px 32px var(--home-card-shadow);
           flex-shrink: 0;
+        }
+        .summary-identity {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+        .summary-avatar {
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(180deg, var(--brand-gold), var(--brand-green));
+          color: #041109;
+          font-size: 15px;
+          font-weight: 800;
+        }
+        .summary-copy {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .summary-copy span {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          color: var(--text-secondary);
+        }
+        .summary-copy strong {
+          font-size: 15px;
+          color: var(--text-primary);
         }
         .summary-topline {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
           font-size: 12px;
           color: var(--text-secondary);
         }
         .summary-topline strong {
-          color: var(--accent-gold);
+          color: var(--text-primary);
           font-size: 14px;
         }
         .summary-track {
-          height: 6px;
+          height: 7px;
           border-radius: 999px;
           overflow: hidden;
-          background: var(--surface);
+          background: rgba(255,255,255,0.08);
         }
         .summary-fill {
           height: 100%;
           border-radius: 999px;
-          background: linear-gradient(90deg, var(--brand-gold) 0%, #c89a41 55%, var(--brand-teal) 100%);
+          background: linear-gradient(90deg, var(--brand-gold) 0%, var(--brand-teal) 100%);
           transition: width 0.3s ease;
         }
-
-        /* Card Area */
         .home-card-area {
           flex: 1;
           min-height: 0;

@@ -156,7 +156,7 @@ export default function ProfileSettingsPage({ onBack }) {
         .settings-scroll {
           height: 100%;
           overflow: auto;
-          padding: 10px 18px 92px;
+          padding: 14px 14px 104px;
           max-width: 390px;
           margin: 0 auto;
           display: flex;
@@ -170,23 +170,24 @@ export default function ProfileSettingsPage({ onBack }) {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 2px 0 4px;
+          padding: 2px 0 6px;
         }
         .settings-back-btn {
           width: 40px;
           height: 40px;
-          border-radius: 14px;
+          border-radius: 999px;
           border: 1px solid var(--settings-border);
           background: var(--settings-surface);
           color: var(--text-secondary);
           flex-shrink: 0;
+          box-shadow: var(--panel-shadow);
         }
         .settings-page-title {
-          font-size: 24px;
+          font-size: 26px;
           line-height: 1.1;
           font-weight: 800;
           color: var(--home-title-color);
-          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
         }
         .settings-page-subtitle {
           margin-top: 4px;
@@ -195,15 +196,18 @@ export default function ProfileSettingsPage({ onBack }) {
           line-height: 1.5;
         }
         .settings-panel {
-          border-radius: 22px;
+          border-radius: 24px;
           padding: 16px;
           background: var(--settings-surface);
           border: 1px solid var(--settings-border);
+          box-shadow: var(--panel-shadow);
         }
         .settings-section-title {
-          font-size: 13px;
+          font-size: 11px;
           font-weight: 800;
           color: var(--text-primary);
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
         }
         .settings-chip-grid {
           display: flex;
@@ -212,8 +216,8 @@ export default function ProfileSettingsPage({ onBack }) {
           margin-top: 12px;
         }
         .settings-pill {
-          min-height: 36px;
-          padding: 0 12px;
+          min-height: 38px;
+          padding: 0 14px;
           border-radius: 999px;
           border: 1px solid var(--settings-border);
           background: var(--settings-chip-bg);
@@ -237,9 +241,9 @@ export default function ProfileSettingsPage({ onBack }) {
           margin-top: 12px;
         }
         .settings-voice-row {
-          min-height: 46px;
+          min-height: 48px;
           padding: 0 14px;
-          border-radius: 16px;
+          border-radius: 20px;
           border: 1px solid var(--settings-border);
           background: var(--settings-chip-bg);
           color: var(--settings-chip-text);
@@ -268,8 +272,8 @@ export default function ProfileSettingsPage({ onBack }) {
         }
         .settings-account-input {
           width: 100%;
-          min-height: 44px;
-          border-radius: 14px;
+          min-height: 46px;
+          border-radius: 999px;
           border: 1px solid var(--settings-border);
           background: var(--settings-chip-bg);
           color: var(--text-primary);
@@ -277,12 +281,14 @@ export default function ProfileSettingsPage({ onBack }) {
           font-size: 13px;
         }
         .settings-account-btn {
-          min-height: 46px;
-          border-radius: 16px;
+          min-height: 50px;
+          border-radius: 999px;
           border: none;
-          background: linear-gradient(90deg, var(--brand-green), #18a184);
-          color: #fff;
+          background: linear-gradient(90deg, var(--brand-gold), var(--brand-green));
+          color: #041109;
           font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
         }
         .settings-account-message {
           font-size: 12px;
