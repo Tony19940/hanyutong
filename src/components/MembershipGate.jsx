@@ -178,17 +178,16 @@ export default function MembershipGate({
         .membership-kicker {
           font-size: 11px;
           font-weight: 800;
-          letter-spacing: 0.22em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           color: var(--accent-gold);
           text-align: center;
         }
         .membership-title {
-          font-size: 32px;
+          font-size: 28px;
           line-height: 1.1;
           text-align: center;
           color: var(--text-primary);
-          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
         }
         .membership-subtitle {
           text-align: center;
@@ -201,9 +200,9 @@ export default function MembershipGate({
         .membership-invite-card {
           background: var(--settings-surface);
           border: 1px solid var(--settings-border);
-          border-radius: 26px;
+          border-radius: 24px;
           padding: 16px;
-          box-shadow: var(--panel-shadow);
+          box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
         }
         .membership-status-row {
           display: flex;
@@ -230,15 +229,13 @@ export default function MembershipGate({
           gap: 8px;
         }
         .membership-value-item {
-          border-radius: 999px;
+          border-radius: 18px;
           padding: 12px 14px;
           background: var(--home-card-bg);
           border: 1px solid var(--home-card-border);
           color: var(--text-primary);
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 700;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
         }
         .membership-input-label {
           display: block;
@@ -250,7 +247,7 @@ export default function MembershipGate({
         .membership-input {
           width: 100%;
           min-height: 50px;
-          border-radius: 999px;
+          border-radius: 16px;
           border: 1px solid var(--input-border);
           background: var(--input-bg);
           color: var(--text-primary);
@@ -267,16 +264,14 @@ export default function MembershipGate({
         .membership-link-btn {
           width: 100%;
           min-height: 48px;
-          border-radius: 999px;
+          border-radius: 16px;
           font-weight: 800;
           margin-top: 12px;
         }
         .membership-primary-btn {
           border: none;
           background: linear-gradient(135deg, var(--button-primary-start), var(--button-primary-mid), var(--button-primary-end));
-          color: #041109;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
+          color: #fff;
         }
         .membership-secondary-btn,
         .membership-link-btn {
@@ -305,7 +300,7 @@ export default function MembershipGate({
           margin-top: 14px;
         }
         .membership-invite-grid div {
-          border-radius: 20px;
+          border-radius: 16px;
           padding: 12px 10px;
           background: var(--profile-card-bg);
           border: 1px solid var(--profile-card-border);

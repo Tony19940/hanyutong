@@ -297,7 +297,7 @@ export default function ProfilePage({
         .profile-scroll {
           flex: 1 1 0%;
           min-height: 0;
-          padding: 14px 14px calc(104px + env(safe-area-inset-bottom, 0px));
+          padding: max(44px, env(safe-area-inset-top, 0px) + 6px) 16px calc(96px + env(safe-area-inset-bottom, 0px));
           overflow-y: auto;
           overflow-x: hidden;
           width: 100%;
@@ -316,9 +316,9 @@ export default function ProfilePage({
           min-height: 292px;
           border-radius: 28px;
           background: var(--profile-hero-bg);
-          border: 1px solid var(--profile-hero-border);
+          border: 2px solid var(--profile-hero-border);
           overflow: hidden;
-          box-shadow: var(--panel-shadow);
+          box-shadow: 0 26px 44px rgba(3,20,12,0.12);
         }
         .prof-hero::before {
           content: '';
@@ -343,11 +343,9 @@ export default function ProfilePage({
           z-index: 1;
         }
         .hero-title {
-          font-size: 11px;
+          font-size: 14px;
           font-weight: 800;
           color: var(--accent-gold);
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
         }
         .hero-identity {
           display: flex;
@@ -368,8 +366,8 @@ export default function ProfilePage({
           border-radius: 36px;
           overflow: hidden;
           flex-shrink: 0;
-          border: 2px solid rgba(255,255,255,0.14);
-          box-shadow: 0 14px 24px rgba(0,0,0,0.22);
+          border: 3px solid rgba(245,216,143,0.82);
+          box-shadow: 0 14px 24px rgba(0,0,0,0.18);
           background: rgba(255,255,255,0.08);
         }
         .av-btn {
@@ -394,8 +392,8 @@ export default function ProfilePage({
           width: 24px;
           height: 24px;
           border-radius: 999px;
-          background: linear-gradient(180deg, var(--brand-gold), var(--brand-green));
-          color: #041109;
+          background: linear-gradient(180deg, var(--brand-gold), #f5d56b);
+          color: #163a33;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -409,20 +407,18 @@ export default function ProfilePage({
           gap: 8px;
         }
         .prof-name {
-          font-size: 22px;
+          font-size: 20px;
           font-weight: 800;
           color: var(--text-primary);
-          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
         }
         .prof-lv {
           padding: 4px 10px;
           border-radius: 999px;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.06);
-          font-size: 11px;
+          border: 1px solid rgba(245,216,143,0.56);
+          background: var(--settings-surface);
+          font-size: 12px;
           color: var(--text-secondary);
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
         }
         .prof-handle {
           margin-top: 2px;
@@ -446,22 +442,20 @@ export default function ProfilePage({
           margin-top: 4px;
         }
         .membership-pill {
-          padding: 6px 10px;
+          padding: 4px 8px;
           border-radius: 999px;
-          font-size: 10px;
+          font-size: 11px;
           font-weight: 800;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
         }
         .membership-pill.premium {
-          background: rgba(30,215,96,0.2);
-          border: 1px solid rgba(30,215,96,0.22);
-          color: var(--text-primary);
+          background: rgba(225,191,83,0.18);
+          border: 1px solid rgba(225,191,83,0.24);
+          color: var(--accent-gold);
         }
         .membership-pill.free {
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.08);
-          color: var(--text-secondary);
+          background: rgba(11,106,88,0.16);
+          border: 1px solid rgba(11,106,88,0.20);
+          color: var(--brand-green);
         }
         .hero-stats-grid {
           display: grid;
@@ -473,9 +467,9 @@ export default function ProfilePage({
         .hero-stat-card {
           border-radius: 16px;
           padding: 10px 8px;
-          border: 1px solid var(--profile-card-border);
+          border: 1.5px solid var(--profile-card-border);
           background: var(--profile-card-bg);
-          box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+          box-shadow: 0 18px 36px rgba(0,0,0,0.08);
         }
         .hero-stat-card strong {
           display: block;
@@ -483,7 +477,7 @@ export default function ProfilePage({
           line-height: 1;
           font-weight: 800;
           color: var(--profile-card-text);
-          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
         }
         .hero-stat-card span {
           display: block;
@@ -503,8 +497,8 @@ export default function ProfilePage({
           width: 10px;
           height: 10px;
           border-radius: 999px;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.12);
+          background: rgba(245,216,143,0.08);
+          border: 1px solid rgba(245,216,143,0.12);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -512,19 +506,18 @@ export default function ProfilePage({
         }
         .hero-streak-dot.done {
           color: #fff;
-          background: rgba(30,215,96,0.28);
-          border-color: rgba(30,215,96,0.42);
-          box-shadow: 0 0 18px rgba(30,215,96,0.28);
+          background: rgba(245,216,143,0.22);
+          border-color: rgba(245,216,143,0.42);
+          box-shadow: 0 0 18px rgba(245,216,143,0.42);
         }
         .hero-streak-dot.today {
-          outline: 1px solid rgba(255,255,255,0.3);
+          outline: 1px solid rgba(245,216,143,0.56);
         }
         .invite-card {
           border-radius: 22px;
           padding: 14px;
           background: var(--settings-surface);
           border: 1px solid var(--settings-border);
-          box-shadow: var(--panel-shadow);
         }
         .invite-card-head {
           display: flex;
@@ -554,9 +547,9 @@ export default function ProfilePage({
           border-radius: 18px;
           padding: 12px 8px 10px;
           text-align: center;
-          border: 1px solid var(--profile-card-border);
+          border: 1.5px solid var(--profile-card-border);
           background: var(--profile-card-bg);
-          box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+          box-shadow: 0 18px 36px rgba(0,0,0,0.08);
         }
         .invite-stat span {
           font-size: 12px;
@@ -568,7 +561,7 @@ export default function ProfilePage({
           font-size: 24px;
           font-weight: 800;
           color: var(--profile-card-text);
-          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
         }
         .profile-entry-card,
         .share-main-btn,
@@ -586,7 +579,6 @@ export default function ProfilePage({
           border: 1px solid var(--settings-border);
           background: var(--settings-surface);
           color: var(--text-primary);
-          box-shadow: var(--panel-shadow);
         }
         .profile-entry-copy {
           display: flex;
@@ -605,19 +597,18 @@ export default function ProfilePage({
         .share-main-btn {
           justify-content: center;
           border: none;
-          background: linear-gradient(90deg, var(--brand-gold) 0%, var(--brand-green) 100%);
-          color: #041109;
+          background: linear-gradient(90deg, var(--brand-gold) 0%, #f6d35b 100%);
+          color: #173730;
           font-weight: 800;
-          box-shadow: 0 16px 28px rgba(30,215,96,0.2);
+          box-shadow: 0 16px 28px rgba(11,106,88,0.14);
           min-height: 54px;
           font-size: 15px;
         }
         .logout-btn {
           justify-content: center;
-          border: 1px solid rgba(255,255,255,0.14);
+          border: 1.5px solid rgba(245,216,143,0.42);
           background: var(--settings-surface);
           color: var(--text-primary);
-          box-shadow: var(--panel-shadow);
         }
         @media (max-width: 420px) {
           .profile-scroll {
