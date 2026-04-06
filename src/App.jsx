@@ -268,7 +268,6 @@ export default function App() {
   });
 
   const hasPremiumAccess = membership?.accessLevel === 'premium';
-  const shellBadgeLabel = hasPremiumAccess ? 'Premium' : 'Free';
 
   if (loading) {
     return (
@@ -281,22 +280,22 @@ export default function App() {
             <div className="blob blob-3"></div>
           </div>
           <div style={{
-            position: 'relative',
-            zIndex: 10,
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            gap: 14,
+            position: 'relative', zIndex: 10,
+            height: '100%', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            flexDirection: 'column', gap: 12,
           }}>
-            <div className="app-shell-logo">B</div>
             <div style={{
-              width: 34,
-              height: 34,
+              width: 56, height: 56,
+              background: 'linear-gradient(135deg, var(--brand-gold), var(--brand-green))',
+              borderRadius: 16,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 28,
+            }}>📖</div>
+            <div style={{
+              width: 30, height: 30,
               border: '3px solid var(--spinner-track)',
-              borderTopColor: 'var(--spinner-accent)',
-              borderRadius: '50%',
+              borderTopColor: 'var(--spinner-accent)', borderRadius: '50%',
               animation: 'spin 0.8s linear infinite',
             }}></div>
           </div>
@@ -319,9 +318,7 @@ export default function App() {
     return (
       <AppShellProvider value={shellValue}>
         <div className="app-container">
-          <div className="auth-shell">
-            <LoginPage onAuthenticated={handleAuthenticated} />
-          </div>
+          <LoginPage onAuthenticated={handleAuthenticated} />
         </div>
       </AppShellProvider>
     );
@@ -337,80 +334,65 @@ export default function App() {
           <div className="blob blob-3"></div>
         </div>
 
-        <div className="app-shell">
-          <div className="app-shell-chrome">
-            <div className="app-shell-brand">
-              <div className="app-shell-logo">B</div>
-              <div className="app-shell-brand-copy">
-                <strong>Bunson老师</strong>
-                <span>{user?.display_name || user?.name || user?.username || 'Daily Chinese coach'}</span>
-              </div>
-            </div>
-            <div className={`app-shell-badge ${hasPremiumAccess ? 'premium' : ''}`}>
-              {shellBadgeLabel}
-            </div>
+        <div className="page-content">
+          <div style={tabViewStyle(activeTab === 'home')}>
+            <HomePage user={user} />
           </div>
-
-          <div className="page-content">
-            <div style={tabViewStyle(activeTab === 'home')}>
-              <HomePage user={user} />
-            </div>
-            <div style={tabViewStyle(activeTab === 'quiz')}>
-              {hasPremiumAccess ? (
-                <QuizPage user={user} />
-              ) : (
-                <MembershipGate
-                  featureNameKey="tabs.quiz"
-                  membership={membership}
-                  invite={invite}
-                  onAuthenticated={handleAuthenticated}
-                  onOpenProfile={() => {
-                    setActiveTab('profile');
-                    setProfileView('profile');
-                  }}
-                />
-              )}
-            </div>
-            <div style={tabViewStyle(activeTab === 'practice')}>
-              {hasPremiumAccess ? (
-                <AIPracticePage user={user} />
-              ) : (
-                <MembershipGate
-                  featureNameKey="tabs.practice"
-                  membership={membership}
-                  invite={invite}
-                  onAuthenticated={handleAuthenticated}
-                  onOpenProfile={() => {
-                    setActiveTab('profile');
-                    setProfileView('profile');
-                  }}
-                />
-              )}
-            </div>
-            <div style={tabViewStyle(activeTab === 'profile' && profileView === 'profile')}>
-              <ProfilePage
-                user={user}
+          <div style={tabViewStyle(activeTab === 'quiz')}>
+            {hasPremiumAccess ? (
+              <QuizPage user={user} />
+            ) : (
+              <MembershipGate
+                featureNameKey="tabs.quiz"
                 membership={membership}
                 invite={invite}
-                profileRefreshKey={profileRefreshKey}
-                onOpenCollection={() => setProfileView('collection')}
-                onOpenSettings={() => setProfileView('settings')}
+                onAuthenticated={handleAuthenticated}
+                onOpenProfile={() => {
+                  setActiveTab('profile');
+                  setProfileView('profile');
+                }}
               />
-            </div>
-            <div style={tabViewStyle(activeTab === 'profile' && profileView === 'settings')}>
-              <ProfileSettingsPage onBack={() => setProfileView('profile')} />
-            </div>
-            <div style={tabViewStyle(activeTab === 'profile' && profileView === 'collection')}>
-              <CollectionPage vocabulary={vocabulary} onBack={() => setProfileView('profile')} />
-            </div>
+            )}
           </div>
-
-          <TabBar
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            lockedTabs={hasPremiumAccess ? [] : ['quiz', 'practice']}
-          />
+          <div style={tabViewStyle(activeTab === 'practice')}>
+            {hasPremiumAccess ? (
+              <AIPracticePage user={user} />
+            ) : (
+              <MembershipGate
+                featureNameKey="tabs.practice"
+                membership={membership}
+                invite={invite}
+                onAuthenticated={handleAuthenticated}
+                onOpenProfile={() => {
+                  setActiveTab('profile');
+                  setProfileView('profile');
+                }}
+              />
+            )}
+          </div>
+          <div style={tabViewStyle(activeTab === 'profile' && profileView === 'profile')}>
+            <ProfilePage
+              user={user}
+              membership={membership}
+              invite={invite}
+              profileRefreshKey={profileRefreshKey}
+              onOpenCollection={() => setProfileView('collection')}
+              onOpenSettings={() => setProfileView('settings')}
+            />
+          </div>
+          <div style={tabViewStyle(activeTab === 'profile' && profileView === 'settings')}>
+            <ProfileSettingsPage onBack={() => setProfileView('profile')} />
+          </div>
+          <div style={tabViewStyle(activeTab === 'profile' && profileView === 'collection')}>
+            <CollectionPage vocabulary={vocabulary} onBack={() => setProfileView('profile')} />
+          </div>
         </div>
+
+        <TabBar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          lockedTabs={hasPremiumAccess ? [] : ['quiz', 'practice']}
+        />
       </div>
     </AppShellProvider>
   );
