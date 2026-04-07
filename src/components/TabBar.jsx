@@ -43,19 +43,19 @@ export default function TabBar({ activeTab, onTabChange, lockedTabs = [] }) {
       <style>{`
         .tab-indicator {
           position: absolute;
-          top: 6px;
-          width: 36px;
-          height: 4px;
+          top: 10px;
+          width: 32px;
+          height: 3px;
           background: linear-gradient(90deg, var(--brand-gold), var(--brand-teal));
           border-radius: 999px;
           transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 4px 16px var(--tab-active-shadow);
+          box-shadow: 0 4px 16px rgba(30, 215, 96, 0.34);
           pointer-events: none;
         }
         .tab-lock {
           position: absolute;
-          top: -4px;
-          right: -4px;
+          top: -2px;
+          right: -2px;
           width: 14px;
           height: 14px;
           border-radius: 999px;
@@ -63,7 +63,7 @@ export default function TabBar({ activeTab, onTabChange, lockedTabs = [] }) {
           align-items: center;
           justify-content: center;
           background: var(--accent-gold);
-          color: #143f37;
+          color: #041109;
           font-size: 7px;
         }
       `}</style>

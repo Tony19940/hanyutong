@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { usePronunciation } from '../hooks/usePronunciation.js';
 import { api } from '../utils/api.js';
 import { resolveAvatarUrl } from '../utils/avatar.js';
+import { useOptionalUser } from '../contexts/UserContext.jsx';
 
 const INPUT_SAMPLE_RATE = 16000;
 const CHUNK_SIZE = 4096;
@@ -139,6 +140,9 @@ function withCreatedAt(message) {
 }
 
 export default function AIPracticePage({ user }) {
+  const userContext = useOptionalUser();
+  const openMembershipGate = userContext?.openMembershipGate || (() => {});
+  const refreshQuota = userContext?.refreshQuota || (() => Promise.resolve());
   const [availability, setAvailability] = useState({ available: false, missing: [], scenarios: [], dailyScenarios: [] });
   const [scenarioId, setScenarioId] = useState(null);
   const [session, setSession] = useState(null);
@@ -372,6 +376,9 @@ export default function AIPracticePage({ user }) {
 
     try {
       const response = await api.startDialogueSession(selectedScenario.id);
+      if (response?.freeQuota) {
+        refreshQuota().catch(() => {});
+      }
       setSession(response.session);
       setState(response.state);
       setMessages([buildSystemNote(buildTopicNote(response.session.scenario, response.state))]);
@@ -379,6 +386,9 @@ export default function AIPracticePage({ user }) {
       setStatus(response.state?.isComplete ? 'complete' : 'active');
       setStatusDetail('Bunson老师正在开始今天的课程。');
     } catch (error) {
+      if (error?.code === 'PREMIUM_REQUIRED') {
+        openMembershipGate('practice');
+      }
       setStatus('error');
       setStatusDetail(error.message || '启动对话失败。');
     } finally {
@@ -681,34 +691,34 @@ export default function AIPracticePage({ user }) {
 
       <style>{`
         .im-page{flex:1 1 0%;display:flex;min-height:0;position:relative;overflow:hidden;z-index:10}
-        .im-shell{flex:1 1 0%;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:10px 12px 0;max-width:430px;margin:0 auto;width:100%}
-        .tg-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px 8px}
+        .im-shell{flex:1 1 0%;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:12px 12px 0;max-width:430px;margin:0 auto;width:100%}
+        .tg-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 4px 12px;border-bottom:1px solid rgba(255,255,255,0.06)}
         .tg-chat-peer{display:flex;align-items:center;gap:12px;min-width:0}
-        .tg-peer-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--brand-teal),var(--brand-green));color:#fff;font-size:18px;font-weight:800}
+        .tg-peer-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--brand-teal),var(--brand-green));color:#041109;font-size:18px;font-weight:800}
         .tg-peer-avatar.user{background:linear-gradient(180deg,var(--brand-gold),#d0a54a);color:var(--dialog-user-text)}
         .tg-peer-avatar.small{width:34px;height:34px;font-size:13px}
         .tg-peer-avatar.image{object-fit:cover}
-        .tg-peer-name{font-size:17px;font-weight:800;color:var(--home-title-color);line-height:1.15}
+        .tg-peer-name{font-size:18px;font-weight:800;color:var(--home-title-color);line-height:1.15;font-family:'Outfit','Noto Sans SC',sans-serif}
         .tg-peer-status{margin-top:4px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)}
         .tg-status-dot{width:8px;height:8px;border-radius:50%;background:var(--brand-teal)}
         .tg-status-dot.error{background:#d66767}
-        .tg-stop-btn{min-width:64px;height:38px;border-radius:999px;border:1px solid var(--surface-border);background:var(--settings-surface);color:var(--text-primary);font-size:13px;font-weight:700}
+        .tg-stop-btn{min-width:70px;height:38px;border-radius:999px;border:1px solid var(--surface-border);background:var(--settings-surface);color:var(--text-primary);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
         .tg-chat-body{flex:1 1 0%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
         .tg-warning{margin-bottom:10px;padding:10px 12px;border-radius:16px;background:rgba(225,191,83,.10);border:1px solid rgba(225,191,83,.22);font-size:12px;color:var(--text-secondary)}
-        .tg-chat-stream{flex:1;min-height:0;display:grid;gap:10px;padding:8px 0 226px;overflow-y:auto;align-content:start;scroll-behavior:smooth;background:var(--dialog-shell-bg)}
+        .tg-chat-stream{flex:1;min-height:0;display:grid;gap:10px;padding:12px 0 226px;overflow-y:auto;align-content:start;scroll-behavior:smooth;background:var(--dialog-shell-bg)}
         .tg-date-chip{justify-self:center;max-width:92%;padding:7px 12px;border-radius:999px;background:var(--dialog-chip-bg);color:var(--dialog-chip-text);font-size:11px;border:1px solid var(--surface-border)}
         .tg-topic-grid-shell{display:grid;align-content:center;gap:16px;min-height:480px;padding:12px 0 24px}
-        .tg-topic-grid-title{justify-self:center;font-size:15px;font-weight:800;color:var(--home-title-color)}
+        .tg-topic-grid-title{justify-self:center;font-size:12px;font-weight:800;color:var(--accent-gold);letter-spacing:.22em;text-transform:uppercase}
         .tg-topic-grid{display:grid;gap:14px}
-        .tg-topic-card{display:block;width:100%;min-height:124px;padding:20px 18px;border:none;border-radius:28px;background:var(--home-card-bg);border:1px solid var(--home-card-border);text-align:left;color:var(--text-primary)}
-        .tg-topic-card-kicker{font-size:11px;font-weight:800;color:var(--accent-gold);text-transform:uppercase}
-        .tg-topic-card-title{margin-top:10px;font-size:24px;font-weight:900;line-height:1.15}
+        .tg-topic-card{display:block;width:100%;min-height:124px;padding:20px 18px;border:none;border-radius:28px;background:var(--home-card-bg);border:1px solid var(--home-card-border);text-align:left;color:var(--text-primary);box-shadow:var(--panel-shadow)}
+        .tg-topic-card-kicker{font-size:11px;font-weight:800;color:var(--accent-gold);text-transform:uppercase;letter-spacing:.18em}
+        .tg-topic-card-title{margin-top:10px;font-size:24px;font-weight:900;line-height:1.15;font-family:'Outfit','Noto Sans SC',sans-serif}
         .tg-topic-card-subtitle{margin-top:8px;font-size:13px;line-height:1.65;color:var(--text-secondary)}
         .tg-message-row{display:flex;align-items:flex-end;gap:8px}
         .tg-message-row.assistant{justify-content:flex-start}
         .tg-message-row.user{justify-content:flex-end}
         .tg-message-avatar{width:34px;display:flex;justify-content:center;flex-shrink:0}
-        .tg-bubble{max-width:min(82%,312px);padding:10px 12px 8px;border-radius:18px}
+        .tg-bubble{max-width:min(82%,312px);padding:10px 12px 8px;border-radius:18px;box-shadow:0 10px 20px rgba(0,0,0,.12)}
         .tg-bubble.assistant{background:var(--dialog-assistant-bubble);color:var(--dialog-assistant-text);border-top-left-radius:8px}
         .tg-bubble.user{background:var(--dialog-user-bubble);color:var(--dialog-user-text);border-top-right-radius:8px}
         .tg-bubble-name{margin-bottom:4px;font-size:11px;font-weight:800;color:var(--brand-teal)}
@@ -731,9 +741,9 @@ export default function AIPracticePage({ user }) {
         .tg-typing-indicator{display:inline-flex;align-items:center;gap:6px;padding:6px 2px 2px}
         .tg-typing-indicator i{width:8px;height:8px;border-radius:999px;background:rgba(142,212,195,.7)}
         .tg-composer-wrap{position:fixed;left:0;right:0;bottom:78px;padding:0 12px 10px;z-index:40;display:flex;justify-content:center;pointer-events:none}
-        .tg-composer{width:min(430px,calc(100vw - 24px));padding:12px;border-radius:22px;background:var(--dialog-composer-bg);border:1px solid var(--surface-border);backdrop-filter:blur(18px);pointer-events:auto}
-        .tg-composer-phase{margin-bottom:10px;font-size:11px;color:var(--text-secondary)}
-        .tg-record-action{height:56px;border:none;border-radius:18px;font-size:15px;font-weight:800;background:var(--dialog-record-bg);color:var(--dialog-record-text);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px}
+        .tg-composer{width:min(430px,calc(100vw - 24px));padding:12px;border-radius:24px;background:var(--dialog-composer-bg);border:1px solid var(--surface-border);backdrop-filter:blur(18px);pointer-events:auto;box-shadow:var(--panel-shadow)}
+        .tg-composer-phase{margin-bottom:10px;font-size:11px;color:var(--text-secondary);letter-spacing:.1em;text-transform:uppercase}
+        .tg-record-action{height:56px;border:none;border-radius:999px;font-size:15px;font-weight:800;background:var(--dialog-record-bg);color:var(--dialog-record-text);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px}
         .tg-record-action.full{width:100%}
         .tg-record-action.recording{background:var(--dialog-record-bg-active);color:var(--dialog-user-text)}
         .tg-record-action:disabled{opacity:.42}

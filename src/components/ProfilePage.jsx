@@ -64,6 +64,22 @@ export default function ProfilePage({
   }, [profileRefreshKey, avatarRefreshKey]);
 
   useEffect(() => {
+    const wordsLearned = profile?.stats?.wordsLearned || 0;
+    const streakDays = profile?.stats?.streak || 0;
+    if (!profile) return;
+    const milestone = streakDays >= 7
+      ? `streak-${streakDays}`
+      : wordsLearned >= 50 && wordsLearned % 50 === 0
+        ? `words-${wordsLearned}`
+        : null;
+    if (!milestone) return;
+    const storageKey = `hyt_share_milestone_${milestone}`;
+    if (localStorage.getItem(storageKey)) return;
+    localStorage.setItem(storageKey, '1');
+    setShowShare(true);
+  }, [profile]);
+
+  useEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
   }, [profileRefreshKey]);
@@ -120,6 +136,9 @@ export default function ProfilePage({
     : resolveAvatarUrl({}, fallbackAvatarId);
   const membershipCopy = resolveMembershipCopy(membership, t);
   const membershipBadgeClass = membership?.accessLevel === 'premium' ? 'premium' : 'free';
+  const goalSummary = profile.studySummary || null;
+  const calendar = profile.checkin?.calendar || [];
+  const leaderboard = profile.socialProof?.inviteLeaderboard || [];
   const heroStats = [
     {
       key: 'words',
@@ -222,6 +241,26 @@ export default function ProfilePage({
         </div>
 
         <div className="invite-card animate-float-up stagger-2">
+          {goalSummary ? (
+            <div className="goal-panel">
+              <div className="goal-panel-copy">
+                <strong>今日目标</strong>
+                <span>{goalSummary.studiedWords}/{goalSummary.target} 已完成</span>
+              </div>
+              <div className={`goal-ring ${goalSummary.completed ? 'done' : ''}`}>
+                {Math.min(Math.round((goalSummary.studiedWords / goalSummary.target) * 100), 100)}%
+              </div>
+            </div>
+          ) : null}
+          {calendar.length > 0 ? (
+            <div className="checkin-strip">
+              {calendar.slice(-14).map((day) => (
+                <div key={day.date} className={`checkin-cell ${day.studied ? 'active' : ''} ${day.goalCompleted ? 'goal' : ''}`}>
+                  <span>{day.date.slice(5)}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <div className="invite-card-head">
             <div>
               <div className="invite-card-title">{t('membership.inviteFriends')}</div>
@@ -246,6 +285,17 @@ export default function ProfilePage({
             <i className="fas fa-user-plus"></i>
             <span>{t('membership.inviteFriends')}</span>
           </button>
+          {leaderboard.length > 0 ? (
+            <div className="leaderboard-card">
+              <div className="leaderboard-title">Invite Leaderboard</div>
+              {leaderboard.slice(0, 3).map((entry) => (
+                <div key={entry.rank} className="leaderboard-row">
+                  <span>#{entry.rank} {entry.name}</span>
+                  <strong>{entry.rewardDaysEarned} days</strong>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <button className="profile-entry-card animate-float-up stagger-3" type="button" onClick={onOpenSettings}>
@@ -297,7 +347,7 @@ export default function ProfilePage({
         .profile-scroll {
           flex: 1 1 0%;
           min-height: 0;
-          padding: max(44px, env(safe-area-inset-top, 0px) + 6px) 16px calc(96px + env(safe-area-inset-bottom, 0px));
+          padding: 14px 14px calc(104px + env(safe-area-inset-bottom, 0px));
           overflow-y: auto;
           overflow-x: hidden;
           width: 100%;
@@ -316,9 +366,9 @@ export default function ProfilePage({
           min-height: 292px;
           border-radius: 28px;
           background: var(--profile-hero-bg);
-          border: 2px solid var(--profile-hero-border);
+          border: 1px solid var(--profile-hero-border);
           overflow: hidden;
-          box-shadow: 0 26px 44px rgba(3,20,12,0.12);
+          box-shadow: var(--panel-shadow);
         }
         .prof-hero::before {
           content: '';
@@ -343,9 +393,11 @@ export default function ProfilePage({
           z-index: 1;
         }
         .hero-title {
-          font-size: 14px;
+          font-size: 11px;
           font-weight: 800;
           color: var(--accent-gold);
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
         }
         .hero-identity {
           display: flex;
@@ -366,8 +418,8 @@ export default function ProfilePage({
           border-radius: 36px;
           overflow: hidden;
           flex-shrink: 0;
-          border: 3px solid rgba(245,216,143,0.82);
-          box-shadow: 0 14px 24px rgba(0,0,0,0.18);
+          border: 2px solid rgba(255,255,255,0.14);
+          box-shadow: 0 14px 24px rgba(0,0,0,0.22);
           background: rgba(255,255,255,0.08);
         }
         .av-btn {
@@ -392,8 +444,8 @@ export default function ProfilePage({
           width: 24px;
           height: 24px;
           border-radius: 999px;
-          background: linear-gradient(180deg, var(--brand-gold), #f5d56b);
-          color: #163a33;
+          background: linear-gradient(180deg, var(--brand-gold), var(--brand-green));
+          color: #041109;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -407,18 +459,20 @@ export default function ProfilePage({
           gap: 8px;
         }
         .prof-name {
-          font-size: 20px;
+          font-size: 22px;
           font-weight: 800;
           color: var(--text-primary);
-          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
         }
         .prof-lv {
           padding: 4px 10px;
           border-radius: 999px;
-          border: 1px solid rgba(245,216,143,0.56);
-          background: var(--settings-surface);
-          font-size: 12px;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.06);
+          font-size: 11px;
           color: var(--text-secondary);
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
         }
         .prof-handle {
           margin-top: 2px;
@@ -442,20 +496,22 @@ export default function ProfilePage({
           margin-top: 4px;
         }
         .membership-pill {
-          padding: 4px 8px;
+          padding: 6px 10px;
           border-radius: 999px;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 800;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
         }
         .membership-pill.premium {
-          background: rgba(225,191,83,0.18);
-          border: 1px solid rgba(225,191,83,0.24);
-          color: var(--accent-gold);
+          background: rgba(30,215,96,0.2);
+          border: 1px solid rgba(30,215,96,0.22);
+          color: var(--text-primary);
         }
         .membership-pill.free {
-          background: rgba(11,106,88,0.16);
-          border: 1px solid rgba(11,106,88,0.20);
-          color: var(--brand-green);
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.08);
+          color: var(--text-secondary);
         }
         .hero-stats-grid {
           display: grid;
@@ -467,9 +523,9 @@ export default function ProfilePage({
         .hero-stat-card {
           border-radius: 16px;
           padding: 10px 8px;
-          border: 1.5px solid var(--profile-card-border);
+          border: 1px solid var(--profile-card-border);
           background: var(--profile-card-bg);
-          box-shadow: 0 18px 36px rgba(0,0,0,0.08);
+          box-shadow: 0 12px 24px rgba(0,0,0,0.12);
         }
         .hero-stat-card strong {
           display: block;
@@ -477,7 +533,7 @@ export default function ProfilePage({
           line-height: 1;
           font-weight: 800;
           color: var(--profile-card-text);
-          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
         }
         .hero-stat-card span {
           display: block;
@@ -497,8 +553,8 @@ export default function ProfilePage({
           width: 10px;
           height: 10px;
           border-radius: 999px;
-          background: rgba(245,216,143,0.08);
-          border: 1px solid rgba(245,216,143,0.12);
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.12);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -506,18 +562,83 @@ export default function ProfilePage({
         }
         .hero-streak-dot.done {
           color: #fff;
-          background: rgba(245,216,143,0.22);
-          border-color: rgba(245,216,143,0.42);
-          box-shadow: 0 0 18px rgba(245,216,143,0.42);
+          background: rgba(30,215,96,0.28);
+          border-color: rgba(30,215,96,0.42);
+          box-shadow: 0 0 18px rgba(30,215,96,0.28);
         }
         .hero-streak-dot.today {
-          outline: 1px solid rgba(245,216,143,0.56);
+          outline: 1px solid rgba(255,255,255,0.3);
         }
         .invite-card {
           border-radius: 22px;
           padding: 14px;
           background: var(--settings-surface);
           border: 1px solid var(--settings-border);
+          box-shadow: var(--panel-shadow);
+        }
+        .goal-panel {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          margin-bottom: 14px;
+          padding: 14px;
+          border-radius: 20px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .goal-panel-copy {
+          display: grid;
+          gap: 4px;
+        }
+        .goal-panel-copy strong {
+          font-size: 16px;
+          color: var(--text-primary);
+        }
+        .goal-panel-copy span {
+          font-size: 12px;
+          color: var(--text-secondary);
+        }
+        .goal-ring {
+          width: 64px;
+          height: 64px;
+          border-radius: 50%;
+          border: 6px solid rgba(255,255,255,0.08);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--accent-gold);
+          font-size: 12px;
+          font-weight: 800;
+        }
+        .goal-ring.done {
+          border-color: rgba(30,215,96,0.38);
+          color: var(--brand-teal);
+        }
+        .checkin-strip {
+          display: grid;
+          grid-template-columns: repeat(7, minmax(0, 1fr));
+          gap: 8px;
+          margin-bottom: 14px;
+        }
+        .checkin-cell {
+          min-height: 34px;
+          border-radius: 12px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          color: var(--text-muted);
+          font-size: 10px;
+          font-weight: 700;
+        }
+        .checkin-cell.active {
+          background: rgba(225,191,83,0.12);
+          color: var(--text-primary);
+        }
+        .checkin-cell.goal {
+          border-color: rgba(30,215,96,0.24);
         }
         .invite-card-head {
           display: flex;
@@ -543,13 +664,40 @@ export default function ProfilePage({
         .invite-card-action {
           margin-top: 12px;
         }
+        .leaderboard-card {
+          margin-top: 12px;
+          border-radius: 18px;
+          padding: 12px 14px;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          display: grid;
+          gap: 8px;
+        }
+        .leaderboard-title {
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--text-muted);
+        }
+        .leaderboard-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          color: var(--text-secondary);
+          font-size: 12px;
+        }
+        .leaderboard-row strong {
+          color: var(--text-primary);
+        }
         .invite-stat {
           border-radius: 18px;
           padding: 12px 8px 10px;
           text-align: center;
-          border: 1.5px solid var(--profile-card-border);
+          border: 1px solid var(--profile-card-border);
           background: var(--profile-card-bg);
-          box-shadow: 0 18px 36px rgba(0,0,0,0.08);
+          box-shadow: 0 12px 24px rgba(0,0,0,0.12);
         }
         .invite-stat span {
           font-size: 12px;
@@ -561,7 +709,7 @@ export default function ProfilePage({
           font-size: 24px;
           font-weight: 800;
           color: var(--profile-card-text);
-          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
         }
         .profile-entry-card,
         .share-main-btn,
@@ -579,6 +727,7 @@ export default function ProfilePage({
           border: 1px solid var(--settings-border);
           background: var(--settings-surface);
           color: var(--text-primary);
+          box-shadow: var(--panel-shadow);
         }
         .profile-entry-copy {
           display: flex;
@@ -597,18 +746,19 @@ export default function ProfilePage({
         .share-main-btn {
           justify-content: center;
           border: none;
-          background: linear-gradient(90deg, var(--brand-gold) 0%, #f6d35b 100%);
-          color: #173730;
+          background: linear-gradient(90deg, var(--brand-gold) 0%, var(--brand-green) 100%);
+          color: #041109;
           font-weight: 800;
-          box-shadow: 0 16px 28px rgba(11,106,88,0.14);
+          box-shadow: 0 16px 28px rgba(30,215,96,0.2);
           min-height: 54px;
           font-size: 15px;
         }
         .logout-btn {
           justify-content: center;
-          border: 1.5px solid rgba(245,216,143,0.42);
+          border: 1px solid rgba(255,255,255,0.14);
           background: var(--settings-surface);
           color: var(--text-primary);
+          box-shadow: var(--panel-shadow);
         }
         @media (max-width: 420px) {
           .profile-scroll {

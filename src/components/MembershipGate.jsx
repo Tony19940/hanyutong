@@ -46,8 +46,11 @@ export default function MembershipGate({
   featureNameKey,
   membership,
   invite,
+  quota,
+  mode = 'page',
   onAuthenticated,
   onOpenProfile,
+  onClose,
 }) {
   const { t } = useAppShell();
   const [keyCode, setKeyCode] = useState('');
@@ -78,12 +81,27 @@ export default function MembershipGate({
     }
   };
 
-  return (
+  const remainingText = quota ? `${quota.remaining}/${quota.limit}` : null;
+
+  const content = (
     <div className="membership-gate page-enter">
       <div className="membership-shell">
+        {mode === 'sheet' ? (
+          <div className="membership-sheet-handle" aria-hidden="true"></div>
+        ) : null}
         <div className="membership-kicker">{t('membership.premiumOnly')}</div>
         <h2 className="membership-title">{resolvedFeatureName}</h2>
         <p className="membership-subtitle">{t('membership.gateSubtitle')}</p>
+
+        {quota ? (
+          <div className="membership-preview-card">
+            <div>
+              <span className="membership-preview-label">今日试听额度</span>
+              <strong>{remainingText}</strong>
+            </div>
+            <p>免费用户可先体验，再在额度用尽后解锁完整练习。</p>
+          </div>
+        ) : null}
 
         <div className="membership-status-card">
           <div className="membership-status-row">
@@ -130,6 +148,11 @@ export default function MembershipGate({
           <button type="button" className="membership-secondary-btn" onClick={openSupport}>
             {t('membership.contactTelegram')}
           </button>
+          {mode === 'sheet' ? (
+            <button type="button" className="membership-link-btn close" onClick={() => onClose?.()}>
+              先看看别的
+            </button>
+          ) : null}
         </div>
 
         {summary ? (
@@ -168,6 +191,13 @@ export default function MembershipGate({
           position: relative;
           z-index: 10;
         }
+        .membership-sheet-handle {
+          width: 48px;
+          height: 5px;
+          border-radius: 999px;
+          margin: 0 auto 10px;
+          background: rgba(255,255,255,0.16);
+        }
         .membership-shell {
           width: 100%;
           max-width: 390px;
@@ -175,19 +205,47 @@ export default function MembershipGate({
           flex-direction: column;
           gap: 14px;
         }
+        .membership-preview-card {
+          display: grid;
+          gap: 6px;
+          padding: 14px 16px;
+          border-radius: 22px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .membership-preview-card strong {
+          display: block;
+          margin-top: 4px;
+          color: var(--text-primary);
+          font-size: 22px;
+          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+        }
+        .membership-preview-label {
+          font-size: 11px;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          font-weight: 800;
+        }
+        .membership-preview-card p {
+          color: var(--text-secondary);
+          font-size: 12px;
+          line-height: 1.6;
+        }
         .membership-kicker {
           font-size: 11px;
           font-weight: 800;
-          letter-spacing: 0.14em;
+          letter-spacing: 0.22em;
           text-transform: uppercase;
           color: var(--accent-gold);
           text-align: center;
         }
         .membership-title {
-          font-size: 28px;
+          font-size: 32px;
           line-height: 1.1;
           text-align: center;
           color: var(--text-primary);
+          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
         }
         .membership-subtitle {
           text-align: center;
@@ -200,9 +258,9 @@ export default function MembershipGate({
         .membership-invite-card {
           background: var(--settings-surface);
           border: 1px solid var(--settings-border);
-          border-radius: 24px;
+          border-radius: 26px;
           padding: 16px;
-          box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+          box-shadow: var(--panel-shadow);
         }
         .membership-status-row {
           display: flex;
@@ -229,13 +287,15 @@ export default function MembershipGate({
           gap: 8px;
         }
         .membership-value-item {
-          border-radius: 18px;
+          border-radius: 999px;
           padding: 12px 14px;
           background: var(--home-card-bg);
           border: 1px solid var(--home-card-border);
           color: var(--text-primary);
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
         }
         .membership-input-label {
           display: block;
@@ -247,7 +307,7 @@ export default function MembershipGate({
         .membership-input {
           width: 100%;
           min-height: 50px;
-          border-radius: 16px;
+          border-radius: 999px;
           border: 1px solid var(--input-border);
           background: var(--input-bg);
           color: var(--text-primary);
@@ -264,14 +324,16 @@ export default function MembershipGate({
         .membership-link-btn {
           width: 100%;
           min-height: 48px;
-          border-radius: 16px;
+          border-radius: 999px;
           font-weight: 800;
           margin-top: 12px;
         }
         .membership-primary-btn {
           border: none;
           background: linear-gradient(135deg, var(--button-primary-start), var(--button-primary-mid), var(--button-primary-end));
-          color: #fff;
+          color: #041109;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
         }
         .membership-secondary-btn,
         .membership-link-btn {
@@ -300,7 +362,7 @@ export default function MembershipGate({
           margin-top: 14px;
         }
         .membership-invite-grid div {
-          border-radius: 16px;
+          border-radius: 20px;
           padding: 12px 10px;
           background: var(--profile-card-bg);
           border: 1px solid var(--profile-card-border);
@@ -316,6 +378,44 @@ export default function MembershipGate({
           margin-top: 6px;
           font-size: 20px;
           color: var(--profile-card-text);
+        }
+        .membership-link-btn.close {
+          margin-top: 10px;
+          width: 100%;
+          justify-content: center;
+        }
+      `}</style>
+    </div>
+  );
+
+  if (mode !== 'sheet') {
+    return content;
+  }
+
+  return (
+    <div className="membership-sheet-overlay" onClick={() => onClose?.()}>
+      <div className="membership-sheet-panel" onClick={(event) => event.stopPropagation()}>
+        {content}
+      </div>
+      <style>{`
+        .membership-sheet-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 40;
+          background: rgba(4,7,17,0.52);
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          padding: 16px;
+          backdrop-filter: blur(10px);
+        }
+        .membership-sheet-panel {
+          width: min(100%, 430px);
+          animation: membershipSheetUp 220ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        @keyframes membershipSheetUp {
+          from { transform: translateY(24px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
         }
       `}</style>
     </div>

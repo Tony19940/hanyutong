@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import './App.css';
 import LoginPage from './components/LoginPage.jsx';
 import HomePage from './components/HomePage.jsx';
@@ -10,253 +10,90 @@ import AIPracticePage from './components/AIPracticePage.jsx';
 import AdminPage from './components/AdminPage.jsx';
 import TabBar from './components/TabBar.jsx';
 import MembershipGate from './components/MembershipGate.jsx';
-import { api, storage } from './utils/api.js';
-import { getTelegramUser, initTelegramApp } from './utils/telegram.js';
 import { AppShellProvider } from './i18n/index.js';
-import { defaultPreferences, normalizePreferences, storageKeys } from './preferences/defaults.js';
-import { applyTheme } from './theme/tokens.js';
-import { pickFallbackAvatarId, buildAvatarSeed } from './utils/avatar.js';
+import { PreferencesProvider, usePreferences } from './contexts/PreferencesContext.jsx';
+import { UserProvider, useUser } from './contexts/UserContext.jsx';
+import { StudyProvider, useStudy } from './contexts/StudyContext.jsx';
 
-function defaultMembership() {
-  return {
-    status: 'free',
-    planType: 'free',
-    accessLevel: 'free',
-    expiresAt: null,
-    startedAt: null,
-    isPremium: false,
-  };
+const TAB_ORDER = ['home', 'quiz', 'practice', 'profile'];
+
+function AppChrome({ children }) {
+  return (
+    <div className="app-container">
+      <div className="bg-layer">
+        <div className="bg-gradient"></div>
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+        <div className="blob blob-3"></div>
+      </div>
+      {children}
+    </div>
+  );
 }
 
-function arePreferencesEqual(left, right) {
-  return left.language === right.language
-    && left.theme === right.theme
-    && left.voiceType === right.voiceType;
+function AppShellBridge({ children }) {
+  const preferences = usePreferences();
+  const shellValue = useMemo(() => ({
+    ...preferences,
+  }), [preferences]);
+
+  return React.createElement(AppShellProvider, { value: shellValue }, children);
 }
 
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [membership, setMembership] = useState(defaultMembership());
-  const [invite, setInvite] = useState(null);
+function LoadingScreen() {
+  return (
+    <AppChrome>
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: 14,
+      }}>
+        <div className="app-shell-logo">B</div>
+        <div style={{
+          width: 34,
+          height: 34,
+          border: '3px solid var(--spinner-track)',
+          borderTopColor: 'var(--spinner-accent)',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }}></div>
+      </div>
+    </AppChrome>
+  );
+}
+
+function AuthenticatedApp() {
+  const study = useStudy();
+  const { user, membership, invite, freeQuota, profileRefreshKey, membershipGate, openMembershipGate, closeMembershipGate, onAuthenticated } = useUser();
   const [activeTab, setActiveTab] = useState('home');
   const [profileView, setProfileView] = useState('profile');
-  const [profileRefreshKey, setProfileRefreshKey] = useState(0);
-  const [vocabulary, setVocabulary] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [voiceSettings, setVoiceSettings] = useState({ defaultVoiceType: '', availableVoices: [] });
-  const [preferences, setPreferences] = useState(() =>
-    normalizePreferences({
-      language: localStorage.getItem(storageKeys.language) || defaultPreferences.language,
-      theme: localStorage.getItem(storageKeys.theme) || defaultPreferences.theme,
-      voiceType: localStorage.getItem(storageKeys.voiceType) || defaultPreferences.voiceType,
-    })
-  );
+  const [transitionDirection, setTransitionDirection] = useState('forward');
+  const previousTabRef = useRef('home');
 
-  useEffect(() => {
-    if (window.location.hash === '#admin' || window.location.pathname === '/admin') {
-      setIsAdmin(true);
-      setLoading(false);
-    }
-    if (window.location.hash === '#preview') {
-      setUser({
-        name: 'User',
-        username: 'preview',
-        avatar_url: null,
-        hskLevel: 1,
-      });
-      setMembership({
-        status: 'premium_active',
-        planType: 'month_card',
-        accessLevel: 'premium',
-        expiresAt: null,
-        startedAt: null,
-        isPremium: true,
-      });
-      setLoading(false);
-    }
-  }, []);
+  const hasPremiumAccess = membership?.accessLevel === 'premium';
+  const quizLocked = !hasPremiumAccess && Number(freeQuota?.quiz?.remaining || 0) <= 0;
+  const practiceLocked = !hasPremiumAccess && Number(freeQuota?.dialogue?.remaining || 0) <= 0;
 
-  useEffect(() => {
-    initTelegramApp();
-  }, []);
-
-  const mergeTelegramUser = useCallback((incomingUser) => {
-    const tgUser = getTelegramUser();
-    if (!incomingUser) return incomingUser;
-    const merged = {
-      ...incomingUser,
-      username: tgUser?.username || incomingUser.username || incomingUser.account_username || '',
-      avatar_url: tgUser?.avatarUrl || incomingUser.avatar_url || incomingUser.avatarUrl || null,
-      avatarUrl: tgUser?.avatarUrl || incomingUser.avatarUrl || incomingUser.avatar_url || null,
-      display_name: tgUser?.name || incomingUser.display_name || incomingUser.name,
-    };
-    const fallbackAvatarId = incomingUser.fallbackAvatarId
-      || incomingUser.fallback_avatar_id
-      || pickFallbackAvatarId(buildAvatarSeed(merged));
-    return {
-      ...merged,
-      fallbackAvatarId,
-      fallback_avatar_id: fallbackAvatarId,
-    };
-  }, []);
-
-  const applyAuthResponse = useCallback((authData, { persistUser = true } = {}) => {
-    const mergedUser = mergeTelegramUser(authData?.user);
-    if (persistUser && mergedUser) {
-      localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(mergedUser));
-    }
-    setUser(mergedUser);
-    setMembership(authData?.membership || defaultMembership());
-    setInvite(authData?.invite || null);
-    setProfileRefreshKey((value) => value + 1);
-  }, [mergeTelegramUser]);
-
-  useEffect(() => {
-    document.title = isAdmin ? 'Bunson老师 Admin' : 'Bunson老师';
-  }, [isAdmin, preferences.language]);
-
-  useEffect(() => {
-    applyTheme(preferences.theme);
-    localStorage.setItem(storageKeys.language, preferences.language);
-    localStorage.setItem(storageKeys.theme, preferences.theme);
-    localStorage.setItem(storageKeys.voiceType, preferences.voiceType || '');
-  }, [preferences]);
-
-  useEffect(() => {
-    if (!user || isAdmin) return;
-    api.getUserSettings()
-      .then((data) => {
-        if (data?.settings) {
-          setPreferences((current) => {
-            const next = normalizePreferences({ ...current, ...data.settings });
-            return arePreferencesEqual(current, next) ? current : next;
-          });
-          if (data.settings.fallbackAvatarId) {
-            setUser((current) => {
-              if (!current) return current;
-              const nextUser = {
-                ...current,
-                fallbackAvatarId: data.settings.fallbackAvatarId,
-                fallback_avatar_id: data.settings.fallbackAvatarId,
-              };
-              localStorage.setItem(storage.USER_STORAGE_KEY, JSON.stringify(nextUser));
-              return nextUser;
-            });
-          }
-        }
-        if (data?.voiceSettings) {
-          setVoiceSettings(data.voiceSettings);
-        }
-      })
-      .catch(() => {});
-  }, [isAdmin, user]);
-
-  useEffect(() => {
-    if (isAdmin) return;
-
-    const token = localStorage.getItem(storage.USER_TOKEN_KEY);
-    const savedUser = localStorage.getItem(storage.USER_STORAGE_KEY);
-
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    if (savedUser) {
-      try {
-        setUser(mergeTelegramUser(JSON.parse(savedUser)));
-      } catch {
-        localStorage.removeItem(storage.USER_STORAGE_KEY);
-      }
-    }
-
-    api.verify()
-      .then((data) => {
-        applyAuthResponse(data);
-      })
-      .catch(() => {
-        localStorage.removeItem(storage.USER_TOKEN_KEY);
-        localStorage.removeItem(storage.USER_STORAGE_KEY);
-        setUser(null);
-        setMembership(defaultMembership());
-        setInvite(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [applyAuthResponse, isAdmin, mergeTelegramUser]);
-
-  useEffect(() => {
-    if (user) {
-      api.getAllWords().then(setVocabulary).catch(console.error);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    const interval = setInterval(() => {
-      api.recordTime(1).catch(console.error);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [user]);
-
-  const handleAuthenticated = useCallback((authData) => {
-    applyAuthResponse(authData);
-  }, [applyAuthResponse]);
-
-  const handleTabChange = useCallback((tabId) => {
+  const handleTabChange = (tabId) => {
+    const previousTab = previousTabRef.current;
+    const nextDirection = TAB_ORDER.indexOf(tabId) >= TAB_ORDER.indexOf(previousTab) ? 'forward' : 'backward';
+    previousTabRef.current = tabId;
+    setTransitionDirection(nextDirection);
     setActiveTab(tabId);
     if (tabId !== 'profile') {
       setProfileView('profile');
     }
-  }, []);
-
-  useEffect(() => {
-    if (!user || isAdmin) return;
-    api.trackEvent('app_open').catch(() => {});
-  }, [user?.id, isAdmin]);
-
-  const updatePreferences = useCallback(async (patch) => {
-    const previous = preferences;
-    const optimistic = normalizePreferences({ ...previous, ...patch });
-    if (arePreferencesEqual(previous, optimistic)) {
-      return previous;
+    if (tabId === 'quiz' && quizLocked) {
+      openMembershipGate('quiz');
     }
-    setPreferences(optimistic);
-
-    if (!user) {
-      return optimistic;
+    if (tabId === 'practice' && practiceLocked) {
+      openMembershipGate('practice');
     }
-
-    try {
-      const response = await api.updateUserSettings(patch);
-      const merged = normalizePreferences({ ...optimistic, ...response?.settings });
-      if (!arePreferencesEqual(optimistic, merged)) {
-        setPreferences(merged);
-      }
-      if (response?.voiceSettings) {
-        setVoiceSettings(response.voiceSettings);
-      }
-      return merged;
-    } catch (error) {
-      setPreferences(previous);
-      throw error;
-    }
-  }, [preferences, user]);
-
-  const shellValue = {
-    ...preferences,
-    setLanguage: (language) => updatePreferences({ language }),
-    cycleLanguage: () => {
-      const order = ['zh-CN', 'en', 'km'];
-      const nextLanguage = order[(order.indexOf(preferences.language) + 1 + order.length) % order.length];
-      return updatePreferences({ language: nextLanguage });
-    },
-    setTheme: (theme) => updatePreferences({ theme }),
-    setVoiceType: (voiceType) => updatePreferences({ voiceType }),
-    availableVoices: voiceSettings.availableVoices || [],
-    defaultVoiceType: voiceSettings.defaultVoiceType || '',
   };
 
   const tabViewStyle = (visible) => ({
@@ -267,110 +104,38 @@ export default function App() {
     position: 'relative',
   });
 
-  const hasPremiumAccess = membership?.accessLevel === 'premium';
-
-  if (loading) {
-    return (
-      <AppShellProvider value={shellValue}>
-        <div className="app-container">
-          <div className="bg-layer">
-            <div className="bg-gradient"></div>
-            <div className="blob blob-1"></div>
-            <div className="blob blob-2"></div>
-            <div className="blob blob-3"></div>
-          </div>
-          <div style={{
-            position: 'relative', zIndex: 10,
-            height: '100%', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-            flexDirection: 'column', gap: 12,
-          }}>
-            <div style={{
-              width: 56, height: 56,
-              background: 'linear-gradient(135deg, var(--brand-gold), var(--brand-green))',
-              borderRadius: 16,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 28,
-            }}>📖</div>
-            <div style={{
-              width: 30, height: 30,
-              border: '3px solid var(--spinner-track)',
-              borderTopColor: 'var(--spinner-accent)', borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite',
-            }}></div>
-          </div>
-        </div>
-      </AppShellProvider>
-    );
-  }
-
-  if (isAdmin) {
-    return (
-      <AppShellProvider value={shellValue}>
-        <div className="app-container">
-          <AdminPage />
-        </div>
-      </AppShellProvider>
-    );
-  }
-
-  if (!user) {
-    return (
-      <AppShellProvider value={shellValue}>
-        <div className="app-container">
-          <LoginPage onAuthenticated={handleAuthenticated} />
-        </div>
-      </AppShellProvider>
-    );
-  }
+  const shellBadgeLabel = hasPremiumAccess ? 'Premium' : 'Preview';
 
   return (
-    <AppShellProvider value={shellValue}>
-      <div className="app-container">
-        <div className="bg-layer">
-          <div className="bg-gradient"></div>
-          <div className="blob blob-1"></div>
-          <div className="blob blob-2"></div>
-          <div className="blob blob-3"></div>
+    <AppChrome>
+      <div className="app-shell">
+        <div className="app-shell-chrome">
+          <div className="app-shell-brand">
+            <div className="app-shell-logo">B</div>
+            <div className="app-shell-brand-copy">
+              <strong>Bunson老师</strong>
+              <span>{user?.display_name || user?.name || user?.username || 'Daily Chinese coach'}</span>
+            </div>
+          </div>
+          <div className={`app-shell-badge ${hasPremiumAccess ? 'premium' : ''}`}>
+            {shellBadgeLabel}
+          </div>
         </div>
 
-        <div className="page-content">
-          <div style={tabViewStyle(activeTab === 'home')}>
+        <div className={`page-content tab-direction-${transitionDirection}`}>
+          <div className={`tab-stage ${activeTab === 'home' ? 'is-active' : ''}`} style={tabViewStyle(activeTab === 'home')}>
             <HomePage user={user} />
           </div>
-          <div style={tabViewStyle(activeTab === 'quiz')}>
-            {hasPremiumAccess ? (
-              <QuizPage user={user} />
-            ) : (
-              <MembershipGate
-                featureNameKey="tabs.quiz"
-                membership={membership}
-                invite={invite}
-                onAuthenticated={handleAuthenticated}
-                onOpenProfile={() => {
-                  setActiveTab('profile');
-                  setProfileView('profile');
-                }}
-              />
-            )}
+          <div className={`tab-stage ${activeTab === 'quiz' ? 'is-active' : ''}`} style={tabViewStyle(activeTab === 'quiz')}>
+            <QuizPage user={user} />
           </div>
-          <div style={tabViewStyle(activeTab === 'practice')}>
-            {hasPremiumAccess ? (
-              <AIPracticePage user={user} />
-            ) : (
-              <MembershipGate
-                featureNameKey="tabs.practice"
-                membership={membership}
-                invite={invite}
-                onAuthenticated={handleAuthenticated}
-                onOpenProfile={() => {
-                  setActiveTab('profile');
-                  setProfileView('profile');
-                }}
-              />
-            )}
+          <div className={`tab-stage ${activeTab === 'practice' ? 'is-active' : ''}`} style={tabViewStyle(activeTab === 'practice')}>
+            <AIPracticePage user={user} />
           </div>
-          <div style={tabViewStyle(activeTab === 'profile' && profileView === 'profile')}>
+          <div
+            className={`tab-stage ${activeTab === 'profile' && profileView === 'profile' ? 'is-active' : ''}`}
+            style={tabViewStyle(activeTab === 'profile' && profileView === 'profile')}
+          >
             <ProfilePage
               user={user}
               membership={membership}
@@ -380,20 +145,113 @@ export default function App() {
               onOpenSettings={() => setProfileView('settings')}
             />
           </div>
-          <div style={tabViewStyle(activeTab === 'profile' && profileView === 'settings')}>
+          <div
+            className={`tab-stage ${activeTab === 'profile' && profileView === 'settings' ? 'is-active' : ''}`}
+            style={tabViewStyle(activeTab === 'profile' && profileView === 'settings')}
+          >
             <ProfileSettingsPage onBack={() => setProfileView('profile')} />
           </div>
-          <div style={tabViewStyle(activeTab === 'profile' && profileView === 'collection')}>
-            <CollectionPage vocabulary={vocabulary} onBack={() => setProfileView('profile')} />
+          <div
+            className={`tab-stage ${activeTab === 'profile' && profileView === 'collection' ? 'is-active' : ''}`}
+            style={tabViewStyle(activeTab === 'profile' && profileView === 'collection')}
+          >
+            <CollectionPage vocabulary={study.vocabulary} onBack={() => setProfileView('profile')} />
           </div>
         </div>
 
         <TabBar
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          lockedTabs={hasPremiumAccess ? [] : ['quiz', 'practice']}
+          lockedTabs={[...(quizLocked ? ['quiz'] : []), ...(practiceLocked ? ['practice'] : [])]}
         />
       </div>
-    </AppShellProvider>
+
+      {membershipGate.open ? (
+        <MembershipGate
+          mode="sheet"
+          featureNameKey={membershipGate.feature === 'practice' ? 'tabs.practice' : 'tabs.quiz'}
+          membership={membership}
+          invite={invite}
+          quota={membershipGate.feature === 'practice' ? freeQuota?.dialogue : freeQuota?.quiz}
+          onAuthenticated={onAuthenticated}
+          onClose={closeMembershipGate}
+          onOpenProfile={() => {
+            closeMembershipGate();
+            setActiveTab('profile');
+            setProfileView('profile');
+          }}
+        />
+      ) : null}
+
+      <style>{`
+        .tab-stage {
+          animation-duration: 260ms;
+          animation-fill-mode: both;
+          animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .tab-direction-forward .tab-stage.is-active {
+          animation-name: tabSlideForward;
+        }
+        .tab-direction-backward .tab-stage.is-active {
+          animation-name: tabSlideBackward;
+        }
+        @keyframes tabSlideForward {
+          from { opacity: 0; transform: translate3d(18px, 0, 0); }
+          to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        @keyframes tabSlideBackward {
+          from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+          to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+      `}</style>
+    </AppChrome>
+  );
+}
+
+function AppBody() {
+  const user = useUser();
+
+  if (user.loading) {
+    return <LoadingScreen />;
+  }
+
+  if (user.isAdmin) {
+    return (
+      <AppChrome>
+        <AdminPage />
+      </AppChrome>
+    );
+  }
+
+  if (!user.user) {
+    return (
+      <AppChrome>
+        <div className="auth-shell">
+          <LoginPage onAuthenticated={user.onAuthenticated} />
+        </div>
+      </AppChrome>
+    );
+  }
+
+  return <AuthenticatedApp />;
+}
+
+function AppProviders({ children }) {
+  return (
+    <PreferencesProvider>
+      <UserProvider>
+        <StudyProvider>
+          <AppShellBridge>{children}</AppShellBridge>
+        </StudyProvider>
+      </UserProvider>
+    </PreferencesProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProviders>
+      <AppBody />
+    </AppProviders>
   );
 }

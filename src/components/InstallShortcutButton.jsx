@@ -116,14 +116,14 @@ export default function InstallShortcutButton() {
         .install-shortcut-btn {
           position: absolute;
           right: 10px;
-          top: 42%;
+          top: 46%;
           width: 46px;
           height: 46px;
-          border-radius: 16px 16px 16px 6px;
-          border: 1px solid rgba(225,191,83,0.22);
-          background: linear-gradient(180deg, rgba(225,191,83,0.95), rgba(198,151,44,0.98));
-          color: #173730;
-          box-shadow: 0 18px 26px rgba(0,0,0,0.18);
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: linear-gradient(180deg, rgba(30,215,96,0.95), rgba(22,156,70,0.98));
+          color: #041109;
+          box-shadow: 0 18px 26px rgba(0,0,0,0.24);
           z-index: 5;
         }
         .install-guide-mask {
@@ -139,10 +139,11 @@ export default function InstallShortcutButton() {
         .install-guide-card {
           width: 100%;
           max-width: 340px;
-          border-radius: 24px;
+          border-radius: 28px;
           background: var(--word-shell-bg);
           border: 1px solid var(--settings-border);
           padding: 18px;
+          box-shadow: var(--shell-shadow);
         }
         .install-guide-head {
           display: flex;
@@ -172,7 +173,7 @@ export default function InstallShortcutButton() {
           width: 24px;
           height: 24px;
           border-radius: 999px;
-          background: rgba(225,191,83,0.14);
+          background: rgba(30,215,96,0.14);
           color: var(--accent-gold);
           display: inline-flex;
           align-items: center;
@@ -190,11 +191,13 @@ export default function InstallShortcutButton() {
           width: 100%;
           min-height: 46px;
           margin-top: 16px;
-          border-radius: 16px;
+          border-radius: 999px;
           border: none;
-          background: linear-gradient(90deg, var(--brand-gold), #f5d56b);
-          color: #173730;
+          background: linear-gradient(90deg, var(--brand-gold), var(--brand-green));
+          color: #041109;
           font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
         }
       `}</style>
     </>

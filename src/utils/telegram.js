@@ -47,6 +47,7 @@ export function initTelegramApp() {
     wa.setHeaderColor('#07071a');
     wa.setBackgroundColor('#07071a');
   }
+  return wa;
 }
 
 export function isTelegramEnvironment() {
