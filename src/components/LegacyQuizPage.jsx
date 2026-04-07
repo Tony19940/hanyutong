@@ -5,7 +5,6 @@ import { createQuestRounds } from '../utils/quest.js';
 import { getPrimaryExample } from '../utils/vocabulary.js';
 import { usePronunciation } from '../hooks/usePronunciation.js';
 import { useAppShell } from '../i18n/index.js';
-import { useUser } from '../contexts/UserContext.jsx';
 
 const QUEST_SIZE = 5;
 const QUEST_POOL_SIZE = 18;
@@ -76,7 +75,6 @@ function GoldenCrown() {
 }
 
 export default function LegacyQuizPage({ user }) {
-  const { membership, freeQuota, consumeQuota, openMembershipGate } = useUser();
   const [questWords, setQuestWords] = useState([]);
   const [rounds, setRounds] = useState([]);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
@@ -97,19 +95,8 @@ export default function LegacyQuizPage({ user }) {
   const loadQuest = useCallback(async () => {
     try {
       setLoading(true);
-      const remainingQuizQuota = Number(freeQuota?.quiz?.remaining || 0);
-      if (membership?.accessLevel !== 'premium' && remainingQuizQuota <= 0) {
-        setQuestWords([]);
-        setRounds([]);
-        setCurrentRoundIndex(0);
-        setGameState('locked');
-        return;
-      }
       const data = await api.getNextWords(QUEST_POOL_SIZE, 'quiz');
-      const previewSize = membership?.accessLevel === 'premium'
-        ? QUEST_SIZE
-        : Math.max(1, Math.min(QUEST_SIZE, remainingQuizQuota));
-      const nextQuestWords = data.words.slice(0, previewSize);
+      const nextQuestWords = data.words.slice(0, QUEST_SIZE);
       setQuestWords(nextQuestWords);
       setRounds(createQuestRounds(nextQuestWords, data.words));
       setCurrentRoundIndex(0);
@@ -165,7 +152,7 @@ export default function LegacyQuizPage({ user }) {
     } finally {
       setLoading(false);
     }
-  }, [freeQuota?.quiz?.remaining, membership?.accessLevel]);
+  }, []);
 
   useEffect(() => {
     loadQuest();
@@ -220,15 +207,6 @@ export default function LegacyQuizPage({ user }) {
 
   const handleOptionSelect = async (optionId) => {
     if (!currentRound || answerState || gameState !== 'playing') return;
-    if (membership?.accessLevel !== 'premium') {
-      try {
-        await consumeQuota('quiz', 1);
-      } catch (error) {
-        openMembershipGate('quiz');
-        setGameState('locked');
-        return;
-      }
-    }
     setSelectedOptionId(optionId);
     const isCorrect = optionId === currentRound.correctOptionId;
 
@@ -311,6 +289,7 @@ export default function LegacyQuizPage({ user }) {
 
   if (loading) return (
     <div className="quiz-page page-enter">
+      <div className="temple-deco" aria-hidden="true"></div>
       <div className="quiz-loading">
         <div className="loading-shimmer" style={{ width: 120, height: 24, borderRadius: 12 }}></div>
         <div className="loading-shimmer" style={{ width: 200, height: 16, borderRadius: 8, marginTop: 12 }}></div>
@@ -319,19 +298,9 @@ export default function LegacyQuizPage({ user }) {
     </div>
   );
 
-  if (gameState === 'locked') return (
-    <div className="quiz-page page-enter">
-      <div className="quiz-empty">
-        <div className="empty-celebration">🔒</div>
-        <div className="empty-title">今日预览已用完</div>
-        <div className="empty-sub">继续做完整题库需要解锁会员。</div>
-      </div>
-      <style>{quizStyles}</style>
-    </div>
-  );
-
   if (gameState === 'empty') return (
     <div className="quiz-page page-enter">
+      <div className="temple-deco" aria-hidden="true"></div>
       <div className="quiz-empty">
         <div className="empty-celebration">📖</div>
         <div className="empty-title">今天没有新题</div>
@@ -345,6 +314,7 @@ export default function LegacyQuizPage({ user }) {
     const failed = gameState === 'failed';
     return (
       <div className="quiz-page page-enter">
+        <div className="temple-deco" aria-hidden="true"></div>
         <div className="quiz-result">
           <div className="result-card">
             <div className="result-label">{failed ? '本关结束' : '本关完成 🎉'}</div>
@@ -369,15 +339,16 @@ export default function LegacyQuizPage({ user }) {
 
   return (
     <div className="quiz-page page-enter">
+      <div className="temple-deco" aria-hidden="true"></div>
       <div className="quiz-dot-pattern" aria-hidden="true"></div>
 
       <div className={`quiz-layout ${answerState ? 'has-feedback' : ''}`}>
         {/* Header */}
         <div className="quiz-header">
           <div className="quiz-header-left">
-            <div className="quiz-kicker">Quick Round · {user.name || 'USER'}</div>
-            <div className="quiz-main-title">5 words, one streak</div>
-            <div className="quiz-desc">Read the prompt and lock the right answer.</div>
+            <div className="quiz-kicker">测验 · {user.name || 'USER'}</div>
+            <div className="quiz-main-title">5 词一关</div>
+            <div className="quiz-desc">看题，选对答案。</div>
           </div>
           <div className="quiz-hearts">
             {Array.from({ length: MAX_HEARTS }, (_, i) => (
@@ -388,8 +359,9 @@ export default function LegacyQuizPage({ user }) {
 
         {/* Progress card */}
         <div className="quiz-progress-card">
+          <GoldenCrown />
           <div className="qp-content">
-            <div className="qp-label">Overall progress</div>
+            <div className="qp-label">总进度</div>
             <div className="qp-row">
               <div className="qp-percent">{globalProgress}%</div>
               <div className="qp-count">({stats.learned}/{stats.total})</div>
@@ -495,8 +467,8 @@ const quizStyles = `
     pointer-events: none;
     opacity: 0.22;
     background-image:
-      radial-gradient(circle at 18px 18px, rgba(255,255,255,0.06) 0 1.2px, transparent 1.6px),
-      radial-gradient(circle at 62px 62px, rgba(30,215,96,0.08) 0 1.2px, transparent 1.6px);
+      radial-gradient(circle at 18px 18px, rgba(245,216,143,0.14) 0 1.2px, transparent 1.6px),
+      radial-gradient(circle at 62px 62px, rgba(245,216,143,0.10) 0 1.2px, transparent 1.6px);
     background-size: 80px 80px;
     z-index: 0;
   }
@@ -603,7 +575,7 @@ const quizStyles = `
   }
   .quiz-kicker {
     font-size: 11px;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent-gold);
   }
@@ -613,7 +585,6 @@ const quizStyles = `
     line-height: 1.1;
     font-weight: 800;
     color: var(--text-primary);
-    font-family: 'Outfit', 'Noto Sans SC', sans-serif;
   }
   .quiz-desc {
     margin-top: 4px;
@@ -644,13 +615,20 @@ const quizStyles = `
     margin-bottom: clamp(6px, 1vh, 10px);
     flex-shrink: 0;
   }
+  .golden-crown {
+    position: absolute;
+    right: -6px;
+    top: -8px;
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 0;
+  }
   .qp-content { position: relative; z-index: 1; }
   .qp-label {
     font-size: 11px;
     font-weight: 700;
     color: var(--accent-gold);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
   .qp-row {
     display: flex;
