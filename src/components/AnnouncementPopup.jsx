@@ -35,11 +35,11 @@ export default function AnnouncementPopup({ popup, onClose, onAction }) {
           width: 100%;
           max-width: 360px;
           position: relative;
-          border-radius: 28px;
+          border-radius: 30px;
           overflow: hidden;
           background: var(--word-shell-bg);
           border: 1px solid var(--settings-border);
-          box-shadow: 0 28px 48px rgba(0,0,0,0.28);
+          box-shadow: var(--shell-shadow);
         }
         .announce-close {
           position: absolute;
@@ -76,13 +76,15 @@ export default function AnnouncementPopup({ popup, onClose, onAction }) {
         .announce-primary {
           width: calc(100% - 36px);
           margin: 0 18px 18px;
-          min-height: 48px;
-          border-radius: 16px;
+          min-height: 50px;
+          border-radius: 999px;
           border: none;
-          background: linear-gradient(90deg, var(--brand-gold), #f4d76a);
-          color: #1a4037;
-          font-size: 15px;
+          background: linear-gradient(90deg, var(--brand-gold), var(--brand-green));
+          color: #041109;
+          font-size: 14px;
           font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
         }
       `}</style>
     </div>

@@ -42,6 +42,7 @@ beforeEach(async () => {
   await dbModule.query('DELETE FROM referrals');
   await dbModule.query('DELETE FROM membership_access');
   await dbModule.query('DELETE FROM user_progress');
+  await dbModule.query('DELETE FROM word_progress');
   await dbModule.query('DELETE FROM daily_records');
   await dbModule.query('DELETE FROM user_settings');
   await dbModule.query('DELETE FROM users');
@@ -89,7 +90,7 @@ describe('auth and user permissions', () => {
     expect(verify.body.invite.code).toBeTruthy();
   });
 
-  it('starts a 3-day trial and downgrades quiz access after expiry while keeping word cards free', async () => {
+  it('starts a 3-day trial and downgrades premium status after expiry while keeping preview quiz access', async () => {
     const trial = await startTrial('trial-user-1');
     expect(trial.membership.status).toBe('trial_active');
     expect(trial.membership.accessLevel).toBe('premium');
@@ -122,8 +123,8 @@ describe('auth and user permissions', () => {
       .get('/api/words/next?mode=quiz')
       .set('Authorization', `Bearer ${trial.token}`);
 
-    expect(quizWords.status).toBe(401);
-    expect(quizWords.body.code).toBe('PREMIUM_REQUIRED');
+    expect(quizWords.status).toBe(200);
+    expect(Array.isArray(quizWords.body.words)).toBe(true);
   });
 
   it('ignores spoofed query userId and only returns the authenticated user profile', async () => {
@@ -260,7 +261,7 @@ describe('auth and user permissions', () => {
 
     expect(inviterInviteAfterFirstPay.status).toBe(200);
     expect(inviterInviteAfterFirstPay.body.invite.stats.convertedCount).toBe(1);
-    expect(inviterInviteAfterFirstPay.body.invite.stats.rewardDaysEarned).toBe(7);
+    expect(inviterInviteAfterFirstPay.body.invite.stats.rewardDaysEarned).toBe(3);
 
     const renewal = await loginWithKey('HYT-2026-CCCC-0003', 'invitee-trial-user');
     expect(renewal.membership.accessLevel).toBe('premium');
@@ -271,7 +272,65 @@ describe('auth and user permissions', () => {
 
     expect(inviterInviteAfterRenewal.status).toBe(200);
     expect(inviterInviteAfterRenewal.body.invite.stats.convertedCount).toBe(1);
-    expect(inviterInviteAfterRenewal.body.invite.stats.rewardDaysEarned).toBe(7);
+    expect(inviterInviteAfterRenewal.body.invite.stats.rewardDaysEarned).toBe(3);
+  });
+
+  it('returns progress queue, accepts SM-2 reviews, and exposes checkin summary', async () => {
+    const login = await loginWithKey('HYT-2026-AAAA-0001', 'review-user');
+
+    const queueBefore = await request(app)
+      .get('/api/progress/queue')
+      .set('Authorization', `Bearer ${login.token}`);
+
+    expect(queueBefore.status).toBe(200);
+    expect(Array.isArray(queueBefore.body.newWords)).toBe(true);
+
+    const review = await request(app)
+      .post('/api/progress/review')
+      .set('Authorization', `Bearer ${login.token}`)
+      .send({ wordId: 1, quality: 5 });
+
+    expect(review.status).toBe(200);
+    expect(review.body.ok).toBe(true);
+    expect(review.body.progress.repetitions).toBe(1);
+
+    const queueAfter = await request(app)
+      .get('/api/progress/queue')
+      .set('Authorization', `Bearer ${login.token}`);
+
+    expect(queueAfter.status).toBe(200);
+    expect(queueAfter.body.summary.dueCount).toBeGreaterThanOrEqual(0);
+
+    const checkin = await request(app)
+      .get('/api/checkin/summary')
+      .set('Authorization', `Bearer ${login.token}`);
+
+    expect(checkin.status).toBe(200);
+    expect(Array.isArray(checkin.body.calendar)).toBe(true);
+    expect(checkin.body.today.reviewWords).toBeGreaterThanOrEqual(1);
+  });
+
+  it('returns invite leaderboard and free quota payloads from user APIs', async () => {
+    const inviter = await loginWithKey('HYT-2026-AAAA-0001', 'leader-inviter');
+    const invitee = await startTrial('leader-invitee', { inviteCode: inviter.invite.code });
+    expect(invitee.membership.planType).toBe('invited_trial');
+    await loginWithKey('HYT-2026-BBBB-0002', 'leader-invitee');
+
+    const leaderboard = await request(app)
+      .get('/api/user/invite/leaderboard')
+      .set('Authorization', `Bearer ${inviter.token}`);
+
+    expect(leaderboard.status).toBe(200);
+    expect(Array.isArray(leaderboard.body.leaderboard)).toBe(true);
+    expect(leaderboard.body.leaderboard[0].rewardDaysEarned).toBeGreaterThanOrEqual(3);
+
+    const quota = await request(app)
+      .get('/api/user/quota')
+      .set('Authorization', `Bearer ${inviter.token}`);
+
+    expect(quota.status).toBe(200);
+    expect(quota.body.quiz.limit).toBe(2);
+    expect(quota.body.dialogue.limit).toBe(1);
   });
 });
 

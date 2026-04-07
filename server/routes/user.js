@@ -13,11 +13,13 @@ import {
 import { bindUserCredentials, getCredentialByUserId } from '../services/credentialService.js';
 import { buildUserAvatarSeed, DEFAULT_AVATAR_IDS, isBuiltinAvatarId, resolveFallbackAvatarId } from '../services/avatarService.js';
 import { getMembershipAccess } from '../services/membershipService.js';
-import { getInviteSummary } from '../services/referralService.js';
+import { getInviteLeaderboard, getInviteSummary } from '../services/referralService.js';
 import { getVocabularyCount } from '../services/vocabularyService.js';
 import { getTeacherVoiceSettings, resolveTeacherVoice } from '../services/voiceInventoryService.js';
 import { synthesizeDialogueText } from '../services/doubaoTtsService.js';
 import { createNormalizedImageAsset, asMediaUrl } from '../services/mediaService.js';
+import { consumeFreeQuota, getFreeQuotaSummary } from '../services/freeQuotaService.js';
+import { getCheckinSummary, getGoalSummary, recordStudyTime } from '../services/studyProgressService.js';
 
 const router = Router();
 const upload = multer({
@@ -146,6 +148,10 @@ router.get('/profile', asyncHandler(async (req, res) => {
   const voiceSettings = getTeacherVoiceSettings();
   const membership = await getMembershipAccess(req.user.id);
   const invite = await getInviteSummary(req.user.id, buildInviteBaseUrl(req));
+  const leaderboard = await getInviteLeaderboard();
+  const freeQuota = await getFreeQuotaSummary(req.user.id);
+  const goalSummary = await getGoalSummary(req.user.id);
+  const checkin = await getCheckinSummary(req.user.id, { days: 21 });
   const credential = await getCredentialByUserId(req.user.id);
 
   res.json({
@@ -167,6 +173,13 @@ router.get('/profile', asyncHandler(async (req, res) => {
     voiceSettings,
     membership,
     invite,
+    freeQuota,
+    studySummary: goalSummary,
+    checkin,
+    socialProof: {
+      inviteLeaderboard: leaderboard,
+      rewardDaysPerConversion: config.referralRewardDays,
+    },
     account: {
       username: credential?.username || null,
       hasPassword: Boolean(credential),
@@ -373,15 +386,7 @@ router.post('/time', asyncHandler(async (req, res) => {
     return res.json({ success: true, minutesRecorded: 0 });
   }
 
-  const today = new Date().toISOString().split('T')[0];
-  await query(
-    `
-      INSERT INTO daily_records (user_id, date, words_learned, time_spent)
-      VALUES ($1, $2, 0, $3)
-      ON CONFLICT(user_id, date) DO UPDATE SET time_spent = daily_records.time_spent + EXCLUDED.time_spent
-    `,
-    [req.user.id, today, normalizedMinutes]
-  );
+  await recordStudyTime(req.user.id, normalizedMinutes);
 
   return res.json({ success: true, minutesRecorded: normalizedMinutes });
 }));
@@ -389,11 +394,34 @@ router.post('/time', asyncHandler(async (req, res) => {
 router.get('/invite', asyncHandler(async (req, res) => {
   const invite = await getInviteSummary(req.user.id, buildInviteBaseUrl(req));
   const membership = await getMembershipAccess(req.user.id);
+  const leaderboard = await getInviteLeaderboard();
 
   res.json({
     invite,
     membership,
+    leaderboard,
   });
+}));
+
+router.get('/invite/leaderboard', asyncHandler(async (_req, res) => {
+  const leaderboard = await getInviteLeaderboard();
+  res.json({
+    leaderboard,
+  });
+}));
+
+router.get('/quota', asyncHandler(async (req, res) => {
+  res.json(await getFreeQuotaSummary(req.user.id));
+}));
+
+router.post('/quota/consume', asyncHandler(async (req, res) => {
+  const feature = String(req.body?.feature || '').trim().toLowerCase();
+  if (!['quiz', 'dialogue'].includes(feature)) {
+    throw badRequest('Invalid feature', 'INVALID_FEATURE');
+  }
+  const amount = Number.parseInt(req.body?.amount, 10) || 1;
+  const result = await consumeFreeQuota(req.user.id, feature, amount);
+  res.status(result.allowed ? 200 : 403).json(result);
 }));
 
 export default router;

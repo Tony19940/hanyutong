@@ -40,6 +40,7 @@ async function request(path, options = {}) {
     const error = new Error(data?.error || 'Request failed');
     error.status = res.status;
     error.code = data?.code;
+    error.data = data;
     throw error;
   }
 
@@ -101,10 +102,24 @@ export const api = {
     }),
 
   getAllWords: () => request('/words/all'),
+  getProgressQueue: (limit = 20) => request(`/progress/queue?limit=${limit}`),
+  reviewWord: (wordId, quality) =>
+    request('/progress/review', {
+      method: 'POST',
+      body: { wordId, quality },
+    }),
+  getCheckinSummary: (days = 21) => request(`/checkin/summary?days=${days}`),
 
   getProfile: () => request('/user/profile'),
   getUserSettings: () => request('/user/settings'),
   getInvite: () => request('/user/invite'),
+  getInviteLeaderboard: () => request('/user/invite/leaderboard'),
+  getQuota: () => request('/user/quota'),
+  consumeQuota: (feature, amount = 1) =>
+    request('/user/quota/consume', {
+      method: 'POST',
+      body: { feature, amount },
+    }),
   getHomeSurfaces: () => request('/home/surfaces'),
   trackEvent: (eventName, metadata = null) =>
     request('/events/track', {

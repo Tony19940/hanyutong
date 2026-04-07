@@ -58,7 +58,7 @@ export default function CollectionPage({ vocabulary, onBack }) {
           <button type="button" className="back-btn" onClick={() => setSelectedWord(null)}>
             <i className="fas fa-arrow-left"></i>
           </button>
-          <div className="back-title">收藏词库</div>
+          <div className="back-title">Saved Words</div>
         </div>
 
         <WordCard
@@ -77,14 +77,15 @@ export default function CollectionPage({ vocabulary, onBack }) {
 
         <style>{`
           .coll-detail { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 10; }
-          .detail-back { padding: 4px 22px 14px; display: flex; align-items: center; gap: 10px; }
+          .detail-back { padding: 14px 14px 12px; display: flex; align-items: center; gap: 10px; }
           .back-btn {
-            width: 38px; height: 38px; border-radius: 13px;
+            width: 38px; height: 38px; border-radius: 999px;
             border: 1px solid var(--settings-border);
             background: var(--settings-surface);
             color: var(--text-secondary);
+            box-shadow: var(--panel-shadow);
           }
-          .back-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+          .back-title { font-size: 15px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.08em; text-transform: uppercase; }
           .swipe-hint { padding: 12px 18px 0; text-align: center; }
           .hint-pill {
             display: inline-flex; align-items: center; gap: 6px;
@@ -108,8 +109,8 @@ export default function CollectionPage({ vocabulary, onBack }) {
             </button>
           ) : <div />}
           <div className="coll-title-wrap">
-            <div className="pg-title">收藏词库</div>
-            <div className="pg-sub">右滑保存的词会出现在这里。</div>
+            <div className="pg-title">Saved Words</div>
+            <div className="pg-sub">Words you bookmark on the study page show up here.</div>
           </div>
         </div>
       </div>
@@ -164,19 +165,20 @@ export default function CollectionPage({ vocabulary, onBack }) {
       )}
 
       <style>{`
-        .coll-page { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 10; overflow-y: auto; padding-bottom: 90px; }
+        .coll-page { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 10; overflow-y: auto; padding-bottom: 102px; }
         .coll-page::-webkit-scrollbar { display: none; }
-        .coll-hd { padding: 6px 22px 18px; }
+        .coll-hd { padding: 14px 14px 16px; }
         .coll-top { display: flex; align-items: center; gap: 12px; }
         .page-back-btn {
-          width: 38px; height: 38px; border-radius: 13px;
+          width: 38px; height: 38px; border-radius: 999px;
           border: 1px solid var(--settings-border);
           background: var(--settings-surface);
           color: var(--text-secondary);
           flex-shrink: 0;
+          box-shadow: var(--panel-shadow);
         }
-        .pg-title { font-size: 26px; font-weight: 800; color: var(--home-title-color); font-family: 'Manrope', 'Noto Sans SC', sans-serif; }
-        .pg-sub { margin-top: 4px; font-size: 12px; color: var(--text-secondary); }
+        .pg-title { font-size: 26px; font-weight: 800; color: var(--home-title-color); font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
+        .pg-sub { margin-top: 6px; font-size: 12px; color: var(--text-secondary); max-width: 220px; line-height: 1.55; }
         .coll-loading { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
         .coll-loading-spinner { width: 36px; height: 36px; border: 3px solid var(--spinner-track); border-top-color: var(--spinner-accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
         .coll-loading-text { font-size: 12px; color: var(--text-secondary); }
@@ -184,23 +186,24 @@ export default function CollectionPage({ vocabulary, onBack }) {
         .coll-empty-emoji { font-size: 48px; color: var(--accent-gold); opacity: 0.7; }
         .coll-empty-title { font-size: 18px; color: var(--text-primary); font-weight: 700; }
         .coll-empty-sub { font-size: 12px; color: var(--text-secondary); }
-        .coll-list { padding: 0 22px; display: flex; flex-direction: column; gap: 10px; }
+        .coll-list { padding: 0 14px; display: flex; flex-direction: column; gap: 10px; }
         .ci {
           display: flex; align-items: center; gap: 12px;
           background: var(--home-card-bg);
           border: 1px solid var(--home-card-border);
-          border-radius: 18px; padding: 14px;
+          border-radius: 22px; padding: 14px;
           cursor: pointer;
           box-shadow: 0 12px 26px var(--home-card-shadow);
         }
         .ci-txt { flex: 1; }
-        .ci-cn { font-size: 18px; font-weight: 700; color: var(--text-primary); font-family: 'Manrope', 'Noto Sans SC', sans-serif; }
-        .ci-py { margin-top: 3px; font-size: 12px; color: var(--accent-gold); }
+        .ci-cn { font-size: 18px; font-weight: 700; color: var(--text-primary); font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
+        .ci-py { margin-top: 3px; font-size: 12px; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.08em; }
         .ci-km { margin-top: 3px; font-size: 12px; color: var(--text-secondary); }
         .ci-play {
-          width: 34px; height: 34px; border-radius: 50%;
-          background: var(--settings-surface); border: 1px solid var(--settings-border);
-          display: flex; align-items: center; justify-content: center; color: var(--home-title-color);
+          width: 36px; height: 36px; border-radius: 50%;
+          background: linear-gradient(180deg, var(--brand-gold), var(--brand-green)); border: none;
+          display: flex; align-items: center; justify-content: center; color: #041109;
+          box-shadow: 0 10px 20px rgba(30,215,96,0.18);
         }
       `}</style>
     </div>

@@ -11,6 +11,8 @@ import dialogueRoutes from './routes/dialogue.js';
 import homeRoutes from './routes/home.js';
 import eventsRoutes from './routes/events.js';
 import mediaRoutes from './routes/media.js';
+import progressRoutes from './routes/progress.js';
+import checkinRoutes from './routes/checkin.js';
 import { setupBot } from './bot.js';
 import { config, validateConfig } from './config.js';
 import { initDb } from './db.js';
@@ -45,6 +47,8 @@ export async function createApp() {
   app.use('/api/events', eventsRoutes);
   app.use('/api/media', mediaRoutes);
   app.use('/api/words', wordsRoutes);
+  app.use('/api/progress', progressRoutes);
+  app.use('/api/checkin', checkinRoutes);
   app.use('/api/user', userRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/dialogue', dialogueRoutes);
