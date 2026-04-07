@@ -1,43 +1,51 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import WordCard from './WordCard.jsx';
 import AnnouncementPopup from './AnnouncementPopup.jsx';
 import HomeBannerCarousel from './HomeBannerCarousel.jsx';
 import InstallShortcutButton from './InstallShortcutButton.jsx';
-import FirstRunGuide from './FirstRunGuide.jsx';
-import OfflineNotice from './OfflineNotice.jsx';
 import { api } from '../utils/api.js';
 import { getTelegramWebApp } from '../utils/telegram.js';
 import { useAppShell } from '../i18n/index.js';
-import { useStudy } from '../contexts/StudyContext.jsx';
-
-const GUIDE_STORAGE_PREFIX = 'hyt_seen_home_guide_';
 
 export default function HomePage({ user }) {
   const { t, language, languageMeta, languageOptions, setLanguage } = useAppShell();
-  const study = useStudy();
   const [words, setWords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [stats, setStats] = useState({ total: 0, learned: 0, remaining: 0 });
+  const [loading, setLoading] = useState(true);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [banners, setBanners] = useState([]);
   const [popup, setPopup] = useState(null);
   const [visiblePopup, setVisiblePopup] = useState(null);
-  const [hasEngaged, setHasEngaged] = useState(false);
-  const [showGuide, setShowGuide] = useState(false);
   const languageMenuRef = useRef(null);
 
-  useEffect(() => {
-    const nextWords = study.queue?.newWords || [];
-    setWords(nextWords);
-    setCurrentIndex(0);
-  }, [study.queue?.newWords]);
+  const loadWords = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.getNextWords(20, 'home');
+      setWords(data.words);
+      setStats({ total: data.total, learned: data.learned, remaining: data.remaining });
+      setCurrentIndex(0);
+    } catch (err) {
+      console.error('Failed to load words:', err);
+      // Preview fallback
+      if (window.location.hash === '#preview') {
+        const mock = [
+          { id: 1, chinese: '胖', pinyin: 'pàng', khmer: 'ជាត់ / ជាត់ទ្រលុកទ្រលន់', example_cn: '宝宝胖胖的。', example_km: 'កូនក្មេងជាត់ទ្រលុកទ្រលន់។', examples: [{ id: 'e1', chinese: '宝宝胖胖的。', khmer: 'កូនក្មេងជាត់ទ្រលុកទ្រលន់។' }, { id: 'e2', chinese: '长胖了。', khmer: 'ជាត់ជាងមុនហើយ។' }] },
+          { id: 2, chinese: '瘦', pinyin: 'shòu', khmer: 'ស្គម', example_cn: '他很瘦。', example_km: 'គាត់ស្គមណាស់។', examples: [{ id: 'e3', chinese: '他很瘦。', khmer: 'គាត់ស្គមណាស់។' }] },
+        ];
+        setWords(mock);
+        setStats({ total: 900, learned: 69, remaining: 831 });
+        setCurrentIndex(0);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!user?.id) return;
-    const guideKey = `${GUIDE_STORAGE_PREFIX}${user.id}`;
-    if (!localStorage.getItem(guideKey)) {
-      setShowGuide(true);
-    }
-  }, [user?.id]);
+    loadWords();
+  }, [loadWords]);
 
   useEffect(() => {
     api.getHomeSurfaces()
@@ -51,11 +59,13 @@ export default function HomePage({ user }) {
   }, []);
 
   useEffect(() => {
-    if (!hasEngaged || !popup || visiblePopup) return undefined;
-    setVisiblePopup(popup);
-    api.trackEvent('popup_impression', { popupId: popup.id }).catch(() => {});
-    return undefined;
-  }, [hasEngaged, popup, visiblePopup]);
+    if (loading || !popup || visiblePopup) return undefined;
+    const timer = window.setTimeout(() => {
+      setVisiblePopup(popup);
+      api.trackEvent('popup_impression', { popupId: popup.id }).catch(() => {});
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [loading, popup, visiblePopup]);
 
   useEffect(() => {
     if (!isLanguageMenuOpen) return undefined;
@@ -74,7 +84,7 @@ export default function HomePage({ user }) {
     if (currentIndex < words.length - 1) {
       setCurrentIndex((value) => value + 1);
     } else {
-      study.reloadQueue().catch(() => {});
+      loadWords();
     }
   };
 
@@ -82,12 +92,16 @@ export default function HomePage({ user }) {
     const word = words[currentIndex];
     if (word) {
       try {
-        await study.markLearned(word.id);
+        const result = await api.recordAction(word.id, 'learned');
+        setStats((prev) => ({
+          ...prev,
+          learned: prev.learned + (result.countedAsLearned ? 1 : 0),
+          remaining: Math.max(prev.remaining - (result.countedAsLearned ? 1 : 0), 0),
+        }));
       } catch (error) {
         console.error(error);
       }
     }
-    setHasEngaged(true);
     nextCard();
   };
 
@@ -95,22 +109,16 @@ export default function HomePage({ user }) {
     const word = words[currentIndex];
     if (word) {
       try {
-        await study.bookmarkWord(word.id);
+        await api.recordAction(word.id, 'bookmarked');
       } catch (error) {
         console.error(error);
       }
     }
-    setHasEngaged(true);
     nextCard();
   };
 
   const currentWord = words[currentIndex];
-  const goalSummary = study.queue?.goalSummary || study.queue?.today || null;
-  const progressPercent = goalSummary?.target
-    ? Math.round((goalSummary.studiedWords / goalSummary.target) * 100)
-    : 0;
-  const displayName = user?.display_name || user?.name || user?.username || 'Listener';
-  const reviewCount = study.queue?.summary?.dueCount || 0;
+  const progressPercent = stats.total > 0 ? Math.round((stats.learned / stats.total) * 100) : 0;
   const handleLanguageSelect = useCallback((nextLanguage) => {
     setIsLanguageMenuOpen(false);
     if (nextLanguage === language) return;
@@ -138,33 +146,16 @@ export default function HomePage({ user }) {
     openLink(currentPopup.linkUrl);
   }, [openLink]);
 
-  const closeGuide = useCallback(() => {
-    if (user?.id) {
-      localStorage.setItem(`${GUIDE_STORAGE_PREFIX}${user.id}`, '1');
-    }
-    setShowGuide(false);
-  }, [user?.id]);
-
-  const summaryLabel = useMemo(() => {
-    if (!goalSummary) {
-      return 'Start today with a few new words';
-    }
-    return `${goalSummary.studiedWords}/${goalSummary.target} today`;
-  }, [goalSummary]);
-
   return (
     <div className="home-page page-enter">
+      {/* Temple silhouette decorations */}
+      <div className="temple-deco" aria-hidden="true"></div>
+      <div className="home-pattern" aria-hidden="true"></div>
+
       <div className="home-layout">
         <InstallShortcutButton />
-        <OfflineNotice online={study.syncState.online} pending={study.syncState.pending} />
+        {/* Header */}
         <header className="home-head">
-          <div className="home-head-copy">
-            <div className="home-kicker">Daily Mix</div>
-            <div key={language} className="home-copy-block">
-              <h1 className="home-title">{t('home.title')}</h1>
-              <p className="home-subtitle">{t('home.subtitle')}</p>
-            </div>
-          </div>
           <div className="home-language-switch" ref={languageMenuRef}>
             <button
               type="button"
@@ -192,27 +183,26 @@ export default function HomePage({ user }) {
               ))}
             </div>
           </div>
+          <div key={language} className="home-copy-block">
+            <h1 className="home-title">{t('home.title')}</h1>
+            <p className="home-subtitle">{t('home.subtitle')}</p>
+          </div>
         </header>
 
+        {/* Progress */}
         <section className="home-summary">
-          <div className="summary-identity">
-            <div className="summary-avatar">{displayName.slice(0, 1).toUpperCase()}</div>
-            <div className="summary-copy">
-              <span>For {displayName}</span>
-              <strong>{summaryLabel}</strong>
-            </div>
-          </div>
           <div className="summary-topline">
             <span>{progressPercent}% {t('home.progress')}</span>
-            <strong>{reviewCount} due</strong>
+            <strong>{stats.learned}/{stats.total || 0}</strong>
           </div>
           <div className="summary-track">
             <div className="summary-fill" style={{ width: `${Math.min(progressPercent, 100)}%` }}></div>
           </div>
         </section>
 
+        {/* Card Area */}
         <div className="home-card-area">
-          {study.loading ? (
+          {loading ? (
             <div className="loading-state">
               <div className="loading-card">
                 <div className="loading-emoji-placeholder loading-shimmer"></div>
@@ -246,7 +236,6 @@ export default function HomePage({ user }) {
       </div>
 
       <AnnouncementPopup popup={visiblePopup} onClose={() => setVisiblePopup(null)} onAction={handlePopupAction} />
-      <FirstRunGuide visible={showGuide} onClose={closeGuide} />
 
       <style>{`
         .home-page {
@@ -257,61 +246,63 @@ export default function HomePage({ user }) {
           display: flex;
           flex-direction: column;
         }
+        .home-pattern {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.32;
+          background-image:
+            radial-gradient(circle at 18px 18px, var(--bg-pattern-a) 0 1.2px, transparent 1.6px),
+            radial-gradient(circle at 62px 62px, var(--bg-pattern-b) 0 1.2px, transparent 1.6px);
+          background-size: 80px 80px, 80px 80px;
+          background-position: 0 0, 40px 40px;
+          z-index: 0;
+        }
         .home-layout {
           flex: 1;
           display: flex;
           flex-direction: column;
-          padding: clamp(12px, 1.5vh, 18px) 16px 8px;
+          padding: clamp(8px, 1.5vh, 14px) 18px 8px;
           position: relative;
           z-index: 1;
           min-height: 0;
           overflow: hidden;
         }
+
+        /* Header */
         .home-head {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 14px;
-          margin-bottom: clamp(10px, 1.4vh, 16px);
+          text-align: center;
+          margin-bottom: clamp(6px, 1.2vh, 12px);
           flex-shrink: 0;
           position: relative;
         }
-        .home-head-copy {
-          min-width: 0;
-        }
-        .home-kicker {
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: var(--accent-gold);
-          margin-bottom: 8px;
-        }
         .home-language-switch {
-          position: relative;
+          position: absolute;
+          top: 0;
+          right: 0;
           z-index: 3;
         }
         .home-language-trigger {
-          width: 42px;
-          height: 42px;
-          border-radius: 999px;
+          width: 34px;
+          height: 34px;
+          border-radius: 12px;
           padding: 0;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           color: var(--text-primary);
-          background: rgba(255,255,255,0.06);
+          background: var(--settings-surface);
           border: 1px solid var(--settings-border);
-          box-shadow: var(--panel-shadow);
+          box-shadow: 0 6px 14px rgba(0,0,0,0.16);
           backdrop-filter: blur(14px);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .home-language-trigger.open {
           transform: translateY(-1px);
-          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+          box-shadow: 0 14px 28px rgba(8, 20, 17, 0.18);
         }
         .home-language-current-flag {
-          font-size: 18px;
+          font-size: 15px;
           line-height: 1;
         }
         .home-language-popover {
@@ -320,10 +311,10 @@ export default function HomePage({ user }) {
           right: 0;
           min-width: 132px;
           padding: 8px;
-          border-radius: 20px;
+          border-radius: 18px;
           border: 1px solid var(--settings-border);
-          background: rgba(18,18,18,0.94);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.24);
+          background: color-mix(in srgb, var(--settings-surface) 88%, transparent);
+          box-shadow: 0 20px 40px rgba(8, 20, 17, 0.16);
           backdrop-filter: blur(18px);
           display: grid;
           gap: 6px;
@@ -360,19 +351,18 @@ export default function HomePage({ user }) {
           animation: homeCopySwap 0.3s cubic-bezier(.22,1,.36,1);
         }
         .home-title {
-          font-size: clamp(30px, 5vw, 40px);
+          font-size: clamp(28px, 5vw, 36px);
           line-height: 1.1;
           font-weight: 800;
           color: var(--home-title-color);
-          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.08);
+          font-family: 'Manrope', 'Noto Sans SC', sans-serif;
           margin: 0;
         }
         .home-subtitle {
-          margin-top: 6px;
+          margin-top: clamp(4px, 0.6vh, 8px);
           font-size: clamp(12px, 1.8vw, 14px);
           color: var(--home-subtitle-color);
-          max-width: 220px;
-          line-height: 1.55;
         }
         @keyframes homeCopySwap {
           from {
@@ -387,74 +377,42 @@ export default function HomePage({ user }) {
           }
         }
 
+        /* Progress */
         .home-summary {
-          margin-bottom: clamp(8px, 1.2vh, 14px);
-          padding: 14px 16px;
-          border-radius: 24px;
-          background:
-            radial-gradient(circle at top right, rgba(30,215,96,0.16), transparent 28%),
-            var(--home-card-bg);
+          margin-bottom: clamp(6px, 1vh, 12px);
+          padding: clamp(8px, 1.2vh, 14px) 16px;
+          border-radius: 18px;
+          background: var(--home-card-bg);
           border: 1.5px solid var(--home-card-border);
-          box-shadow: 0 16px 32px var(--home-card-shadow);
+          box-shadow: 0 12px 24px var(--home-card-shadow);
           flex-shrink: 0;
-        }
-        .summary-identity {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 12px;
-        }
-        .summary-avatar {
-          width: 42px;
-          height: 42px;
-          border-radius: 50%;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(180deg, var(--brand-gold), var(--brand-green));
-          color: #041109;
-          font-size: 15px;
-          font-weight: 800;
-        }
-        .summary-copy {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-        .summary-copy span {
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          color: var(--text-secondary);
-        }
-        .summary-copy strong {
-          font-size: 15px;
-          color: var(--text-primary);
         }
         .summary-topline {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
           font-size: 12px;
           color: var(--text-secondary);
         }
         .summary-topline strong {
-          color: var(--text-primary);
+          color: var(--accent-gold);
           font-size: 14px;
         }
         .summary-track {
-          height: 7px;
+          height: 6px;
           border-radius: 999px;
           overflow: hidden;
-          background: rgba(255,255,255,0.08);
+          background: var(--surface);
         }
         .summary-fill {
           height: 100%;
           border-radius: 999px;
-          background: linear-gradient(90deg, var(--brand-gold) 0%, var(--brand-teal) 100%);
+          background: linear-gradient(90deg, var(--brand-gold) 0%, #c89a41 55%, var(--brand-teal) 100%);
           transition: width 0.3s ease;
         }
+
+        /* Card Area */
         .home-card-area {
           flex: 1;
           min-height: 0;

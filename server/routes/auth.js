@@ -15,16 +15,8 @@ import {
   hasConsumedTrial,
   isFutureTimestamp,
 } from '../services/membershipService.js';
-import {
-  awardReferralRewardIfEligible,
-  bindReferralIfEligible,
-  ensureInviteCodeForUser,
-  getInviteLeaderboard,
-  getInviteSummary,
-} from '../services/referralService.js';
+import { awardReferralRewardIfEligible, bindReferralIfEligible, ensureInviteCodeForUser, getInviteSummary } from '../services/referralService.js';
 import { getCredentialByUserId, verifyPasswordCredentials } from '../services/credentialService.js';
-import { getFreeQuotaSummary } from '../services/freeQuotaService.js';
-import { getGoalSummary } from '../services/studyProgressService.js';
 
 const router = Router();
 const loginRateLimit = createRateLimiter({
@@ -128,23 +120,12 @@ async function buildAuthResponse(user, token, req) {
   const membership = await getMembershipAccess(user.id);
   const invite = await getInviteSummary(user.id, buildInviteBaseUrl(req));
   const credential = await getCredentialByUserId(user.id);
-  const freeQuota = await getFreeQuotaSummary(user.id);
-  const studySummary = await getGoalSummary(user.id);
-  const leaderboard = await getInviteLeaderboard(3);
-  const userCountResult = await query('SELECT COUNT(*) AS count FROM users');
 
   return {
     user: toUserPayload(user, credential?.username || null),
     token,
     membership,
     invite,
-    freeQuota,
-    studySummary,
-    socialProof: {
-      learnerCount: Number(userCountResult.rows[0]?.count || 0),
-      inviteLeaderboard: leaderboard,
-      rewardDaysPerConversion: config.referralRewardDays,
-    },
   };
 }
 

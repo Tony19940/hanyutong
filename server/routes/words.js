@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import { query, withTransaction } from '../db.js';
 import { config } from '../config.js';
-import { badRequest } from '../errors.js';
+import { query, withTransaction } from '../db.js';
+import { badRequest, unauthorized } from '../errors.js';
 import { requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { getVocabulary } from '../services/vocabularyService.js';
-import { incrementLearnedWords } from '../services/studyProgressService.js';
 
 const router = Router();
 
@@ -13,6 +12,9 @@ router.use(requireUserAuth);
 
 router.get('/next', asyncHandler(async (req, res) => {
   const mode = String(req.query.mode || 'home').trim().toLowerCase();
+  if (mode === 'quiz' && req.user.membership?.accessLevel !== 'premium') {
+    throw unauthorized('Premium membership is required for quiz access', 'PREMIUM_REQUIRED');
+  }
 
   const requestedBatch = Number.parseInt(req.query.batch, 10);
   const batchSize = Math.min(
@@ -85,7 +87,15 @@ router.post('/action', asyncHandler(async (req, res) => {
     const countedAsLearned = action === 'learned' && previousStatus !== 'learned';
 
     if (countedAsLearned) {
-      await incrementLearnedWords(req.user.id, 1, client);
+      const today = new Date().toISOString().split('T')[0];
+      await client.query(
+        `
+          INSERT INTO daily_records (user_id, date, words_learned, time_spent)
+          VALUES ($1, $2, 1, 0)
+          ON CONFLICT(user_id, date) DO UPDATE SET words_learned = daily_records.words_learned + 1
+        `,
+        [req.user.id, today]
+      );
     }
 
     return {

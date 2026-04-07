@@ -1,8 +1,8 @@
 import multer from 'multer';
 import path from 'path';
 import { Router } from 'express';
-import { badRequest, notFound, unauthorized } from '../errors.js';
-import { requireUserAuth } from '../middleware/auth.js';
+import { badRequest, notFound } from '../errors.js';
+import { requirePremiumAccess, requireUserAuth } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import {
   buildDialogueSession,
@@ -21,7 +21,6 @@ import { trackAppEvent } from '../services/analyticsService.js';
 import { transcribeDialogueAudio } from '../services/doubaoAsrService.js';
 import { buildPronunciationFallback, evaluatePronunciation } from '../services/xfyunPronunciationService.js';
 import { ensureUserSettingsForDialogue } from '../services/userSettingsService.js';
-import { consumeFreeQuota, getFreeQuotaSummary } from '../services/freeQuotaService.js';
 
 const router = Router();
 const upload = multer({
@@ -40,13 +39,13 @@ router.get('/audio/:assetId', asyncHandler(async (req, res) => {
 }));
 
 router.use(requireUserAuth);
+router.use(requirePremiumAccess('dialogue'));
 
-router.get('/scenarios', asyncHandler(async (req, res) => {
+router.get('/scenarios', asyncHandler(async (_req, res) => {
   res.json({
     ...getDialogueAvailability(),
     scenarios: listDialogueScenarios(),
     dailyScenarios: listDailyDialogueScenarios(),
-    freeQuota: await getFreeQuotaSummary(req.user.id),
   });
 }));
 
@@ -54,17 +53,6 @@ router.post('/session/start', asyncHandler(async (req, res) => {
   const { scenarioId } = req.body || {};
   if (!scenarioId) {
     throw badRequest('scenarioId is required', 'MISSING_SCENARIO_ID');
-  }
-
-  let quota = null;
-  if (req.user.membership?.accessLevel !== 'premium') {
-    const consumeResult = await consumeFreeQuota(req.user.id, 'dialogue', 1);
-    quota = consumeResult.quota;
-    if (!consumeResult.allowed) {
-      throw unauthorized('Premium membership is required', 'PREMIUM_REQUIRED');
-    }
-  } else {
-    quota = await getFreeQuotaSummary(req.user.id);
   }
 
   const session = buildDialogueSession({
@@ -94,7 +82,6 @@ router.post('/session/start', asyncHandler(async (req, res) => {
     },
     messages: startResponse.messages,
     state: startResponse.state,
-    freeQuota: quota,
   });
 }));
 

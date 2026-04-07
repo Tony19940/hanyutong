@@ -1,11 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { usePronunciation } from '../hooks/usePronunciation.js';
-import { useTelegram } from '../hooks/useTelegram.js';
 import { getPrimaryExample, getWordExamples } from '../utils/vocabulary.js';
 import { useAppShell } from '../i18n/index.js';
-import CardFront from './word-card/CardFront.jsx';
-import CardBack from './word-card/CardBack.jsx';
-import QuickActions from './word-card/QuickActions.jsx';
 
 const SWIPE_THRESHOLD = 80;
 const TAP_THRESHOLD = 10;
@@ -17,156 +13,120 @@ export default function WordCard({
   total,
   onSwipeLeft,
   onSwipeRight,
-  onReview,
   mode = 'home',
   autoplaySequence = false,
   examplePlaybackRate = 1,
 }) {
   const { voiceType } = useAppShell();
-  const telegram = useTelegram();
-  const { play, stop } = usePronunciation();
   const [overlayDir, setOverlayDir] = useState(null);
   const [animating, setAnimating] = useState(false);
-  const [flipped, setFlipped] = useState(false);
-  const [speakingTarget, setSpeakingTarget] = useState(null);
-  const [audioError, setAudioError] = useState(null);
-  const [sequenceActive, setSequenceActive] = useState(autoplaySequence);
   const [showContent, setShowContent] = useState(false);
+  const [speakingTarget, setSpeakingTarget] = useState(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const cardRef = useRef(null);
   const startXRef = useRef(0);
   const isDragging = useRef(false);
   const hasMoved = useRef(false);
-  const lastClientX = useRef(0);
-  const sequenceTokenRef = useRef(0);
+  const clearSpeakingTimerRef = useRef(null);
+  const autoPlayCancelledRef = useRef(false);
+  const { play, stop } = usePronunciation();
   const shouldUseDynamicVoice = Boolean(voiceType);
-
-  const examples = getWordExamples(word).slice(0, 2);
-  const primaryExample = getPrimaryExample(word);
-  const reviewDue = Boolean(word?.reviewState);
-  const showReviewActions = Boolean(onReview || reviewDue);
 
   useEffect(() => {
     stop();
-    sequenceTokenRef.current += 1;
-    setOverlayDir(null);
-    setAnimating(false);
-    setFlipped(false);
+    autoPlayCancelledRef.current = true;
     setSpeakingTarget(null);
-    setAudioError(null);
-    setSequenceActive(autoplaySequence);
     setShowContent(false);
-    const timer = window.setTimeout(() => setShowContent(true), 50);
+    setIsAutoPlaying(false);
+    const timer = setTimeout(() => {
+      autoPlayCancelledRef.current = false;
+      setShowContent(true);
+    }, 80);
+
     return () => {
-      window.clearTimeout(timer);
+      autoPlayCancelledRef.current = true;
+      clearTimeout(timer);
+      clearTimeout(clearSpeakingTimerRef.current);
       stop();
-      sequenceTokenRef.current += 1;
     };
-  }, [autoplaySequence, stop, word?.id]);
-
-  const handlePlaybackState = useCallback((target) => (state) => {
-    if (state.kind === 'playing') {
-      setSpeakingTarget(target);
-      return;
-    }
-    if (state.kind === 'ended' || state.kind === 'stopped') {
-      setSpeakingTarget((current) => (current === target ? null : current));
-    }
-  }, []);
-
-  const playAudio = useCallback(async ({
-    target,
-    text,
-    audioSrc,
-    playbackRate = 1,
-    ttsRate = 0.85,
-  }) => {
-    setAudioError(null);
-    try {
-      const result = await play({
-        text,
-        audioSrc: shouldUseDynamicVoice ? null : audioSrc,
-        voiceType: shouldUseDynamicVoice ? voiceType : '',
-        playbackRate,
-        ttsRate,
-        onStateChange: handlePlaybackState(target),
-      });
-      if (result?.mode === 'none') {
-        setAudioError(target);
-      }
-      return result;
-    } catch (error) {
-      setAudioError(target);
-      throw error;
-    }
-  }, [handlePlaybackState, play, shouldUseDynamicVoice, voiceType]);
+  }, [stop, word?.id]);
 
   useEffect(() => {
-    if (!showContent || !sequenceActive || !autoplaySequence || !word?.chinese) return undefined;
-    const token = sequenceTokenRef.current;
+    if (!showContent || !autoplaySequence || !word?.chinese) return undefined;
 
-    const run = async () => {
+    let mounted = true;
+    const examples = getWordExamples(word).slice(0, 2);
+
+    const runSequence = async () => {
+      setIsAutoPlaying(true);
       const queue = [
-        {
-          target: 'word',
-          text: word.chinese,
-          audioSrc: word.audio_word,
-          playbackRate: 1,
-          ttsRate: 0.85,
-        },
-        ...examples.map((example) => ({
-          target: example.id,
+        { target: 'word', text: word.chinese, audioSrc: word.audio_word, playbackRate: 1, ttsRate: 0.85 },
+        ...examples.map((example, position) => ({
+          target: position === 0 ? 'example' : example.id,
           text: example.chinese,
           audioSrc: example.audio,
           playbackRate: examplePlaybackRate,
           ttsRate: examplePlaybackRate < 1 ? DEFAULT_SLOW_EXAMPLE_RATE : 0.85,
         })),
-      ];
+      ].filter((item) => item.text || item.audioSrc);
 
       for (const item of queue) {
-        if (sequenceTokenRef.current !== token || !sequenceActive) break;
-        await playAudio(item);
-        if (sequenceTokenRef.current !== token || !sequenceActive) break;
-        await new Promise((resolve) => window.setTimeout(resolve, 180));
+        if (!mounted || autoPlayCancelledRef.current) break;
+        setSpeakingTarget(item.target);
+        await play({
+          text: item.text,
+          audioSrc: shouldUseDynamicVoice ? null : item.audioSrc,
+          voiceType: shouldUseDynamicVoice ? voiceType : '',
+          playbackRate: item.playbackRate,
+          ttsRate: item.ttsRate,
+        });
+        if (!mounted || autoPlayCancelledRef.current) break;
+        await new Promise((resolve) => setTimeout(resolve, 220));
+      }
+
+      if (mounted) {
+        setSpeakingTarget(null);
+        setIsAutoPlaying(false);
       }
     };
 
-    run().catch(() => {});
+    const timer = setTimeout(() => {
+      if (!autoPlayCancelledRef.current) runSequence();
+    }, 320);
+
     return () => {
-      sequenceTokenRef.current += 1;
+      mounted = false;
+      autoPlayCancelledRef.current = true;
+      clearTimeout(timer);
     };
-  }, [autoplaySequence, examplePlaybackRate, examples, playAudio, sequenceActive, showContent, word]);
+  }, [autoplaySequence, play, shouldUseDynamicVoice, showContent, voiceType, word]);
 
-  const triggerCardAction = useCallback((direction) => {
-    if (animating) return;
-    telegram.haptic('impact', direction === 'left' ? 'medium' : 'light');
-    setAnimating(true);
-    setOverlayDir(direction);
-    const card = cardRef.current;
-    if (card) {
-      card.style.transition = 'transform 0.28s cubic-bezier(.22,1,.36,1), opacity 0.28s';
-      card.style.transform = direction === 'left'
-        ? 'translateX(-120%) rotate(-10deg) scale(0.94)'
-        : 'translateX(120%) rotate(10deg) scale(0.94)';
-      card.style.opacity = '0';
+  const handleSpeak = useCallback(async ({ text, audioSrc, target, e }) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
     }
-    window.setTimeout(() => {
-      if (direction === 'left') {
-        onSwipeLeft?.();
-      } else {
-        onSwipeRight?.();
-      }
-      if (card) {
-        card.style.transition = 'none';
-        card.style.transform = '';
-        card.style.opacity = '';
-      }
-      setAnimating(false);
-      setOverlayDir(null);
-    }, 260);
-  }, [animating, onSwipeLeft, onSwipeRight, telegram]);
+
+    if (!text && !audioSrc) return;
+
+    autoPlayCancelledRef.current = true;
+    setIsAutoPlaying(false);
+    clearTimeout(clearSpeakingTimerRef.current);
+    setSpeakingTarget(target);
+    await play({
+      text,
+      audioSrc: shouldUseDynamicVoice ? null : audioSrc,
+      voiceType: shouldUseDynamicVoice ? voiceType : '',
+      playbackRate: target === 'word' ? 1 : examplePlaybackRate,
+      ttsRate: target === 'word' ? 0.85 : (examplePlaybackRate < 1 ? DEFAULT_SLOW_EXAMPLE_RATE : 0.85),
+    });
+    clearSpeakingTimerRef.current = setTimeout(() => setSpeakingTarget(null), 1200);
+  }, [examplePlaybackRate, play, shouldUseDynamicVoice, voiceType]);
 
   const handleStart = useCallback((clientX) => {
     if (animating) return;
+    autoPlayCancelledRef.current = true;
+    setIsAutoPlaying(false);
     stop();
     isDragging.current = true;
     hasMoved.current = false;
@@ -177,12 +137,13 @@ export default function WordCard({
   const handleMove = useCallback((clientX) => {
     if (!isDragging.current || animating) return;
     const dx = clientX - startXRef.current;
-    if (Math.abs(dx) > TAP_THRESHOLD) {
-      hasMoved.current = true;
-    }
+
+    if (Math.abs(dx) > TAP_THRESHOLD) hasMoved.current = true;
+
     if (cardRef.current && hasMoved.current) {
       const rotation = dx * 0.045;
-      cardRef.current.style.transform = `translateX(${dx}px) rotate(${rotation}deg)`;
+      const scale = 1 - Math.abs(dx) * 0.00024;
+      cardRef.current.style.transform = `translateX(${dx}px) rotate(${rotation}deg) scale(${Math.max(scale, 0.96)})`;
     }
     if (dx < -30) setOverlayDir('left');
     else if (dx > 30) setOverlayDir('right');
@@ -192,118 +153,133 @@ export default function WordCard({
   const handleEnd = useCallback((clientX) => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    const dx = clientX - startXRef.current;
-    const card = cardRef.current;
 
     if (!hasMoved.current) {
       setOverlayDir(null);
-      setFlipped((current) => !current);
-      telegram.haptic('selection');
       return;
     }
 
+    const dx = (clientX || 0) - startXRef.current;
+    const card = cardRef.current;
     if (card) {
-      card.style.transition = 'transform 0.24s cubic-bezier(.22,1,.36,1)';
+      card.style.transition = 'transform 0.34s cubic-bezier(.22,1,.36,1), opacity 0.34s';
     }
 
-    if (dx <= -SWIPE_THRESHOLD) {
-      triggerCardAction('left');
-      return;
+    if (dx < -SWIPE_THRESHOLD && onSwipeLeft) {
+      setAnimating(true);
+      if (card) {
+        card.style.transform = 'translateX(-140%) rotate(-12deg) scale(0.92)';
+        card.style.opacity = '0';
+      }
+      setTimeout(() => { onSwipeLeft(); resetCard(); }, 320);
+    } else if (dx > SWIPE_THRESHOLD && onSwipeRight) {
+      setAnimating(true);
+      if (card) {
+        card.style.transform = 'translateX(140%) rotate(12deg) scale(0.92)';
+        card.style.opacity = '0';
+      }
+      setTimeout(() => { onSwipeRight(); resetCard(); }, 320);
+    } else {
+      if (card) card.style.transform = '';
+      setOverlayDir(null);
     }
-    if (dx >= SWIPE_THRESHOLD) {
-      triggerCardAction('right');
-      return;
-    }
+  }, [onSwipeLeft, onSwipeRight]);
 
-    if (card) card.style.transform = '';
+  const resetCard = () => {
+    const card = cardRef.current;
+    if (card) {
+      card.style.transition = 'none';
+      card.style.transform = '';
+      card.style.opacity = '';
+    }
     setOverlayDir(null);
-  }, [telegram, triggerCardAction]);
+    setAnimating(false);
+  };
+
+  const lastClientX = useRef(0);
 
   if (!word) return null;
+
+  const leftLabel = mode === 'collection' ? '左滑移出收藏' : '左滑学会';
+  const rightLabel = mode === 'collection' ? '右滑保留' : '右滑收藏';
+  const examples = getWordExamples(word);
+  const primaryExample = getPrimaryExample(word);
+  const exampleToSpeak = primaryExample?.chinese ?? word.example_cn;
+  const exampleAudio = primaryExample?.audio ?? word.audio_example;
 
   return (
     <div className="word-card-container">
       <div
-        className={`word-card-shell ${flipped ? 'flipped' : ''}`}
+        className="word-card"
         ref={cardRef}
-        onTouchStart={(event) => handleStart(event.touches[0].clientX)}
-        onTouchMove={(event) => {
-          lastClientX.current = event.touches[0].clientX;
-          handleMove(event.touches[0].clientX);
-        }}
+        onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+        onTouchMove={(e) => { lastClientX.current = e.touches[0].clientX; handleMove(e.touches[0].clientX); }}
         onTouchEnd={() => handleEnd(lastClientX.current)}
-        onMouseDown={(event) => handleStart(event.clientX)}
-        onMouseMove={(event) => {
-          if (isDragging.current) handleMove(event.clientX);
-        }}
-        onMouseUp={(event) => handleEnd(event.clientX)}
-        onMouseLeave={(event) => {
-          if (isDragging.current) handleEnd(event.clientX);
-        }}
+        onMouseDown={(e) => handleStart(e.clientX)}
+        onMouseMove={(e) => { if (isDragging.current) handleMove(e.clientX); }}
+        onMouseUp={(e) => handleEnd(e.clientX)}
+        onMouseLeave={(e) => { if (isDragging.current) handleEnd(e.clientX); }}
       >
         <div className={`swipe-overlay left-ov ${overlayDir === 'left' ? 'visible' : ''}`}>
-          <span className="ov-label">{mode === 'collection' ? '移出' : '学会'}</span>
+          <span className="ov-label">学会</span>
         </div>
         <div className={`swipe-overlay right-ov ${overlayDir === 'right' ? 'visible' : ''}`}>
-          <span className="ov-label">{mode === 'collection' ? '保留' : '收藏'}</span>
+          <span className="ov-label">收藏</span>
         </div>
 
-        <div className={`word-card-inner ${showContent ? 'visible' : ''}`}>
-          <div className="word-card-face">
-            <CardFront
-              word={word}
-              reviewDue={reviewDue}
-              example={primaryExample}
-              speakingTarget={speakingTarget}
-              audioError={audioError}
-              onPlayWord={() => playAudio({ target: 'word', text: word.chinese, audioSrc: word.audio_word })}
-              onPlayExample={() => playAudio({
-                target: 'example',
-                text: primaryExample?.chinese ?? word.example_cn,
-                audioSrc: primaryExample?.audio ?? word.audio_example,
-                playbackRate: examplePlaybackRate,
-                ttsRate: examplePlaybackRate < 1 ? DEFAULT_SLOW_EXAMPLE_RATE : 0.85,
-              })}
-            />
+        {/* Main word stage - cream card */}
+        <div className={`word-stage ${showContent ? 'animate-fade-in-up stagger-1' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
+          <div className="word-info word-head">
+            <div className="wrd-cn">{word.chinese}</div>
+            <div className="wrd-py">{word.pinyin}</div>
+            <div className="wrd-km">{word.khmer}</div>
           </div>
-          <div className="word-card-face back">
-            <CardBack
-              examples={examples.length ? examples : [{ id: 'fallback', chinese: word.example_cn || '', khmer: word.example_km || '', pinyin: word.example_pinyin || '', audio: word.audio_example || null }]}
-              speakingTarget={speakingTarget}
-              audioError={audioError}
-              showReviewActions={showReviewActions}
-              onPlayExample={(example) => playAudio({
-                target: example.id,
-                text: example.chinese,
-                audioSrc: example.audio,
-                playbackRate: examplePlaybackRate,
-                ttsRate: examplePlaybackRate < 1 ? DEFAULT_SLOW_EXAMPLE_RATE : 0.85,
-              })}
-              onReview={(quality) => onReview?.(quality)}
-            />
-          </div>
+          <button
+            type="button"
+            className={`word-speaker ${speakingTarget === 'word' ? 'speaking' : ''}`}
+            onClick={(e) => handleSpeak({ text: word.chinese, audioSrc: word.audio_word, target: 'word', e })}
+          >
+            <i className="fas fa-volume-up"></i>
+            <span className="sr-only">朗读单词</span>
+          </button>
         </div>
-      </div>
 
-      <QuickActions
-        mode={mode}
-        flipped={flipped}
-        onFlip={() => setFlipped((current) => !current)}
-        onLeftAction={() => triggerCardAction('left')}
-        onRightAction={() => triggerCardAction('right')}
-        sequenceActive={sequenceActive}
-        onToggleSequence={() => {
-          setSequenceActive((current) => {
-            const next = !current;
-            if (!next) stop();
-            return next;
-          });
-        }}
-      />
+        {/* Example sentences */}
+        <div className={`ex-zone ${showContent ? 'animate-fade-in-up stagger-2' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
+          <button
+            type="button"
+            className={`example-item ${speakingTarget === 'example' ? 'speaking-item' : ''}`}
+            onClick={(e) => handleSpeak({ text: exampleToSpeak, audioSrc: exampleAudio, target: 'example', e })}
+          >
+            <span className="example-badge">①</span>
+            <span className="example-item-cn">{exampleToSpeak}</span>
+            <span className="example-item-km">{primaryExample?.khmer ?? word.example_km}</span>
+            <div className="example-speaker-wrap">
+              <i className="fas fa-volume-up example-item-speaker"></i>
+            </div>
+          </button>
+          {examples.slice(1, 2).map((example, idx) => (
+            <button
+              type="button"
+              key={example.id}
+              className={`example-item ${speakingTarget === example.id ? 'speaking-item' : ''}`}
+              onClick={(e) => handleSpeak({ text: example.chinese, audioSrc: example.audio, target: example.id, e })}
+            >
+              <span className="example-badge">②</span>
+              <span className="example-item-cn">{example.chinese}</span>
+              <span className="example-item-km">{example.khmer}</span>
+              <div className="example-speaker-wrap">
+                <i className="fas fa-volume-up example-item-speaker"></i>
+              </div>
+            </button>
+          ))}
+        </div>
 
-      <div className="word-card-footer">
-        <span>{index + 1}/{total}</span>
-        <span>{showReviewActions ? '翻面后可直接打分复习' : '左右滑动或点按翻面'}</span>
+        {/* Swipe guide */}
+        <div className={`swipe-guide ${showContent ? 'animate-fade-in stagger-3' : ''}`} style={{ opacity: showContent ? 1 : 0 }}>
+          <div className="sg lft"><i className="fas fa-arrow-left"></i><span>{leftLabel}</span></div>
+          <div className="sg rgt"><i className="fas fa-bookmark"></i><span>{rightLabel}</span></div>
+        </div>
       </div>
 
       <style>{`
@@ -312,298 +288,219 @@ export default function WordCard({
           display: flex;
           flex-direction: column;
           min-height: 0;
-          gap: 10px;
-        }
-        .word-card-shell {
-          flex: 1;
-          min-height: 0;
-          position: relative;
-          border-radius: 30px;
-          background: var(--word-shell-bg);
-          border: 1px solid var(--word-shell-border);
-          box-shadow: 0 24px 60px rgba(0,0,0,0.32);
           overflow: hidden;
+        }
+        .word-card {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          border-radius: clamp(20px, 4vw, 28px);
+          padding: clamp(10px, 1.5vh, 16px) clamp(12px, 2vw, 18px) clamp(8px, 1vh, 14px);
+          position: relative;
+          overflow: hidden;
+          background: var(--word-shell-bg);
+          border: 1.5px solid var(--word-shell-border);
+          box-shadow: 0 20px 48px rgba(8, 20, 17, 0.22);
+          cursor: grab;
           touch-action: pan-y;
+          will-change: transform;
+          min-height: 0;
         }
-        .word-card-inner {
-          height: 100%;
-          display: grid;
-          opacity: 0;
-          transform: translateY(8px);
-          transition: opacity 0.2s ease, transform 0.2s ease;
+        .word-card:active { cursor: grabbing; }
+        .word-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background:
+            radial-gradient(circle at 12% 14%, rgba(245,216,143,0.10), transparent 22%),
+            linear-gradient(180deg, rgba(255,255,255,0.03), transparent 34%);
+          pointer-events: none;
         }
-        .word-card-inner.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .word-card-shell.flipped .word-card-inner {
-          transform: rotateY(180deg);
-        }
-        .word-card-face {
-          grid-area: 1 / 1;
-          backface-visibility: hidden;
-          padding: 14px;
-          display: flex;
-          flex-direction: column;
-        }
-        .word-card-face.back {
-          transform: rotateY(180deg);
-        }
-        .word-face {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          height: 100%;
-        }
-        .word-stage,
-        .word-preview-card,
-        .word-back-copy {
-          border-radius: 24px;
-          background: var(--word-stage-bg);
-          border: 1px solid var(--word-stage-border);
-        }
-        .word-stage {
-          padding: 16px;
-          display: grid;
-          gap: 14px;
-        }
-        .word-preview-card {
-          padding: 14px 16px;
-          background: rgba(255,255,255,0.04);
-        }
-        .word-face-topline {
+
+        /* Swipe overlays */
+        .swipe-overlay {
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          color: var(--text-muted);
-          font-weight: 800;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          pointer-events: none;
+          z-index: 3;
+        }
+        .swipe-overlay.left-ov { background: rgba(80, 215, 168, 0.16); }
+        .swipe-overlay.right-ov { background: rgba(246, 199, 104, 0.14); }
+        .swipe-overlay.visible { opacity: 1; }
+        .ov-label { font-size: 18px; font-weight: 700; color: #fff; }
+
+        /* Word stage - cream card */
+        .word-stage {
+          position: relative;
+          margin: 0 clamp(4px, 1vw, 10px);
+          padding: clamp(16px, 3vh, 32px) clamp(12px, 2vw, 18px) clamp(20px, 3.5vh, 36px);
+          border-radius: clamp(18px, 3vw, 24px);
+          background: var(--word-stage-bg);
+          border: 1.5px solid var(--word-stage-border);
+          box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.05);
+          overflow: visible;
+          z-index: 2;
+          flex-shrink: 0;
+        }
+
+        /* Word info */
+        .word-info {
+          text-align: center;
+          position: relative;
+          z-index: 2;
         }
         .wrd-cn {
           font-size: clamp(48px, 12vw, 78px);
           font-weight: 800;
-          text-align: center;
-          line-height: 1;
-          color: var(--text-primary);
-          font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+          color: var(--word-stage-title);
+          font-family: 'Manrope', 'Noto Sans SC', serif;
+          letter-spacing: 1px;
+          line-height: 1.05;
         }
         .wrd-py {
-          margin-top: 6px;
-          text-align: center;
-          color: var(--accent-gold);
-          font-size: 16px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
+          margin-top: clamp(4px, 0.8vh, 10px);
+          font-size: clamp(16px, 3vw, 22px);
+          color: var(--word-stage-subtitle);
+          font-weight: 500;
         }
         .wrd-km {
-          margin-top: 12px;
-          text-align: center;
-          color: var(--text-secondary);
-          font-size: 17px;
-          line-height: 1.6;
-          font-family: 'Noto Sans Khmer', 'Noto Sans SC', sans-serif;
+          margin-top: clamp(4px, 0.6vh, 8px);
+          font-size: clamp(13px, 2.2vw, 17px);
+          color: var(--word-stage-khmer);
+          line-height: 1.5;
         }
-        .word-face-audio-row {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 10px;
-        }
-        .word-audio-btn {
-          min-height: 44px;
-          border-radius: 16px;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.04);
-          color: var(--text-primary);
+
+        /* Speaker button - centered at bottom of card */
+        .word-speaker {
+          position: absolute;
+          left: 50%;
+          bottom: -20px;
+          transform: translateX(-50%);
+          width: 44px;
+          height: 44px;
+          padding: 0;
+          border-radius: 999px;
+          border: 1.5px solid var(--word-speaker-border);
+          background: var(--word-speaker-bg);
+          color: var(--word-speaker-icon);
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          font-size: 12px;
-          font-weight: 700;
+          font-size: 16px;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+          z-index: 5;
         }
-        .word-audio-btn.active {
-          background: rgba(30,215,96,0.18);
-          border-color: rgba(30,215,96,0.32);
+        .word-speaker.speaking {
+          transform: translateX(-50%) translateY(-2px) scale(1.04);
+          box-shadow: 0 14px 26px rgba(214,168,75,0.26);
         }
-        .word-audio-btn.error {
-          background: rgba(239,68,68,0.12);
-          border-color: rgba(239,68,68,0.24);
+        .word-speaker .sr-only {
+          position: absolute;
+          width: 1px; height: 1px;
+          overflow: hidden;
+          clip: rect(0,0,0,0);
         }
-        .word-preview-chip {
-          display: inline-flex;
-          align-self: flex-start;
-          padding: 6px 10px;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.06);
-          color: var(--accent-gold);
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-        }
-        .word-preview-cn {
-          margin-top: 12px;
-          font-size: 18px;
-          color: var(--text-primary);
-          font-weight: 700;
-          line-height: 1.4;
-        }
-        .word-preview-km {
-          margin-top: 8px;
-          font-size: 13px;
-          color: var(--text-secondary);
-          line-height: 1.7;
-          font-family: 'Noto Sans Khmer', 'Noto Sans SC', sans-serif;
-        }
-        .word-back-copy {
-          flex: 1;
-          min-height: 0;
-          padding: 16px;
+
+        /* Examples zone */
+        .ex-zone {
+          position: relative;
+          z-index: 2;
+          margin-top: clamp(14px, 2.5vh, 22px);
           display: flex;
           flex-direction: column;
+          gap: clamp(10px, 1.8vh, 16px);
+          flex: 1;
+          min-height: 0;
         }
-        .word-example-stack {
-          margin-top: 14px;
+        .example-item {
+          width: 100%;
+          border: 1.5px solid var(--example-card-border);
+          background: var(--example-card-bg);
+          border-radius: clamp(14px, 2.5vw, 18px);
+          padding: clamp(10px, 1.5vh, 14px) 16px clamp(14px, 2vh, 20px) 44px;
+          text-align: left;
           display: grid;
-          gap: 10px;
-          overflow: auto;
+          gap: 3px;
+          color: #fff;
+          position: relative;
+          transition: transform 0.18s ease, border-color 0.18s ease;
+          box-shadow: 0 10px 20px rgba(8, 20, 17, 0.08);
+          overflow: visible;
+          flex-shrink: 1;
+          min-height: 0;
         }
-        .word-example-card {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          gap: 10px;
-          padding: 12px;
-          border-radius: 18px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
+        .example-item.speaking-item {
+          border-color: var(--word-stage-border);
+          background: var(--word-stage-bg);
+          transform: translateY(-1px);
         }
-        .word-example-index {
+        .example-badge {
+          position: absolute;
+          top: clamp(10px, 1.5vh, 14px);
+          left: 12px;
+          font-size: 14px;
+          font-weight: 700;
+          color: var(--accent-gold);
+        }
+        .example-item-cn {
+          font-size: clamp(14px, 2.2vw, 17px);
+          line-height: 1.45;
+          font-weight: 650;
+          color: var(--example-text-main);
+        }
+        .example-item-km {
+          font-size: clamp(12px, 1.8vw, 14px);
+          line-height: 1.5;
+          color: var(--example-text-sub);
+        }
+        .example-speaker-wrap {
+          position: absolute;
+          left: 50%;
+          bottom: -14px;
+          transform: translateX(-50%);
+          z-index: 5;
+        }
+        .example-item-speaker {
           width: 32px;
           height: 32px;
           border-radius: 999px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(255,255,255,0.08);
-          color: var(--accent-gold);
-          font-size: 11px;
-          font-weight: 800;
-        }
-        .word-example-copy {
-          min-width: 0;
-        }
-        .word-example-cn {
-          font-size: 16px;
-          color: var(--text-primary);
-          line-height: 1.45;
-        }
-        .word-example-py {
-          margin-top: 4px;
           font-size: 12px;
-          color: var(--accent-gold);
-        }
-        .word-example-km {
-          margin-top: 6px;
-          color: var(--text-secondary);
-          font-size: 13px;
-          line-height: 1.6;
-          font-family: 'Noto Sans Khmer', 'Noto Sans SC', sans-serif;
-        }
-        .review-score-row {
-          margin-top: 10px;
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 10px;
-        }
-        .review-score-btn {
-          min-height: 48px;
-          border-radius: 18px;
-          border: 1px solid rgba(255,255,255,0.08);
-          color: var(--text-primary);
-          font-weight: 800;
-          background: rgba(255,255,255,0.04);
-        }
-        .review-score-btn.success {
-          background: rgba(30,215,96,0.16);
-        }
-        .review-score-btn.danger {
-          background: rgba(239,68,68,0.14);
-        }
-        .review-hint {
-          margin-top: 10px;
-          color: var(--text-muted);
-          font-size: 12px;
-          line-height: 1.6;
-        }
-        .word-quick-actions {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 8px;
-        }
-        .word-quick {
-          min-height: 46px;
-          border-radius: 18px;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.05);
-          color: var(--text-primary);
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          font-size: 12px;
-          font-weight: 700;
-        }
-        .word-quick.center {
-          background: linear-gradient(135deg, rgba(225,191,83,0.22), rgba(30,215,96,0.18));
-        }
-        .word-quick.slim {
-          grid-column: 1 / -1;
-          min-height: 40px;
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-        }
-        .word-quick.slim.active {
-          background: rgba(30,215,96,0.16);
-        }
-        .word-card-footer {
+          color: var(--word-speaker-icon);
+          background: var(--word-speaker-bg);
+          border: 1.5px solid var(--word-speaker-border);
           display: flex;
           align-items: center;
+          justify-content: center;
+          box-shadow: 0 6px 14px rgba(173, 123, 36, 0.26);
+        }
+
+        /* Swipe guide */
+        .swipe-guide {
+          display: flex;
           justify-content: space-between;
-          gap: 10px;
-          font-size: 11px;
-          color: var(--text-muted);
-          padding: 0 2px;
+          margin-top: clamp(8px, 1.2vh, 14px);
+          padding: 0 4px;
+          position: relative;
+          z-index: 2;
+          flex-shrink: 0;
         }
-        .swipe-overlay {
-          position: absolute;
-          inset: 0;
+        .sg {
           display: flex;
           align-items: center;
-          justify-content: center;
-          opacity: 0;
-          transition: opacity 0.16s ease;
-          z-index: 4;
-          pointer-events: none;
+          gap: 5px;
+          font-size: 11px;
+          opacity: 0.72;
+          font-weight: 600;
         }
-        .swipe-overlay.visible {
-          opacity: 1;
-        }
-        .swipe-overlay.left-ov {
-          background: rgba(30,215,96,0.16);
-        }
-        .swipe-overlay.right-ov {
-          background: rgba(225,191,83,0.16);
-        }
-        .ov-label {
-          font-size: 22px;
-          font-weight: 800;
-          letter-spacing: 0.16em;
-          color: #fff;
-        }
+        .sg.lft { color: var(--accent-secondary); }
+        .sg.rgt { color: var(--accent-gold); }
       `}</style>
     </div>
   );

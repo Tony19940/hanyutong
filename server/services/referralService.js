@@ -179,34 +179,3 @@ export async function getInviteSummary(userId, baseUrl, client = null) {
     },
   };
 }
-
-export async function getInviteLeaderboard(limit = config.inviteLeaderboardLimit, client = null) {
-  const result = await query(
-    `
-      SELECT
-        u.id,
-        u.name,
-        u.avatar_url,
-        COUNT(r.id) AS invited_count,
-        COUNT(r.first_paid_reward_granted_at) AS converted_count,
-        COALESCE(SUM(CASE WHEN r.first_paid_reward_granted_at IS NOT NULL THEN r.reward_days ELSE 0 END), 0) AS reward_days_earned
-      FROM users u
-      JOIN referrals r ON r.inviter_user_id = u.id
-      GROUP BY u.id
-      ORDER BY converted_count DESC, reward_days_earned DESC, invited_count DESC, u.id ASC
-      LIMIT $1
-    `,
-    [Math.max(1, Math.min(Number.parseInt(limit, 10) || config.inviteLeaderboardLimit, 20))],
-    client
-  );
-
-  return result.rows.map((row, index) => ({
-    rank: index + 1,
-    userId: row.id,
-    name: row.name || `Learner ${row.id}`,
-    avatarUrl: row.avatar_url || null,
-    invitedCount: Number(row.invited_count || 0),
-    convertedCount: Number(row.converted_count || 0),
-    rewardDaysEarned: Number(row.reward_days_earned || 0),
-  }));
-}
